@@ -1,21 +1,21 @@
-# CalorIA
+# CalorIA 🍎
 
 A comprehensive full-stack calorie tracking application built with Flask backend, React frontend, MongoDB database, and a custom CLI for easy management. The application is fully containerized with Docker for seamless deployment.
 
-## Features
+## ✨ Features
 
-- **Full-Stack Architecture**: Flask REST API backend with React frontend
-- **MongoDB Database**: NoSQL database for flexible data storage
-- **Custom CLI Tool**: Command-line interface for managing the application
-- **Docker Support**: Fully containerized with docker-compose
-- **User Management**: User registration and profile management
-- **Meal Tracking**: Log and track daily meals and nutrition
-- **Health Monitoring**: Track weight and water intake
-- **Modern UI**: Responsive React frontend with component-based architecture
-- **REST API**: Comprehensive API endpoints for all features
-- **Database Seeding**: Built-in script for populating test data
+- **🏗️ Full-Stack Architecture**: Flask REST API backend with React frontend
+- **🗄️ MongoDB Database**: NoSQL database for flexible data storage
+- **⚡ Custom CLI Tool**: Command-line interface for managing the application
+- **🐳 Docker Support**: Fully containerized with docker-compose
+- **👤 User Management**: User registration and profile management
+- **🍽️ Meal Tracking**: Log and track daily meals and nutrition
+- **❤️ Health Monitoring**: Track weight and water intake
+- **💻 Modern UI**: Responsive React frontend with component-based architecture
+- **🔗 REST API**: Comprehensive API endpoints for all features
+- **🌱 Database Seeding**: Built-in script for populating test data
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 CalorIA/
@@ -49,7 +49,7 @@ CalorIA/
 └── README.md                   # This file
 ```
 
-## Local Development Setup
+## 🚀 Local Development Setup
 
 ### Prerequisites
 
@@ -108,7 +108,7 @@ Before running the application locally, ensure you have the following installed:
    caloria seed
    ```
 
-## CLI Usage
+## 💻 CLI Usage
 
 The `caloria` CLI provides several commands to manage the application:
 
@@ -156,7 +156,7 @@ The `caloria` CLI provides several commands to manage the application:
    caloria backend --host 0.0.0.0 --port 4032
    ```
 
-## Docker Usage
+## 🐳 Docker Usage
 
 ### Quick Start with Docker
 
@@ -191,7 +191,7 @@ The docker-compose configuration includes:
   - Exposed on port 27017
   - Data persisted in `mongo-data` volume
 
-## API Endpoints
+## 🌐 API Endpoints
 
 The CalorIA REST API provides the following endpoint categories:
 
