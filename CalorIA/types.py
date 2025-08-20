@@ -165,6 +165,7 @@ class User(CalorIAModel):
     user_id: UUID = Field(default_factory=uuid4)
     name: str
     email: Optional[str] = None
+    password_hash: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     preferences: UserPreferences
 

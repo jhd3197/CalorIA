@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
@@ -7,6 +8,9 @@ import MealTimeline from './components/MealTimeline';
 import QuickAdd from './components/QuickAdd';
 import TopFoods from './components/TopFoods';
 import TrendCharts from './components/TrendCharts';
+import Login from './components/Login';
+import Register from './components/Register';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -70,7 +74,7 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  return (
+  const DashboardContent = () => (
     <div className="app-container">
       <div className="main-layout">
         {/* Sidebar */}
@@ -106,6 +110,29 @@ function App() {
         <Plus size={24} />
       </button>
     </div>
+  );
+
+  // Check if user is authenticated
+  const isAuthenticated = () => {
+    return localStorage.getItem('user') !== null;
+  };
+
+  return (
+    <Router>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/login" element={isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Login />} />
+        <Route path="/register" element={isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Register />} />
+        
+        {/* Protected Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<DashboardContent />} />
+        </Route>
+        
+        {/* Default Redirect */}
+        <Route path="*" element={<Navigate to={isAuthenticated() ? "/dashboard" : "/login"} replace />} />
+      </Routes>
+    </Router>
   );
 }
 

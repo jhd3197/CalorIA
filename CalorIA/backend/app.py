@@ -31,8 +31,8 @@ def create_app():
     static_folder = Path(__file__).parent.parent / "frontend" / "build"
     app = Flask(__name__, static_folder=str(static_folder))
     
-    # Enable CORS for the frontend running on localhost:3852
-    CORS(app, origins=['http://localhost:3852'])
+    # Enable CORS for the frontend running on various local origins
+    CORS(app, origins=['http://localhost:3852', 'http://127.0.0.1:3852', 'http://localhost:4032', 'http://127.0.0.1:4032'])
     
     # Register the database teardown function
     app.teardown_appcontext(close_db)
