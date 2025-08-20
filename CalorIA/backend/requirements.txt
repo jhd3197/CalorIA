@@ -1,0 +1,6 @@
+Flask==2.3.3
+pymongo[srv]==4.6.0
+python-dotenv==1.0.0
+Flask-Cors==4.0.0
+click==8.1.7
+pydantic==2.5.0
