@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { isAuthenticated, checkAuthHealth } from '../utils/api';
+import { isAuthenticated, checkAuthHealth, clearAuthData } from '../utils/api';
 
 function ProtectedRoute() {
   const [authStatus, setAuthStatus] = useState('checking'); // 'checking', 'authenticated', 'unauthenticated'
@@ -9,6 +9,7 @@ function ProtectedRoute() {
     const validateAuth = async () => {
       // First check if we have token and user data
       if (!isAuthenticated()) {
+        console.log('No authentication data found, redirecting to login');
         setAuthStatus('unauthenticated');
         return;
       }
@@ -16,9 +17,13 @@ function ProtectedRoute() {
       try {
         // Validate token with backend
         await checkAuthHealth();
+        console.log('Authentication validation successful');
         setAuthStatus('authenticated');
       } catch (error) {
         console.error('Authentication validation failed:', error);
+        
+        // Clear any stale authentication data
+        clearAuthData();
         setAuthStatus('unauthenticated');
       }
     };

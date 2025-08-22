@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Bell, MessageSquare, Menu, LogOut, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { clearAuthData } from '../utils/api';
+import { logout } from '../utils/api';
 
 const Header = ({ onMobileMenuToggle, userData }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -20,10 +20,17 @@ const Header = ({ onMobileMenuToggle, userData }) => {
   };
 
   // Handle logout
-  const handleLogout = () => {
-    clearAuthData();
-    navigate('/login');
-    setShowUserMenu(false);
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Even if logout API fails, redirect to login
+      navigate('/login');
+    } finally {
+      setShowUserMenu(false);
+    }
   };
 
   // Toggle user menu

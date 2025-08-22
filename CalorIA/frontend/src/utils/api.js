@@ -58,8 +58,9 @@ const apiRequest = async (endpoint, options = {}) => {
       // Handle token expiration or invalid token
       if (response.status === 401 || response.status === 403) {
         clearAuthData();
-        window.location.href = '/login';
-        throw new Error('Authentication failed. Please login again.');
+        // Don't use window.location.href as it conflicts with React Router
+        // Let the calling component handle the redirect
+        throw new Error('AUTHENTICATION_FAILED');
       }
       throw new Error(data.error || data.message || 'API request failed');
     }
@@ -112,6 +113,22 @@ export const checkAuthHealth = async () => {
     // If health check fails, clear auth data
     clearAuthData();
     throw error;
+  }
+};
+
+// Logout function
+export const logout = async () => {
+  try {
+    // Try to call logout endpoint if available
+    await apiRequest('/auth/logout', {
+      method: 'POST',
+    });
+  } catch (error) {
+    // Even if API call fails, still clear local data
+    console.error('Logout API call failed, but clearing local data anyway:', error);
+  } finally {
+    // Always clear authentication data
+    clearAuthData();
   }
 };
 
@@ -170,6 +187,7 @@ const apiUtils = {
   fetchUserProfile,
   fetchMeals,
   isAuthenticated,
+  logout,
 };
 
 export default apiUtils;

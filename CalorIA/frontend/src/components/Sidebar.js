@@ -1,35 +1,30 @@
 import React from 'react';
-import { 
-  Home, 
-  PlusCircle, 
-  Calendar, 
-  Activity, 
-  Scale, 
-  Flag, 
-  BarChart2, 
-  BookOpen, 
-  ShoppingCart, 
-  Link2, 
-  Settings, 
-  HelpCircle, 
-  ChevronLeft, 
+import { Link, useLocation } from 'react-router-dom';
+import {
+  Home,
+  PlusCircle,
+  Calendar,
+  Activity,
+  Scale,
+  Flag,
+  BarChart2,
+  BookOpen,
+  ShoppingCart,
+  Link2,
+  Settings,
+  HelpCircle,
+  ChevronLeft,
   ChevronRight
 } from 'lucide-react';
 
-const Sidebar = ({ collapsed, onToggle }) => {
+const Sidebar = ({ collapsed, onToggle, currentPath }) => {
   const menuItems = [
-    { icon: Home, label: 'Dashboard', active: true },
-    { icon: PlusCircle, label: 'Log Food / Quick Add' },
-    { icon: Calendar, label: 'Meal Planner' },
-    { icon: Activity, label: 'Activity' },
-    { icon: Scale, label: 'Weight & Body' },
-    { icon: Flag, label: 'Goals' },
-    { icon: BarChart2, label: 'Progress & Reports' },
-    { icon: BookOpen, label: 'Recipes' },
-    { icon: ShoppingCart, label: 'Grocery List' },
-    { icon: Link2, label: 'Integrations' },
-    { icon: Settings, label: 'Settings' },
-    { icon: HelpCircle, label: 'Help' }
+    { id: 'dashboard', icon: Home, label: 'Dashboard', path: '/dashboard' },
+    { id: 'meal-planner', icon: Calendar, label: 'Meal Planner', path: '/meal-planner' },
+    { id: 'activity', icon: Activity, label: 'Activity', path: '/activity' },
+    { id: 'recipes', icon: BookOpen, label: 'Recipes', path: '/recipes' },
+    { id: 'grocery-list', icon: ShoppingCart, label: 'Grocery List', path: '/grocery-list' },
+    { id: 'settings', icon: Settings, label: 'Settings', path: '/settings' },
   ];
 
   return (
@@ -45,13 +40,13 @@ const Sidebar = ({ collapsed, onToggle }) => {
         <ul className="nav-menu">
           {menuItems.map((item, index) => {
             const IconComponent = item.icon;
+            const isActive = currentPath === item.path;
             return (
-              <li 
-                key={index} 
-                className={`nav-item ${item.active ? 'active' : ''}`}
-              >
-                <IconComponent className="nav-icon" />
-                <span className="nav-text">{item.label}</span>
+              <li key={index} className={`nav-item ${isActive ? 'active' : ''}`}>
+                <Link to={item.path} className="nav-link">
+                  <IconComponent className="nav-icon" />
+                  <span className="nav-text">{item.label}</span>
+                </Link>
               </li>
             );
           })}
