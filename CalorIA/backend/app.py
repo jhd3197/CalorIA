@@ -6,22 +6,16 @@ import argparse
 from pathlib import Path
 import CalorIA as caloria
 
-def get_db():
+def get_client():
     """Get CalorIA client instance from Flask's g context"""
-    if 'db' not in g:
-        g.db = caloria.Client()
-        # Test connection on first access
-        connection = g.db.get_db_connection()
-        if connection is None:
-            print("Failed to connect to MongoDB")
-        else:
-            print("Successfully connected to MongoDB")
-    return g.db
+    if 'client' not in g:
+        g.client = caloria.Client()
+    return g.client
 
-def close_db(error):
-    """Close database connection when app context ends"""
-    db = g.pop('db', None)
-    if db is not None:
+def close_client(error):
+    """Close client connection when app context ends"""
+    client = g.pop('client', None)
+    if client is not None:
         # The CalorIA Client uses connection pooling, no explicit close needed
         pass
 
@@ -33,9 +27,9 @@ def create_app():
     
     # Enable CORS for the frontend running on various local origins
     CORS(app, origins=['http://localhost:3852', 'http://127.0.0.1:3852', 'http://localhost:4032', 'http://127.0.0.1:4032'])
-    
-    # Register the database teardown function
-    app.teardown_appcontext(close_db)
+
+    # Register the client teardown function
+    app.teardown_appcontext(close_client)
     
     # Import and register blueprints (inside function to prevent circular imports)
     from CalorIA.mixins.routes import register_blueprints

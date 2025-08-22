@@ -4,9 +4,9 @@ import { Line } from 'react-chartjs-2';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const TrendCharts = () => {
-  // Trend chart data
-  const trendData = {
+const TrendCharts = ({ caloriesTrendData, weightTrendData }) => {
+  // Default trend chart data
+  const defaultTrendData = {
     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     datasets: [
       {
@@ -29,6 +29,9 @@ const TrendCharts = () => {
     ]
   };
 
+  // Use provided data or fallback to default
+  const trendData = caloriesTrendData || defaultTrendData;
+
   const trendOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -49,8 +52,8 @@ const TrendCharts = () => {
     }
   };
 
-  // Weight chart data
-  const weightData = {
+  // Default weight chart data
+  const defaultWeightData = {
     labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
     datasets: [
       {
@@ -72,6 +75,15 @@ const TrendCharts = () => {
       }
     ]
   };
+
+  // Use provided data or fallback to default
+  const weightData = weightTrendData || defaultWeightData;
+  
+  // Extract weight values safely
+  const currentWeight = weightData?.datasets?.[0]?.data?.slice(-1)?.[0] || 68.5;
+  const startingWeight = weightData?.datasets?.[0]?.data?.[0] || 69.5;
+  const weightChange = currentWeight - startingWeight;
+  const goalWeight = weightData?.datasets?.[1]?.data?.slice(-1)?.[0] || 65.0;
 
   const weightOptions = {
     responsive: true,
@@ -100,7 +112,13 @@ const TrendCharts = () => {
           <button className="text-sm text-emerald-600 hover:text-emerald-700">View report</button>
         </div>
         <div className="h-48">
-          <Line data={trendData} options={trendOptions} />
+          {trendData?.datasets?.length > 0 ? (
+            <Line data={trendData} options={trendOptions} />
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500">
+              <p>No trend data available</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -111,20 +129,28 @@ const TrendCharts = () => {
           <button className="text-sm text-emerald-600 hover:text-emerald-700">Log weight</button>
         </div>
         <div className="h-40">
-          <Line data={weightData} options={weightOptions} />
+          {weightData?.datasets?.length > 0 ? (
+            <Line data={weightData} options={weightOptions} />
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500">
+              <p>No weight data available</p>
+            </div>
+          )}
         </div>
         <div className="mt-4 flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-500">Current</p>
-            <p className="font-semibold">68.5 kg</p>
+            <p className="font-semibold">{currentWeight} kg</p>
           </div>
           <div>
             <p className="text-sm text-gray-500">Change</p>
-            <p className="font-semibold text-emerald-600">-0.8 kg</p>
+            <p className={`font-semibold ${weightChange < 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+              {weightChange > 0 ? '+' : ''}{weightChange.toFixed(1)} kg
+            </p>
           </div>
           <div>
             <p className="text-sm text-gray-500">Goal</p>
-            <p className="font-semibold">65.0 kg</p>
+            <p className="font-semibold">{goalWeight} kg</p>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from uuid import UUID
 from datetime import date
+from werkzeug.local import LocalProxy
 import sys
 import os
 
@@ -8,24 +9,24 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 # Import the get_db function and types
-from CalorIA.backend.app import get_db
+from CalorIA.backend.app import get_client
 from CalorIA import types as Type
 
 # Create the weight routes blueprint
 weight_bp = Blueprint('weight', __name__)
 
+# Use LocalProxy to defer client resolution until request context
+client = LocalProxy(get_client)
+
 @weight_bp.route('/api/user/<uuid:user_id>/weight', methods=['GET'])
 def get_user_weight_entries(user_id):
     """Get weight entries for a specific user"""
     try:
-        # Get database instance from Flask's g context
-        db = get_db()
-        
         # Get limit parameter from query string, default to 30
         limit = request.args.get('limit', 30, type=int)
         
         # Fetch user's weight entries
-        weight_entries = db.get_user_weight_entries(user_id, limit)
+        weight_entries = client.get_user_weight_entries(user_id, limit)
         
         # Convert weight entries to dictionary format for JSON response
         entries_data = []
@@ -42,8 +43,6 @@ def get_user_weight_entries(user_id):
 def add_weight_entry(user_id):
     """Add a new weight entry for a user"""
     try:
-        # Get database instance from Flask's g context
-        db = get_db()
         
         # Parse JSON request body
         data = request.get_json()
@@ -73,7 +72,7 @@ def add_weight_entry(user_id):
         )
         
         # Add to database
-        result = db.add_weight_entry(weight_entry)
+        result = client.add_weight_entry(weight_entry)
         
         if result is None:
             return jsonify({"error": "Failed to save weight entry"}), 500

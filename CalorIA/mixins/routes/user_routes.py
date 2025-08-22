@@ -6,8 +6,8 @@ import os
 # Add the parent directory to the Python path to import CalorIA modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-# Import the get_db function from the main app
-from CalorIA.backend.app import get_db
+# Import the get_client function from the main app
+from CalorIA.backend.app import get_client
 
 # Create the user routes blueprint
 user_bp = Blueprint('user', __name__)
@@ -16,11 +16,11 @@ user_bp = Blueprint('user', __name__)
 def get_user(user_id):
     """Get user data by user_id"""
     try:
-        # Get database instance from Flask's g context
-        db = get_db()
+        # Get client instance from Flask's g context
+        client = get_client()
         
         # Fetch user from database
-        user = db.get_user_by_id(user_id)
+        user = client.get_user_by_id(user_id)
         
         if user is None:
             return jsonify({"error": "User not found"}), 404

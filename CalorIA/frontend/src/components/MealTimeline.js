@@ -58,10 +58,14 @@ const MealTimeline = ({ mealsData }) => {
     const IconComponent = getMealIcon(mealType);
     const isExpanded = expandedMeals[mealType];
 
+    // Ensure mealData has expected structure with fallbacks
+    const safeItems = mealData?.items || [];
+    const safeCalories = mealData?.totalCalories || 0;
+
     return (
       <div className="p-6">
-        <div 
-          className="flex items-center justify-between cursor-pointer" 
+        <div
+          className="flex items-center justify-between cursor-pointer"
           onClick={() => toggleMealSection(mealType)}
         >
           <div className="flex items-center">
@@ -69,10 +73,10 @@ const MealTimeline = ({ mealsData }) => {
               <IconComponent className="w-4 h-4 text-amber-600" />
             </div>
             <h3 className="font-medium">{title}</h3>
-            <span className="ml-2 text-sm text-gray-500">({mealData.items.length} items)</span>
+            <span className="ml-2 text-sm text-gray-500">({safeItems.length} items)</span>
           </div>
           <div className="flex items-center">
-            <span className="text-sm font-medium mr-2">{mealData.totalCalories} kcal</span>
+            <span className="text-sm font-medium mr-2">{safeCalories} kcal</span>
             {isExpanded ? (
               <ChevronUp className="w-5 h-5 text-gray-400" />
             ) : (
@@ -83,7 +87,7 @@ const MealTimeline = ({ mealsData }) => {
         
         {isExpanded && (
           <div className="mt-4 space-y-3">
-            {mealData.items.map((item) => {
+            {safeItems.length > 0 ? safeItems.map((item) => {
               const ItemIcon = item.icon;
               return (
                 <div key={item.id} className="food-item flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -109,7 +113,11 @@ const MealTimeline = ({ mealsData }) => {
                   </div>
                 </div>
               );
-            })}
+            }) : (
+              <div className="text-center text-gray-500 py-4">
+                <p>No items added yet</p>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -122,10 +130,10 @@ const MealTimeline = ({ mealsData }) => {
         <h2 className="heading text-lg font-semibold mb-4">Meal Timeline</h2>
       </div>
       <div className="divide-y divide-gray-100">
-        <MealSection mealType="breakfast" mealData={meals.breakfast} title="Breakfast" />
-        <MealSection mealType="lunch" mealData={meals.lunch} title="Lunch" />
-        <MealSection mealType="dinner" mealData={meals.dinner} title="Dinner" />
-        <MealSection mealType="snacks" mealData={meals.snacks} title="Snacks" />
+        <MealSection mealType="breakfast" mealData={meals?.breakfast || {}} title="Breakfast" />
+        <MealSection mealType="lunch" mealData={meals?.lunch || {}} title="Lunch" />
+        <MealSection mealType="dinner" mealData={meals?.dinner || {}} title="Dinner" />
+        <MealSection mealType="snacks" mealData={meals?.snacks || {}} title="Snacks" />
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from uuid import UUID
 from datetime import date
+from werkzeug.local import LocalProxy
 import sys
 import os
 
@@ -8,19 +9,19 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 # Import the get_db function and types
-from CalorIA.backend.app import get_db
+from CalorIA.backend.app import get_client
 from CalorIA import types as Type
 
 # Create the water routes blueprint
 water_bp = Blueprint('water', __name__)
 
+# Use LocalProxy to defer client resolution until request context
+client = LocalProxy(get_client)
+
 @water_bp.route('/api/user/<uuid:user_id>/water', methods=['GET'])
 def get_user_water_log(user_id):
     """Get daily water log for a specific user and date"""
     try:
-        # Get database instance from Flask's g context
-        db = get_db()
-        
         # Get date parameter from query string, default to today
         date_str = request.args.get('date')
         if date_str:
@@ -32,7 +33,7 @@ def get_user_water_log(user_id):
             log_date = date.today()
         
         # Fetch user's daily water log
-        water_log = db.get_user_daily_water_log(user_id, log_date)
+        water_log = client.get_user_daily_water_log(user_id, log_date)
         
         if water_log is None:
             # Return empty log structure if no entries found
@@ -54,9 +55,6 @@ def get_user_water_log(user_id):
 def add_water_entry(user_id):
     """Add a new water entry for a user"""
     try:
-        # Get database instance from Flask's g context
-        db = get_db()
-        
         # Parse JSON request body
         data = request.get_json()
         if not data:
@@ -85,7 +83,7 @@ def add_water_entry(user_id):
         )
         
         # Add to database
-        result = db.add_water_entry(water_entry)
+        result = client.add_water_entry(water_entry)
         
         if result is None:
             return jsonify({"error": "Failed to save water entry"}), 500

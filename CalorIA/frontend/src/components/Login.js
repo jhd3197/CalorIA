@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AtSign, Lock } from 'lucide-react';
+import { login } from '../utils/api';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -15,24 +16,11 @@ function Login() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:4032/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
-
-      // Store user data in localStorage
-      localStorage.setItem('user', JSON.stringify(data.user));
+      // Use the API utility function for login
+      await login(email, password);
       
-      // Redirect to dashboard
+      // Redirect to dashboard on successful login
+      // The login function already handles storing token and user data
       navigate('/dashboard');
     } catch (err) {
       setError(err.message);

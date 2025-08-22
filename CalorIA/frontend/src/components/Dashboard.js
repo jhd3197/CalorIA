@@ -23,9 +23,22 @@ const Dashboard = ({ userData, mealsData }) => {
     }
   };
 
-  const data = userData || defaultUserData;
-  const remaining = data.dailyGoal - data.consumed;
-  const net = data.consumed - data.burned;
+  // Properly merge userData with defaultUserData to ensure all required fields exist
+  const data = {
+    ...defaultUserData,
+    ...userData,
+    macros: {
+      ...defaultUserData.macros,
+      ...(userData?.macros || {})
+    }
+  };
+  
+  // Add fallbacks for calculations
+  const dailyGoal = data.dailyGoal || defaultUserData.dailyGoal;
+  const consumed = data.consumed || 0;
+  const burned = data.burned || 0;
+  const remaining = dailyGoal - consumed;
+  const net = consumed - burned;
 
   // Setup progress ring
   useEffect(() => {
@@ -37,7 +50,7 @@ const Dashboard = ({ userData, mealsData }) => {
       circle.style.strokeDasharray = `${circumference} ${circumference}`;
       circle.style.strokeDashoffset = circumference;
       
-      const progress = data.consumed / data.dailyGoal;
+      const progress = consumed / dailyGoal;
       const offset = circumference - progress * circumference;
       circle.style.strokeDashoffset = offset;
       
@@ -50,17 +63,17 @@ const Dashboard = ({ userData, mealsData }) => {
         circle.style.stroke = '#EF4444'; // red
       }
     }
-  }, [data.consumed, data.dailyGoal]);
+  }, [consumed, dailyGoal]);
 
-  // Macro chart data
+  // Macro chart data with defensive checks
   const macroChartData = {
     labels: ['Protein', 'Carbs', 'Fat', 'Other'],
     datasets: [{
       data: [
-        data.macros.protein.grams,
-        data.macros.carbs.grams,
-        data.macros.fat.grams,
-        data.macros.other.grams
+        data.macros?.protein?.grams || 0,
+        data.macros?.carbs?.grams || 0,
+        data.macros?.fat?.grams || 0,
+        data.macros?.other?.grams || 0
       ],
       backgroundColor: ['#3B82F6', '#F59E0B', '#8B5CF6', '#9CA3AF'],
       borderWidth: 0
@@ -87,7 +100,7 @@ const Dashboard = ({ userData, mealsData }) => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Daily Goal</p>
-              <p className="font-semibold">{data.dailyGoal.toLocaleString()} kcal</p>
+              <p className="font-semibold">{dailyGoal.toLocaleString()} kcal</p>
             </div>
           </div>
         </div>
@@ -98,7 +111,7 @@ const Dashboard = ({ userData, mealsData }) => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Activity</p>
-              <p className="font-semibold">{data.burned} kcal</p>
+              <p className="font-semibold">{burned} kcal</p>
             </div>
           </div>
         </div>
@@ -109,7 +122,7 @@ const Dashboard = ({ userData, mealsData }) => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Weight</p>
-              <p className="font-semibold">{data.weight} kg</p>
+              <p className="font-semibold">{data.weight || 0} kg</p>
             </div>
           </div>
         </div>
@@ -120,7 +133,7 @@ const Dashboard = ({ userData, mealsData }) => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Water</p>
-              <p className="font-semibold">{data.water} L</p>
+              <p className="font-semibold">{data.water || 0} L</p>
             </div>
           </div>
         </div>
@@ -158,7 +171,7 @@ const Dashboard = ({ userData, mealsData }) => {
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-bold">{data.consumed.toLocaleString()}</span>
+                  <span className="text-3xl font-bold">{consumed.toLocaleString()}</span>
                   <span className="text-sm text-gray-500">kcal consumed</span>
                   <span className="text-emerald-600 font-medium mt-1">{remaining} remaining</span>
                 </div>
@@ -167,11 +180,11 @@ const Dashboard = ({ userData, mealsData }) => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-500">Goal</p>
-                    <p className="font-semibold">{data.dailyGoal.toLocaleString()} kcal</p>
+                    <p className="font-semibold">{dailyGoal.toLocaleString()} kcal</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Burned</p>
-                    <p className="font-semibold">{data.burned} kcal</p>
+                    <p className="font-semibold">{burned} kcal</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Net</p>
@@ -185,28 +198,28 @@ const Dashboard = ({ userData, mealsData }) => {
                 <div className="mt-6">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm text-gray-500">Protein</span>
-                    <span className="text-sm font-medium">{data.macros.protein.grams}g ({data.macros.protein.percent}%)</span>
+                    <span className="text-sm font-medium">{data.macros?.protein?.grams || 0}g ({data.macros?.protein?.percent || 0}%)</span>
                   </div>
                   <div className="w-full bg-gray-100 rounded-full h-2">
-                    <div className="bg-blue-500 h-2 rounded-full" style={{width: `${data.macros.protein.percent}%`}}></div>
+                    <div className="bg-blue-500 h-2 rounded-full" style={{width: `${data.macros?.protein?.percent || 0}%`}}></div>
                   </div>
                 </div>
                 <div className="mt-3">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm text-gray-500">Carbs</span>
-                    <span className="text-sm font-medium">{data.macros.carbs.grams}g ({data.macros.carbs.percent}%)</span>
+                    <span className="text-sm font-medium">{data.macros?.carbs?.grams || 0}g ({data.macros?.carbs?.percent || 0}%)</span>
                   </div>
                   <div className="w-full bg-gray-100 rounded-full h-2">
-                    <div className="bg-amber-500 h-2 rounded-full" style={{width: `${data.macros.carbs.percent}%`}}></div>
+                    <div className="bg-amber-500 h-2 rounded-full" style={{width: `${data.macros?.carbs?.percent || 0}%`}}></div>
                   </div>
                 </div>
                 <div className="mt-3">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm text-gray-500">Fat</span>
-                    <span className="text-sm font-medium">{data.macros.fat.grams}g ({data.macros.fat.percent}%)</span>
+                    <span className="text-sm font-medium">{data.macros?.fat?.grams || 0}g ({data.macros?.fat?.percent || 0}%)</span>
                   </div>
                   <div className="w-full bg-gray-100 rounded-full h-2">
-                    <div className="bg-purple-500 h-2 rounded-full" style={{width: `${data.macros.fat.percent}%`}}></div>
+                    <div className="bg-purple-500 h-2 rounded-full" style={{width: `${data.macros?.fat?.percent || 0}%`}}></div>
                   </div>
                 </div>
               </div>
@@ -233,31 +246,31 @@ const Dashboard = ({ userData, mealsData }) => {
                     <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
                     <span className="text-sm font-medium">Protein</span>
                   </div>
-                  <p className="text-xl font-bold mt-1">{data.macros.protein.grams}g</p>
-                  <p className="text-sm text-gray-500">{data.macros.protein.percent}% of total</p>
+                  <p className="text-xl font-bold mt-1">{data.macros?.protein?.grams || 0}g</p>
+                  <p className="text-sm text-gray-500">{data.macros?.protein?.percent || 0}% of total</p>
                 </div>
                 <div className="bg-emerald-50 p-3 rounded-lg">
                   <div className="flex items-center">
                     <div className="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>
                     <span className="text-sm font-medium">Carbs</span>
                   </div>
-                  <p className="text-xl font-bold mt-1">{data.macros.carbs.grams}g</p>
-                  <p className="text-sm text-gray-500">{data.macros.carbs.percent}% of total</p>
+                  <p className="text-xl font-bold mt-1">{data.macros?.carbs?.grams || 0}g</p>
+                  <p className="text-sm text-gray-500">{data.macros?.carbs?.percent || 0}% of total</p>
                 </div>
                 <div className="bg-emerald-50 p-3 rounded-lg">
                   <div className="flex items-center">
                     <div className="w-3 h-3 rounded-full bg-purple-500 mr-2"></div>
                     <span className="text-sm font-medium">Fat</span>
                   </div>
-                  <p className="text-xl font-bold mt-1">{data.macros.fat.grams}g</p>
-                  <p className="text-sm text-gray-500">{data.macros.fat.percent}% of total</p>
+                  <p className="text-xl font-bold mt-1">{data.macros?.fat?.grams || 0}g</p>
+                  <p className="text-sm text-gray-500">{data.macros?.fat?.percent || 0}% of total</p>
                 </div>
                 <div className="bg-emerald-50 p-3 rounded-lg">
                   <div className="flex items-center">
                     <div className="w-3 h-3 rounded-full bg-gray-400 mr-2"></div>
                     <span className="text-sm font-medium">Other</span>
                   </div>
-                  <p className="text-xl font-bold mt-1">{data.macros.other.grams}g</p>
+                  <p className="text-xl font-bold mt-1">{data.macros?.other?.grams || 0}g</p>
                   <p className="text-sm text-gray-500">-</p>
                 </div>
               </div>

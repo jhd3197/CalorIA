@@ -1,14 +1,49 @@
 import React, { useState } from 'react';
 import { Search, Camera } from 'lucide-react';
 
-const QuickAdd = () => {
+const QuickAdd = ({ onAddFood }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [calories, setCalories] = useState('');
   const [portion, setPortion] = useState('1 serving');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleAddFood = () => {
-    // This will be connected to the backend API later
-    console.log('Adding food:', { searchTerm, calories, portion });
+  const handleAddFood = async () => {
+    // Basic validation
+    if (!searchTerm.trim()) {
+      alert('Please enter a food name');
+      return;
+    }
+    if (!calories || isNaN(calories) || Number(calories) <= 0) {
+      alert('Please enter valid calories');
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const foodData = {
+        name: searchTerm.trim(),
+        calories: Number(calories),
+        portion: portion || '1 serving'
+      };
+
+      // Call parent callback if provided, otherwise log
+      if (onAddFood && typeof onAddFood === 'function') {
+        await onAddFood(foodData);
+      } else {
+        console.log('Adding food:', foodData);
+      }
+
+      // Reset form after successful submission
+      setSearchTerm('');
+      setCalories('');
+      setPortion('1 serving');
+    } catch (error) {
+      console.error('Error adding food:', error);
+      alert('Failed to add food. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -57,9 +92,14 @@ const QuickAdd = () => {
         </button>
         <button
           onClick={handleAddFood}
-          className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+          disabled={isSubmitting}
+          className={`px-4 py-2 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${
+            isSubmitting
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-emerald-500 hover:bg-emerald-600'
+          }`}
         >
-          Add Food
+          {isSubmitting ? 'Adding...' : 'Add Food'}
         </button>
       </div>
     </div>

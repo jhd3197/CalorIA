@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from uuid import UUID
 from datetime import datetime, date
+from werkzeug.local import LocalProxy
 import sys
 import os
 
@@ -8,18 +9,18 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 # Import the get_db function from the main app
-from CalorIA.backend.app import get_db
+from CalorIA.backend.app import get_client
 
 # Create the meal routes blueprint
 meal_bp = Blueprint('meal', __name__)
+
+# Use LocalProxy to defer client resolution until request context
+client = LocalProxy(get_client)
 
 @meal_bp.route('/api/user/<uuid:user_id>/meals', methods=['GET'])
 def get_user_meals(user_id):
     """Get meals for a specific user and date"""
     try:
-        # Get database instance from Flask's g context
-        db = get_db()
-        
         # Get date parameter from query string, default to today
         date_str = request.args.get('date')
         if date_str:
@@ -31,7 +32,7 @@ def get_user_meals(user_id):
             log_date = date.today()
         
         # Fetch user's daily log
-        daily_log = db.get_user_daily_log(user_id, log_date)
+        daily_log = client.get_user_daily_log(user_id, log_date)
         
         if daily_log is None:
             # Return empty meals list if no log found

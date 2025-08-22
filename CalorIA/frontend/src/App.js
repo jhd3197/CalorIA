@@ -11,42 +11,75 @@ import TrendCharts from './components/TrendCharts';
 import Login from './components/Login';
 import Register from './components/Register';
 import ProtectedRoute from './components/ProtectedRoute';
+import { isAuthenticated, getCurrentUser, fetchUserProfile, fetchMeals, getUserData, clearAuthData } from './utils/api';
 
 function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [userData, setUserData] = useState(null);
   const [mealsData, setMealsData] = useState(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Fetch data from backend APIs
+  // Initialize app and fetch user data if authenticated
   useEffect(() => {
-    const fetchUserData = async () => {
+    const initializeApp = async () => {
       try {
-        const response = await fetch('http://localhost:4032/api/user');
-        if (response.ok) {
-          const data = await response.json();
-          setUserData(data);
+        // Check if user is authenticated
+        if (isAuthenticated()) {
+          // Try to get fresh user data from API
+          try {
+            const currentUserResponse = await getCurrentUser();
+            setUserData(currentUserResponse.user);
+          } catch (error) {
+            console.error('Failed to fetch current user from API, using stored data:', error);
+            // Fallback to stored user data if API fails
+            const storedUserData = getUserData();
+            if (storedUserData) {
+              setUserData(storedUserData);
+            } else {
+              // If no stored data either, clear auth and redirect to login
+              clearAuthData();
+            }
+          }
+
+          // Fetch other data only if authenticated
+          await fetchAppData();
         }
       } catch (error) {
-        console.error('Failed to fetch user data:', error);
-        // Will use default data in components if API fails
+        console.error('Failed to initialize app:', error);
+      } finally {
+        setIsInitialized(true);
       }
     };
 
-    const fetchMealsData = async () => {
+    const fetchAppData = async () => {
+      // Get user data to extract user ID
+      const storedUserData = getUserData();
+      const userId = storedUserData?.user_id || storedUserData?.id;
+      
+      if (!userId) {
+        console.error('No user ID found, skipping data fetch');
+        return;
+      }
+
+      // Fetch user profile data
       try {
-        const response = await fetch('http://localhost:4032/api/meals');
-        if (response.ok) {
-          const data = await response.json();
-          setMealsData(data);
-        }
+        await fetchUserProfile(userId);
+        // User profile data is handled by the API utility
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error);
+      }
+
+      // Fetch meals data
+      try {
+        const mealsResponse = await fetchMeals(userId);
+        setMealsData(mealsResponse);
       } catch (error) {
         console.error('Failed to fetch meals data:', error);
         // Will use default data in components if API fails
       }
     };
 
-    fetchUserData();
-    fetchMealsData();
+    initializeApp();
   }, []);
 
   const handleSidebarToggle = () => {
@@ -83,7 +116,7 @@ function App() {
         {/* Main Content */}
         <div className={`main-content ${sidebarCollapsed ? 'collapsed' : ''}`}>
           {/* Header */}
-          <Header onMobileMenuToggle={handleMobileMenuToggle} />
+          <Header onMobileMenuToggle={handleMobileMenuToggle} userData={userData} />
 
           {/* Dashboard Content */}
           <main className="dashboard-main">
@@ -112,17 +145,29 @@ function App() {
     </div>
   );
 
-  // Check if user is authenticated
-  const isAuthenticated = () => {
-    return localStorage.getItem('user') !== null;
+  // Check if user is authenticated - using API utility
+  const checkAuthenticated = () => {
+    return isAuthenticated();
   };
+
+  // Show loading screen while initializing
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading CalorIA...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/login" element={isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Login />} />
-        <Route path="/register" element={isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Register />} />
+        <Route path="/login" element={checkAuthenticated() ? <Navigate to="/dashboard" replace /> : <Login />} />
+        <Route path="/register" element={checkAuthenticated() ? <Navigate to="/dashboard" replace /> : <Register />} />
         
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
@@ -130,7 +175,7 @@ function App() {
         </Route>
         
         {/* Default Redirect */}
-        <Route path="*" element={<Navigate to={isAuthenticated() ? "/dashboard" : "/login"} replace />} />
+        <Route path="*" element={<Navigate to={checkAuthenticated() ? "/dashboard" : "/login"} replace />} />
       </Routes>
     </Router>
   );
