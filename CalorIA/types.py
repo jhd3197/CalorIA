@@ -316,6 +316,7 @@ class Ingredient(CalorIAModel):
     tags: Optional[List[str]] = Field(default_factory=list)
     image_url: Optional[str] = None
     notes: Optional[str] = None
+    popularity_score: float = Field(0.0, ge=0.0, le=100.0)
     created_by: Optional[UUID] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None

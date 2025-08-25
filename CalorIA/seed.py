@@ -13,58 +13,17 @@ from typing import Dict, List, Optional
 from pathlib import Path
 
 from .types import Ingredient, FoodItem, Meal, MealType, IngredientUnit
-from .mixins.mongo import MongoMixin
+from . import Client
 
 
-class DatabaseSeeder(MongoMixin):
+class DatabaseSeeder:
     """Database seeder that reads from CSV files and populates the database."""
     
     def __init__(self):
-        super().__init__()
         self.seeded_ingredients: Dict[str, Ingredient] = {}
         self.package_dir = Path(__file__).parent
         self.seed_data_dir = self.package_dir / "seed_db"
-    
-    def _parse_unit(self, unit_str: str) -> IngredientUnit:
-        """Parse unit string to IngredientUnit enum."""
-        unit_map = {
-            'g': IngredientUnit.G,
-            'ml': IngredientUnit.ML,
-            'unit': IngredientUnit.UNIT,
-            'tbsp': IngredientUnit.TBSP,
-            'tsp': IngredientUnit.TSP,
-            'cup': IngredientUnit.CUP,
-            'oz': IngredientUnit.OZ
-        }
-        return unit_map.get(unit_str.lower(), IngredientUnit.G)
-    
-    def _parse_meal_type(self, type_str: str) -> MealType:
-        """Parse meal type string to MealType enum."""
-        type_map = {
-            'breakfast': MealType.BREAKFAST,
-            'lunch': MealType.LUNCH,
-            'dinner': MealType.DINNER,
-            'snack': MealType.SNACK
-        }
-        return type_map.get(type_str.lower(), MealType.SNACK)
-    
-    def _safe_float(self, value: str) -> Optional[float]:
-        """Safely parse float value, return None if empty or invalid."""
-        if not value or value.strip() == '':
-            return None
-        try:
-            return float(value)
-        except ValueError:
-            return None
-    
-    def _safe_int(self, value: str) -> Optional[int]:
-        """Safely parse int value, return None if empty or invalid."""
-        if not value or value.strip() == '':
-            return None
-        try:
-            return int(value)
-        except ValueError:
-            return None
+        self.client = Client()
     
     def load_ingredients_from_csv(self) -> List[Dict]:
         """Load ingredient data from CSV file."""
@@ -85,15 +44,16 @@ class DatabaseSeeder(MongoMixin):
                     ingredient_data = {
                         'name': row['name'],
                         'category': row['category'],
-                        'default_unit': self._parse_unit(row['default_unit']),
-                        'grams_per_unit': self._safe_float(row['grams_per_unit']),
-                        'density_g_per_ml': self._safe_float(row['density_g_per_ml']),
-                        'kcal_per_100g': self._safe_float(row['kcal_per_100g']),
-                        'protein_per_100g': self._safe_float(row['protein_per_100g']),
-                        'fat_per_100g': self._safe_float(row['fat_per_100g']),
-                        'carbs_per_100g': self._safe_float(row['carbs_per_100g']),
+                        'default_unit': self.client._parse_unit(row['default_unit']),
+                        'grams_per_unit': self.client._safe_float(row['grams_per_unit']),
+                        'density_g_per_ml': self.client._safe_float(row['density_g_per_ml']),
+                        'kcal_per_100g': self.client._safe_float(row['kcal_per_100g']),
+                        'protein_per_100g': self.client._safe_float(row['protein_per_100g']),
+                        'fat_per_100g': self.client._safe_float(row['fat_per_100g']),
+                        'carbs_per_100g': self.client._safe_float(row['carbs_per_100g']),
                         'aliases': aliases,
-                        'tags': tags
+                        'tags': tags,
+                        'popularity_score': self.client._safe_float(row['popularity_score'])
                     }
                     ingredients.append(ingredient_data)
         except Exception as e:
@@ -123,12 +83,12 @@ class DatabaseSeeder(MongoMixin):
                                 ingredients.append({
                                     'name': parts[0],
                                     'amount': float(parts[1]),
-                                    'unit': self._parse_unit(parts[2])
+                                    'unit': self.client._parse_unit(parts[2])
                                 })
                     
                     meal_data = {
                         'name': row['name'],
-                        'type': self._parse_meal_type(row['type']),
+                        'type': self.client._parse_meal_type(row['type']),
                         'ingredients': ingredients,
                         'notes': row.get('notes', '')
                     }
@@ -155,7 +115,7 @@ class DatabaseSeeder(MongoMixin):
         
         for data in ingredients_data:
             # Check if ingredient already exists (case-insensitive)
-            existing = self.get_ingredient_by_name(data['name'])
+            existing = self.client.get_ingredient_by_name(data['name'])
             if existing:
                 # Cache the existing ingredient
                 self.seeded_ingredients[data['name']] = existing
@@ -175,11 +135,12 @@ class DatabaseSeeder(MongoMixin):
                 carbs_per_100g=data['carbs_per_100g'],
                 aliases=data['aliases'],
                 tags=data['tags'],
+                popularity_score=data['popularity_score'],
                 created_at=datetime.now(timezone.utc),
                 is_system=True  # Mark as system-created
             )
             
-            result = self.create_ingredient(ingredient)
+            result = self.client.create_ingredient(ingredient)
             if result:
                 count += 1
                 self.seeded_ingredients[data['name']] = ingredient
@@ -214,7 +175,7 @@ class DatabaseSeeder(MongoMixin):
         # Check existing meals first
         existing_meals = {}
         try:
-            db = self.get_db_connection()
+            db = self.client.get_db_connection()
             if db is not None:
                 collection = db["sample_meals"]
                 cursor = collection.find({})
@@ -272,7 +233,7 @@ class DatabaseSeeder(MongoMixin):
                 )
                 
                 # Store as sample meal (in practice, these would be part of user daily logs)
-                result = self.create_document("sample_meals", meal)
+                result = self.client.create_document("sample_meals", meal)
                 if result:
                     count += 1
                     existing_meals[meal_note] = True
@@ -312,7 +273,7 @@ class DatabaseSeeder(MongoMixin):
         # Remove system ingredients
         click.echo("🧹 Removing system-generated ingredients...")
         try:
-            db = self.get_db_connection()
+            db = self.client.get_db_connection()
             if db is None:
                 click.echo(" ❌ Database connection failed")
                 return results
@@ -330,7 +291,7 @@ class DatabaseSeeder(MongoMixin):
         # Remove sample meals
         click.echo("🧹 Removing sample meals...")
         try:
-            db = self.get_db_connection()
+            db = self.client.get_db_connection()
             if db is None:
                 return results
                 
@@ -352,7 +313,7 @@ def seed_database():
     seeder = DatabaseSeeder()
     
     # Test database connection
-    if seeder.get_db_connection() is None:
+    if seeder.client.get_db_connection() is None:
         click.echo("❌ Failed to connect to database. Please check your MongoDB connection.")
         return False
     
@@ -382,7 +343,7 @@ def remove_seeded_data():
     seeder = DatabaseSeeder()
     
     # Test database connection
-    if seeder.get_db_connection() is None:
+    if seeder.client.get_db_connection() is None:
         click.echo("❌ Failed to connect to database. Please check your MongoDB connection.")
         return False
     
