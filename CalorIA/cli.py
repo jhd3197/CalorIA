@@ -170,5 +170,33 @@ def seed():
         sys.exit(1)
 
 
+@cli.command()
+@click.option('--confirm', is_flag=True, help='Confirm deletion without prompting')
+def unseed(confirm):
+    """Remove all system-generated sample data from the database."""
+    if not confirm:
+        click.confirm('This will remove all system-generated ingredients and sample meals. Continue?', abort=True)
+    
+    try:
+        # Import the removal function from the CalorIA package
+        from CalorIA.seed import remove_seeded_data
+        
+        # Run the removal
+        success = remove_seeded_data()
+        
+        if not success:
+            sys.exit(1)
+            
+    except ImportError as e:
+        click.echo(f"❌ Error importing seeding module: {e}", err=True)
+        sys.exit(1)
+    except KeyboardInterrupt:
+        click.echo("\n Database cleanup interrupted.")
+        sys.exit(1)
+    except Exception as e:
+        click.echo(f"❌ Unexpected error during cleanup: {e}", err=True)
+        sys.exit(1)
+
+
 if __name__ == '__main__':
     cli()

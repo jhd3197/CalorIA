@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Package, Search, Plus, Edit3, Trash2, Save, X, AlertCircle, Lock, User, Filter } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Package, Search, Plus, Edit3, Trash2, Save, X, AlertCircle, Lock, User, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const Ingredients = () => {
   const [ingredients, setIngredients] = useState([]);
@@ -9,6 +9,8 @@ const Ingredients = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [filterType, setFilterType] = useState('all'); // 'all', 'system', 'user'
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     category: '',
@@ -19,6 +21,16 @@ const Ingredients = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [paginationLoading, setPaginationLoading] = useState(false);
+  const [totalIngredients, setTotalIngredients] = useState(0);
+  const itemsPerPage = 50;
+
+  // Ref for search input focus preservation
+  const searchInputRef = useRef(null);
 
   // Sample categories for the form
   const categories = [
@@ -26,14 +38,94 @@ const Ingredients = () => {
     'Nuts & Seeds', 'Oils & Fats', 'Beverages', 'Condiments', 'Other'
   ];
 
-  // Fetch ingredients on component mount
+  // URL state management utilities
+  const getUrlParams = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return {
+      search: urlParams.get('search') || '',
+      category: urlParams.get('category') || 'all',
+      type: urlParams.get('type') || 'all',
+      page: parseInt(urlParams.get('page') || '1', 10)
+    };
+  };
+
+  const validateUrlParams = (params) => {
+    // Validate page number - must be positive integer
+    const validPage = Math.max(1, isNaN(params.page) ? 1 : params.page);
+    
+    // Validate filter type - must be one of the allowed values
+    const validTypes = ['all', 'system', 'user'];
+    const validType = validTypes.includes(params.type) ? params.type : 'all';
+    
+    // Category validation will be done dynamically once we have ingredients loaded
+    // For now, keep the category as-is since we don't know available categories yet
+    const validCategory = params.category || 'all';
+    
+    return {
+      search: params.search || '',
+      category: validCategory,
+      type: validType,
+      page: validPage
+    };
+  };
+
+  const updateUrl = (newParams) => {
+    const currentParams = getUrlParams();
+    const updatedParams = { ...currentParams, ...newParams };
+    
+    // Build clean URL - only include non-default parameters
+    const urlParams = new URLSearchParams();
+    
+    if (updatedParams.search && updatedParams.search.trim()) {
+      urlParams.set('search', updatedParams.search);
+    }
+    
+    if (updatedParams.category && updatedParams.category !== 'all') {
+      urlParams.set('category', updatedParams.category);
+    }
+    
+    if (updatedParams.type && updatedParams.type !== 'all') {
+      urlParams.set('type', updatedParams.type);
+    }
+    
+    if (updatedParams.page && updatedParams.page > 1) {
+      urlParams.set('page', updatedParams.page.toString());
+    }
+    
+    // Update URL without page reload
+    const newUrl = urlParams.toString() ?
+      `${window.location.pathname}?${urlParams.toString()}` :
+      window.location.pathname;
+    
+    window.history.pushState(null, '', newUrl);
+  };
+
+  // Initialize state from URL on component mount
   useEffect(() => {
-    fetchIngredients();
+    const urlParams = validateUrlParams(getUrlParams());
+    
+    // Set initial state from URL parameters
+    setSearchTerm(urlParams.search);
+    setSelectedCategory(urlParams.category);
+    setFilterType(urlParams.type);
+    setCurrentPage(urlParams.page);
+    
+    // Fetch ingredients with URL parameters
+    fetchIngredients(urlParams.page, true);
+    
+    // Mark initial load as complete after a short delay to allow state updates
+    setTimeout(() => setIsInitialLoad(false), 100);
   }, []);
 
-  const fetchIngredients = async () => {
+  const fetchIngredients = async (page = currentPage, resetPagination = false) => {
     try {
-      setLoading(true);
+      // Use different loading states for initial load vs pagination
+      if (resetPagination || page === 1) {
+        setLoading(true);
+      } else {
+        setPaginationLoading(true);
+      }
+      
       const token = localStorage.getItem('token');
       
       // Build query parameters
@@ -41,7 +133,9 @@ const Ingredients = () => {
       if (searchTerm) params.append('search', searchTerm);
       if (filterType === 'system') params.append('is_system', 'true');
       if (filterType === 'user') params.append('is_system', 'false');
-      const queryString = params.toString() ? `?${params.toString()}` : '';
+      params.append('page', page.toString());
+      params.append('limit', itemsPerPage.toString());
+      const queryString = `?${params.toString()}`;
       
       const response = await fetch(`/api/ingredients${queryString}`, {
         method: 'GET',
@@ -56,8 +150,25 @@ const Ingredients = () => {
       }
 
       const data = await response.json();
-      // Check if data is an array (direct response) or has ingredients property
-      setIngredients(Array.isArray(data) ? data : (data.ingredients || []));
+      
+      // Handle new paginated response format
+      if (data.ingredients && data.pagination) {
+        // New paginated format
+        setIngredients(data.ingredients);
+        setHasMore(data.pagination.has_more);
+        setCurrentPage(data.pagination.page);
+        // Store the total count if available
+        if (data.pagination.total !== undefined) {
+          setTotalIngredients(data.pagination.total);
+        }
+      } else {
+        // Fallback for old format (array response)
+        const ingredientsList = Array.isArray(data) ? data : (data.ingredients || []);
+        setIngredients(ingredientsList);
+        // If we got less than the limit, there's no more data
+        setHasMore(ingredientsList.length >= itemsPerPage);
+      }
+      
       setError(null);
     } catch (error) {
       console.error('Error fetching ingredients:', error);
@@ -95,19 +206,72 @@ const Ingredients = () => {
           is_system: false
         }
       ]);
+      setHasMore(false);
     } finally {
       setLoading(false);
+      setPaginationLoading(false);
     }
   };
 
-  // Search ingredients when search term changes
+  // Search ingredients when search term or filters change - reset to page 1
   useEffect(() => {
+    // Skip this effect during initial load to preserve URL parameters
+    if (isInitialLoad) {
+      return;
+    }
+    
     const timeoutId = setTimeout(() => {
-      fetchIngredients();
+      const newPage = 1;
+      setCurrentPage(newPage);
+      updateUrl({
+        search: searchTerm,
+        category: selectedCategory,
+        type: filterType,
+        page: newPage
+      });
+      fetchIngredients(newPage, true);
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [searchTerm, filterType]);
+  }, [searchTerm, filterType, selectedCategory, isInitialLoad]);
+
+  // Fetch ingredients when page changes (but not on initial load or filter changes)
+  useEffect(() => {
+    // Skip this effect during initial load
+    if (isInitialLoad) {
+      return;
+    }
+    
+    if (currentPage > 1) {
+      updateUrl({ page: currentPage });
+      fetchIngredients(currentPage, false);
+    } else if (currentPage === 1) {
+      // Update URL when page is 1 (to remove page parameter if it was set)
+      updateUrl({ page: currentPage });
+    }
+  }, [currentPage, isInitialLoad]);
+
+  // Focus preservation effect - restore focus after state updates
+  useEffect(() => {
+    // Only restore focus if the search input was previously focused and we're not loading
+    if (searchInputRef.current && !loading && document.activeElement !== searchInputRef.current) {
+      // Check if the user was typing in the search field by seeing if searchTerm has content
+      // and the input is not currently focused (indicating it lost focus due to re-render)
+      if (searchTerm && searchInputRef.current !== document.activeElement) {
+        // Small delay to ensure DOM is updated after state changes
+        const focusTimeout = setTimeout(() => {
+          if (searchInputRef.current) {
+            searchInputRef.current.focus();
+            // Preserve cursor position at end of text
+            const length = searchInputRef.current.value.length;
+            searchInputRef.current.setSelectionRange(length, length);
+          }
+        }, 0);
+        
+        return () => clearTimeout(focusTimeout);
+      }
+    }
+  }, [loading, ingredients, searchTerm]);
 
   const validateForm = () => {
     const errors = {};
@@ -173,17 +337,10 @@ const Ingredients = () => {
       }
 
       const result = await response.json();
-      
-      if (isEdit) {
-        setIngredients(ingredients.map(ing => 
-          ing.id === editingId ? result.ingredient : ing
-        ));
-      } else {
-        setIngredients([...ingredients, result.ingredient]);
-      }
 
       resetForm();
-      await fetchIngredients(); // Refresh the list
+      // Refresh the current page data
+      await fetchIngredients(currentPage, false);
     } catch (error) {
       console.error('Error saving ingredient:', error);
       setError(`Failed to ${editingId ? 'update' : 'create'} ingredient. Please try again.`);
@@ -234,8 +391,9 @@ const Ingredients = () => {
         throw new Error(`Failed to delete ingredient: ${response.status}`);
       }
 
-      setIngredients(ingredients.filter(ing => ing.id !== id));
       setDeleteConfirm(null);
+      // Refresh the current page data
+      await fetchIngredients(currentPage, false);
     } catch (error) {
       console.error('Error deleting ingredient:', error);
       setError('Failed to delete ingredient. Please try again.');
@@ -256,21 +414,37 @@ const Ingredients = () => {
     setEditingId(null);
   };
 
-  const filteredIngredients = ingredients.filter(ingredient => {
-    // Apply search filter
-    const matchesSearch = ingredient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         ingredient.category.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Apply type filter (this is redundant if backend filtering works, but good for fallback)
-    let matchesType = true;
-    if (filterType === 'system') {
-      matchesType = ingredient.is_system === true;
-    } else if (filterType === 'user') {
-      matchesType = ingredient.is_system === false;
+  // Helper function to clear all filters
+  const clearAllFilters = () => {
+    setSearchTerm('');
+    setSelectedCategory('all');
+    setFilterType('all');
+    setCurrentPage(1);
+    // Clear URL parameters
+    updateUrl({ search: '', category: 'all', type: 'all', page: 1 });
+  };
+
+  // Pagination navigation handlers
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
     }
-    
-    return matchesSearch && matchesType;
-  });
+  };
+
+  const handleNextPage = () => {
+    if (hasMore) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+    }
+  };
+
+  // Extract available categories from ingredients (for filter dropdown)
+  const availableCategories = [...new Set(ingredients.map(ing => ing.category).filter(cat => cat))].sort();
+
+  // Since we're using server-side pagination, we don't need client-side filtering
+  // The ingredients array already contains the filtered and paginated results
+  const filteredIngredients = ingredients;
 
   // Calculate statistics
   const systemIngredients = ingredients.filter(ing => ing.is_system === true);
@@ -298,7 +472,7 @@ const Ingredients = () => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Total Ingredients</p>
-              <p className="font-semibold">{ingredients.length} items</p>
+              <p className="font-semibold">{totalIngredients > 0 ? totalIngredients : ingredients.length} items</p>
             </div>
           </div>
         </div>
@@ -360,12 +534,26 @@ const Ingredients = () => {
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
+                ref={searchInputRef}
                 type="text"
                 placeholder="Search ingredients by name or category..."
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
+            </div>
+            <div className="relative">
+              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="pl-9 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white min-w-[180px]"
+              >
+                <option value="all">All Categories</option>
+                {availableCategories.map(category => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
             </div>
             <div className="relative">
               <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -536,20 +724,50 @@ const Ingredients = () => {
 
       {/* Ingredients Table */}
       <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold">
-            Ingredients Management
-            <span className="text-gray-500 font-normal ml-2">({filteredIngredients.length})</span>
-          </h2>
-        </div>
-
         <div className="overflow-x-auto">
           <table className="w-full table-auto">
             <thead>
               <tr className="border-b border-gray-200">
                 <th className="text-left py-3 px-4 font-semibold">Name</th>
                 <th className="text-left py-3 px-4 font-semibold">Type</th>
-                <th className="text-left py-3 px-4 font-semibold">Category</th>
+                <th className="text-left py-3 px-4 font-semibold">
+                  <div className="flex items-center space-x-2">
+                    <span>Category</span>
+                    <div className="relative group">
+                      <Filter className="w-4 h-4 text-gray-400 hover:text-blue-600 cursor-pointer" />
+                      <div className="absolute top-full left-0 pt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 hidden group-hover:block min-w-[200px]">
+                        <div className="absolute inset-x-0 top-0 h-1 bg-transparent"></div>
+                        <div className="p-2 bg-white rounded-lg">
+                          <button
+                            onClick={() => {
+                              setSelectedCategory('all');
+                              setCurrentPage(1);
+                            }}
+                            className={`block w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100 ${
+                              selectedCategory === 'all' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
+                            }`}
+                          >
+                            All Categories
+                          </button>
+                          {availableCategories.map(category => (
+                            <button
+                              key={category}
+                              onClick={() => {
+                                setSelectedCategory(category);
+                                setCurrentPage(1);
+                              }}
+                              className={`block w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100 ${
+                                selectedCategory === category ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
+                              }`}
+                            >
+                              {category}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </th>
                 <th className="text-left py-3 px-4 font-semibold">Calories</th>
                 <th className="text-left py-3 px-4 font-semibold">Protein</th>
                 <th className="text-left py-3 px-4 font-semibold">Fat</th>
@@ -597,9 +815,16 @@ const Ingredients = () => {
                       </span>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                      <button
+                        onClick={() => {
+                          setSelectedCategory(ingredient.category);
+                          setCurrentPage(1);
+                        }}
+                        className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-blue-100 hover:text-blue-700 transition-colors cursor-pointer"
+                        title={`Filter by ${ingredient.category}`}
+                      >
                         {ingredient.category}
-                      </span>
+                      </button>
                     </td>
                     <td className="py-3 px-4">{ingredient.kcal_per_100g}g</td>
                     <td className="py-3 px-4">{ingredient.protein_per_100g}g</td>
@@ -639,6 +864,59 @@ const Ingredients = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        <div className="mt-6 flex items-center justify-between">
+          <div className="flex items-center text-sm text-gray-500">
+            <span>Showing {itemsPerPage} items per page</span>
+            {filteredIngredients.length > 0 && (
+              <span className="ml-2">
+                • Page {currentPage}
+                {hasMore ? ` of ${Math.ceil(totalIngredients / itemsPerPage)}` : ` (${filteredIngredients.length} items on this page)`}
+              </span>
+            )}
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1 || paginationLoading}
+              className={`px-3 py-1 rounded-lg border flex items-center text-sm ${
+                currentPage === 1 || paginationLoading
+                  ? 'border-gray-300 text-gray-400 cursor-not-allowed'
+                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Previous
+            </button>
+            
+            <div className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg">
+              Page {currentPage}
+            </div>
+            
+            <button
+              onClick={handleNextPage}
+              disabled={!hasMore || paginationLoading}
+              className={`px-3 py-1 rounded-lg border flex items-center text-sm ${
+                !hasMore || paginationLoading
+                  ? 'border-gray-300 text-gray-400 cursor-not-allowed'
+                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              Next
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+          </div>
+        </div>
+
+        {/* Loading indicator for pagination */}
+        {paginationLoading && (
+          <div className="mt-4 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600"></div>
+            <span className="ml-2 text-sm text-gray-600">Loading more ingredients...</span>
+          </div>
+        )}
       </div>
 
       {/* Delete Confirmation Modal */}

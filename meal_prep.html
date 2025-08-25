@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Prep Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #4f46e5;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+        
+        .ingredient-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .like-btn.active {
+            background-color: #10b981;
+            color: white;
+        }
+        
+        .neutral-btn.active {
+            background-color: #6b7280;
+            color: white;
+        }
+        
+        .dislike-btn.active {
+            background-color: #ef4444;
+            color: white;
+        }
+        
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-4xl mx-auto p-4 md:p-6">
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-gray-600">Progress</span>
+                <span class="text-sm font-medium text-indigo-600" id="progress-percentage">0%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div class="bg-indigo-600 h-2.5 rounded-full progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Form Steps Container -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden fade-in" id="form-container">
+            <!-- Step 1: Welcome -->
+            <div class="p-6 md:p-8" id="step-1">
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-4">Let's build your meal plan</h1>
+                    <p class="text-gray-600 mb-8">This takes ~5 minutes. You can skip questions and edit later.</p>
+                    <div class="flex justify-center">
+                        <button onclick="nextStep()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-8 rounded-lg transition duration-300">
+                            Get Started
+                        </button>
+                    </div>
+                    <div class="mt-6">
+                        <button class="text-indigo-600 hover:text-indigo-800 font-medium flex items-center justify-center">
+                            <i class="fas fa-save mr-2"></i> Save & continue later
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Goal & Profile -->
+            <div class="p-6 md:p-8 hidden" id="step-2">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Goal & Profile</h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">What's your main goal?</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <button class="goal-btn border border-gray-300 rounded-lg p-4 text-left hover:bg-gray-50 transition" data-value="lose">
+                                <i class="fas fa-weight-scale text-indigo-500 mr-2"></i> Lose weight
+                            </button>
+                            <button class="goal-btn border border-gray-300 rounded-lg p-4 text-left hover:bg-gray-50 transition" data-value="maintain">
+                                <i class="fas fa-balance-scale text-indigo-500 mr-2"></i> Maintain
+                            </button>
+                            <button class="goal-btn border border-gray-300 rounded-lg p-4 text-left hover:bg-gray-50 transition" data-value="gain">
+                                <i class="fas fa-dumbbell text-indigo-500 mr-2"></i> Gain muscle
+                            </button>
+                            <button class="goal-btn border border-gray-300 rounded-lg p-4 text-left hover:bg-gray-50 transition" data-value="performance">
+                                <i class="fas fa-running text-indigo-500 mr-2"></i> Improve performance
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Current weight</label>
+                            <div class="flex">
+                                <input type="number" class="w-full border border-gray-300 rounded-l-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="0" min="0">
+                                <select class="border border-gray-300 rounded-r-lg bg-gray-50 p-3">
+                                    <option>kg</option>
+                                    <option>lbs</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Height</label>
+                            <div class="flex">
+                                <input type="number" class="w-full border border-gray-300 rounded-l-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="0" min="0">
+                                <select class="border border-gray-300 rounded-r-lg bg-gray-50 p-3">
+                                    <option>cm</option>
+                                    <option>ft-in</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Age</label>
+                            <input type="number" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Age" min="13" max="120">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Activity level</label>
+                            <select class="w-full border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500">
+                                <option>Sedentary</option>
+                                <option>Light</option>
+                                <option>Moderate</option>
+                                <option>Very active</option>
+                                <option>Athlete</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">How many meals per day do you prefer?</label>
+                        <div class="flex flex-wrap gap-3">
+                            <button class="meal-btn border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-50 transition" data-value="2">2</button>
+                            <button class="meal-btn border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-50 transition" data-value="3">3</button>
+                            <button class="meal-btn border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-50 transition" data-value="4">4</button>
+                            <button class="meal-btn border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-50 transition" data-value="5">5+</button>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-500 text-sm">We'll use this to estimate calories and meal sizes.</p>
+                </div>
+                
+                <div class="flex justify-between mt-8">
+                    <button onclick="prevStep()" class="text-gray-600 hover:text-gray-800 font-medium py-2 px-4 rounded-lg transition">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button onclick="nextStep()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg transition">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Dietary Profile & Restrictions -->
+            <div class="p-6 md:p-8 hidden" id="step-3">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Dietary Profile & Restrictions</h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Any food allergies?</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="allergy-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="peanut">
+                                Peanut
+                            </button>
+                            <button class="allergy-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="tree-nut">
+                                Tree nut
+                            </button>
+                            <button class="allergy-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="shellfish">
+                                Shellfish
+                            </button>
+                            <button class="allergy-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="dairy">
+                                Dairy
+                            </button>
+                            <button class="allergy-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="gluten">
+                                Gluten
+                            </button>
+                            <button class="allergy-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="egg">
+                                Egg
+                            </button>
+                            <button class="allergy-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="soy">
+                                Soy
+                            </button>
+                            <button class="allergy-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="none">
+                                None
+                            </button>
+                        </div>
+                        <div class="mt-3">
+                            <input type="text" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Other allergies (comma separated)">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Any intolerances?</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="intolerance-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="lactose">
+                                Lactose
+                            </button>
+                            <button class="intolerance-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="histamine">
+                                Histamine
+                            </button>
+                            <button class="intolerance-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="fodmap">
+                                FODMAP
+                            </button>
+                            <button class="intolerance-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="none">
+                                None
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Dietary preference</label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <button class="diet-btn border border-gray-300 rounded-lg p-3 text-left hover:bg-gray-50 transition" data-value="omnivore">
+                                <i class="fas fa-utensils text-indigo-500 mr-2"></i> Omnivore
+                            </button>
+                            <button class="diet-btn border border-gray-300 rounded-lg p-3 text-left hover:bg-gray-50 transition" data-value="pescatarian">
+                                <i class="fas fa-fish text-indigo-500 mr-2"></i> Pescatarian
+                            </button>
+                            <button class="diet-btn border border-gray-300 rounded-lg p-3 text-left hover:bg-gray-50 transition" data-value="vegetarian">
+                                <i class="fas fa-leaf text-indigo-500 mr-2"></i> Vegetarian
+                            </button>
+                            <button class="diet-btn border border-gray-300 rounded-lg p-3 text-left hover:bg-gray-50 transition" data-value="vegan">
+                                <i class="fas fa-seedling text-indigo-500 mr-2"></i> Vegan
+                            </button>
+                            <button class="diet-btn border border-gray-300 rounded-lg p-3 text-left hover:bg-gray-50 transition" data-value="keto">
+                                <i class="fas fa-bacon text-indigo-500 mr-2"></i> Keto
+                            </button>
+                            <button class="diet-btn border border-gray-300 rounded-lg p-3 text-left hover:bg-gray-50 transition" data-value="low-carb">
+                                <i class="fas fa-bread-slice text-indigo-500 mr-2"></i> Low-carb
+                            </button>
+                        </div>
+                        <div class="mt-3">
+                            <input type="text" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Other dietary preference">
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-500 text-sm">This is for safety — we'll automatically exclude those from your plan.</p>
+                </div>
+                
+                <div class="flex justify-between mt-8">
+                    <button onclick="prevStep()" class="text-gray-600 hover:text-gray-800 font-medium py-2 px-4 rounded-lg transition">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button onclick="nextStep()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg transition">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 4: Ingredient Likes/Dislikes -->
+            <div class="p-6 md:p-8 hidden" id="step-4">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Ingredient Preferences</h2>
+                
+                <div class="mb-6">
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <input type="text" class="flex-grow border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Search ingredients...">
+                        <select class="border border-gray-300 rounded-lg bg-gray-50 p-3">
+                            <option>All Categories</option>
+                            <option>Proteins</option>
+                            <option>Vegetables</option>
+                            <option>Fruits</option>
+                            <option>Grains</option>
+                            <option>Dairy</option>
+                            <option>Spices</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-3">
+                        <button class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full transition">
+                            Mark all meats I dislike
+                        </button>
+                        <button class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full transition">
+                            Only show seafood
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="font-medium text-gray-700 mb-3">Proteins</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <!-- Example ingredients - in a real app these would be dynamic -->
+                            <div class="ingredient-card border border-gray-200 rounded-lg p-4 transition">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-medium">Chicken breast</span>
+                                    <div class="flex gap-1">
+                                        <button class="like-btn w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:bg-green-100 transition" data-state="neutral">
+                                            <i class="fas fa-thumbs-up text-xs"></i>
+                                        </button>
+                                        <button class="neutral-btn w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:bg-gray-100 transition active" data-state="active">
+                                            <i class="fas fa-minus text-xs"></i>
+                                        </button>
+                                        <button class="dislike-btn w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:bg-red-100 transition" data-state="neutral">
+                                            <i class="fas fa-thumbs-down text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="ingredient-card border border-gray-200 rounded-lg p-4 transition">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-medium">Salmon</span>
+                                    <div class="flex gap-1">
+                                        <button class="like-btn w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:bg-green-100 transition active" data-state="active">
+                                            <i class="fas fa-thumbs-up text-xs"></i>
+                                        </button>
+                                        <button class="neutral-btn w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:bg-gray-100 transition" data-state="neutral">
+                                            <i class="fas fa-minus text-xs"></i>
+                                        </button>
+                                        <button class="dislike-btn w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:bg-red-100 transition" data-state="neutral">
+                                            <i class="fas fa-thumbs-down text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="ingredient-card border border-gray-200 rounded-lg p-4 transition">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-medium">Black beans</span>
+                                    <div class="flex gap-1">
+                                        <button class="like-btn w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:bg-green-100 transition" data-state="neutral">
+                                            <i class="fas fa-thumbs-up text-xs"></i>
+                                        </button>
+                                        <button class="neutral-btn w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:bg-gray-100 transition" data-state="neutral">
+                                            <i class="fas fa-minus text-xs"></i>
+                                        </button>
+                                        <button class="dislike-btn w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:bg-red-100 transition active" data-state="active">
+                                            <i class="fas fa-thumbs-down text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-medium text-gray-700 mb-3">Vegetables</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <div class="ingredient-card border border-gray-200 rounded-lg p-4 transition">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-medium">Broccoli</span>
+                                    <div class="flex gap-1">
+                                        <button class="like-btn w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:bg-green-100 transition" data-state="neutral">
+                                            <i class="fas fa-thumbs-up text-xs"></i>
+                                        </button>
+                                        <button class="neutral-btn w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:bg-gray-100 transition" data-state="neutral">
+                                            <i class="fas fa-minus text-xs"></i>
+                                        </button>
+                                        <button class="dislike-btn w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:bg-red-100 transition active" data-state="active">
+                                            <i class="fas fa-thumbs-down text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="ingredient-card border border-gray-200 rounded-lg p-4 transition">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-medium">Spinach</span>
+                                    <div class="flex gap-1">
+                                        <button class="like-btn w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:bg-green-100 transition active" data-state="active">
+                                            <i class="fas fa-thumbs-up text-xs"></i>
+                                        </button>
+                                        <button class="neutral-btn w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:bg-gray-100 transition" data-state="neutral">
+                                            <i class="fas fa-minus text-xs"></i>
+                                        </button>
+                                        <button class="dislike-btn w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 hover:bg-red-100 transition" data-state="neutral">
+                                            <i class="fas fa-thumbs-down text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button class="text-indigo-600 hover:text-indigo-800 font-medium flex items-center">
+                            <i class="fas fa-plus-circle mr-2"></i> Add missing ingredient
+                        </button>
+                    </div>
+                    
+                    <p class="text-gray-500 text-sm">Tap items you don't want in your meals — we'll avoid them.</p>
+                </div>
+                
+                <div class="flex justify-between mt-8">
+                    <button onclick="prevStep()" class="text-gray-600 hover:text-gray-800 font-medium py-2 px-4 rounded-lg transition">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button onclick="nextStep()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg transition">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 5: Favorite Meals & Aversions -->
+            <div class="p-6 md:p-8 hidden" id="step-5">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Favorite Meals & Aversions</h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">List 1–3 meals you love (e.g., grilled salmon bowl)</label>
+                        <div class="space-y-3" id="favorite-meals">
+                            <input type="text" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Enter a meal you love">
+                            <input type="text" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Another favorite (optional)">
+                            <input type="text" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="One more (optional)">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">List 1–3 meals you hate / never want</label>
+                        <div class="space-y-3" id="hated-meals">
+                            <input type="text" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Enter a meal you dislike">
+                            <input type="text" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Another disliked meal (optional)">
+                            <input type="text" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="One more (optional)">
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-blue-800 mb-2">Saved from previous profiles:</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="saved-meal-btn text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded-full transition">
+                                Chicken stir-fry
+                            </button>
+                            <button class="saved-meal-btn text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded-full transition">
+                                Greek yogurt bowl
+                            </button>
+                            <button class="saved-meal-btn text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded-full transition">
+                                Avoid: Tuna casserole
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between mt-8">
+                    <button onclick="prevStep()" class="text-gray-600 hover:text-gray-800 font-medium py-2 px-4 rounded-lg transition">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button onclick="nextStep()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg transition">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 6: Cooking Style & Constraints -->
+            <div class="p-6 md:p-8 hidden" id="step-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Cooking Style & Constraints</h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">How much time can you spend cooking each day?</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <button class="time-btn border border-gray-300 rounded-lg p-3 text-left hover:bg-gray-50 transition" data-value="10-20">
+                                <i class="fas fa-clock text-indigo-500 mr-2"></i> 10–20 minutes
+                            </button>
+                            <button class="time-btn border border-gray-300 rounded-lg p-3 text-left hover:bg-gray-50 transition" data-value="20-40">
+                                <i class="fas fa-clock text-indigo-500 mr-2"></i> 20–40 minutes
+                            </button>
+                            <button class="time-btn border border-gray-300 rounded-lg p-3 text-left hover:bg-gray-50 transition" data-value="40-60">
+                                <i class="fas fa-clock text-indigo-500 mr-2"></i> 40–60 minutes
+                            </button>
+                            <button class="time-btn border border-gray-300 rounded-lg p-3 text-left hover:bg-gray-50 transition" data-value="60+">
+                                <i class="fas fa-clock text-indigo-500 mr-2"></i> 60+ minutes
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Do you want batch-cooking (cook once, eat all week)?</label>
+                        <div class="flex items-center gap-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="batch-cooking" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500" checked>
+                                <span class="ml-2">Yes</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="batch-cooking" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500">
+                                <span class="ml-2">No</span>
+                            </label>
+                        </div>
+                        <div class="mt-4 hidden" id="batch-day-container">
+                            <label class="block text-gray-700 font-medium mb-2">Preferred batch cooking day/time</label>
+                            <div class="flex flex-col md:flex-row gap-3">
+                                <select class="border border-gray-300 rounded-lg bg-gray-50 p-3">
+                                    <option>Sunday</option>
+                                    <option>Monday</option>
+                                    <option>Tuesday</option>
+                                    <option>Wednesday</option>
+                                    <option>Thursday</option>
+                                    <option>Friday</option>
+                                    <option>Saturday</option>
+                                </select>
+                                <select class="border border-gray-300 rounded-lg bg-gray-50 p-3">
+                                    <option>Morning</option>
+                                    <option>Afternoon</option>
+                                    <option>Evening</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Kitchen equipment?</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="equipment-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="oven">
+                                Oven
+                            </button>
+                            <button class="equipment-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="air-fryer">
+                                Air fryer
+                            </button>
+                            <button class="equipment-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="stove">
+                                Stove
+                            </button>
+                            <button class="equipment-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="instant-pot">
+                                Instant Pot
+                            </button>
+                            <button class="equipment-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="blender">
+                                Blender
+                            </button>
+                            <button class="equipment-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="microwave">
+                                Microwave
+                            </button>
+                            <button class="equipment-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="grill">
+                                Grill
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Skill level</label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <button class="skill-btn border border-gray-300 rounded-lg p-3 text-left hover:bg-gray-50 transition" data-value="beginner">
+                                <i class="fas fa-mortar-pestle text-indigo-500 mr-2"></i> Beginner
+                            </button>
+                            <button class="skill-btn border border-gray-300 rounded-lg p-3 text-left hover:bg-gray-50 transition" data-value="intermediate">
+                                <i class="fas fa-utensils text-indigo-500 mr-2"></i> Intermediate
+                            </button>
+                            <button class="skill-btn border border-gray-300 rounded-lg p-3 text-left hover:bg-gray-50 transition" data-value="advanced">
+                                <i class="fas fa-cheese text-indigo-500 mr-2"></i> Advanced
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between mt-8">
+                    <button onclick="prevStep()" class="text-gray-600 hover:text-gray-800 font-medium py-2 px-4 rounded-lg transition">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button onclick="nextStep()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg transition">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 7: Meal Timing & Preferences -->
+            <div class="p-6 md:p-8 hidden" id="step-7">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Meal Timing & Preferences</h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">When do you usually eat?</label>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="w-24 font-medium">Breakfast</span>
+                                <select class="border border-gray-300 rounded-lg bg-gray-50 p-3">
+                                    <option>7:00 AM</option>
+                                    <option>8:00 AM</option>
+                                    <option>9:00 AM</option>
+                                    <option>Flexible</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="w-24 font-medium">Lunch</span>
+                                <select class="border border-gray-300 rounded-lg bg-gray-50 p-3">
+                                    <option>12:00 PM</option>
+                                    <option>1:00 PM</option>
+                                    <option>2:00 PM</option>
+                                    <option>Flexible</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="w-24 font-medium">Dinner</span>
+                                <select class="border border-gray-300 rounded-lg bg-gray-50 p-3">
+                                    <option>6:00 PM</option>
+                                    <option>7:00 PM</option>
+                                    <option>8:00 PM</option>
+                                    <option>Flexible</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Do you want snacks?</label>
+                        <div class="flex items-center gap-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="snacks" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500" checked>
+                                <span class="ml-2">Yes</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="snacks" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500">
+                                <span class="ml-2">No</span>
+                            </label>
+                        </div>
+                        <div class="mt-4 hidden" id="snack-count-container">
+                            <label class="block text-gray-700 font-medium mb-2">How many snacks per day?</label>
+                            <div class="flex gap-3">
+                                <button class="snack-btn border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-50 transition" data-value="1">1</button>
+                                <button class="snack-btn border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-50 transition" data-value="2">2</button>
+                                <button class="snack-btn border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-50 transition" data-value="3">3+</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Food timing rules</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 rounded">
+                                <span class="ml-2">No food after 9pm</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 rounded">
+                                <span class="ml-2">Pre-workout meal only</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 rounded">
+                                <span class="ml-2">Fasted mornings</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 rounded">
+                                <span class="ml-2">Intermittent fasting (16:8)</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-500 text-sm">This helps place meals into your daily timeline.</p>
+                </div>
+                
+                <div class="flex justify-between mt-8">
+                    <button onclick="prevStep()" class="text-gray-600 hover:text-gray-800 font-medium py-2 px-4 rounded-lg transition">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button onclick="nextStep()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg transition">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 8: Portion & Macro Preferences -->
+            <div class="p-6 md:p-8 hidden" id="step-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Portion & Macro Preferences</h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-4">Let us calculate calories for you (recommended)</label>
+                        <div class="flex items-center gap-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="calorie-mode" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500" checked>
+                                <span class="ml-2">Auto</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="calorie-mode" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500">
+                                <span class="ml-2">I'll set my own</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-indigo-50 p-4 rounded-lg" id="auto-calories">
+                        <h4 class="font-medium text-indigo-800 mb-3">Estimated daily calories based on your profile:</h4>
+                        <div class="text-center mb-4">
+                            <span class="text-3xl font-bold text-indigo-700">2,400</span>
+                            <span class="text-gray-600">calories/day</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 font-medium mb-2">Macronutrient split</label>
+                            <div class="grid grid-cols-3 gap-4 text-center">
+                                <div class="bg-white p-3 rounded-lg shadow-sm">
+                                    <div class="text-sm text-gray-500">Protein</div>
+                                    <div class="font-bold text-indigo-600">30%</div>
+                                    <div class="text-xs text-gray-500">192g</div>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg shadow-sm">
+                                    <div class="text-sm text-gray-500">Fat</div>
+                                    <div class="font-bold text-indigo-600">30%</div>
+                                    <div class="text-xs text-gray-500">80g</div>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg shadow-sm">
+                                    <div class="text-sm text-gray-500">Carbs</div>
+                                    <div class="font-bold text-indigo-600">40%</div>
+                                    <div class="text-xs text-gray-500">240g</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Adjust if needed</label>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">Calories</label>
+                                    <input type="range" class="w-full" min="1600" max="4000" value="2400" step="50">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">Protein %</label>
+                                    <input type="range" class="w-full" min="10" max="50" value="30" step="5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">Fat %</label>
+                                    <input type="range" class="w-full" min="10" max="50" value="30" step="5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">Carbs %</label>
+                                    <input type="range" class="w-full" min="10" max="80" value="40" step="5">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg hidden" id="manual-calories">
+                        <h4 class="font-medium text-gray-800 mb-3">Set your own targets</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Daily calories</label>
+                                <input type="number" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 2400" min="0">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Protein (grams)</label>
+                                <input type="number" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 150" min="0">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Fat (grams)</label>
+                                <input type="number" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 80" min="0">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Carbs (grams)</label>
+                                <input type="number" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 240" min="0">
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-3">We recommend at least 1.6g of protein per kg of body weight for muscle gain.</p>
+                    </div>
+                    
+                    <p class="text-gray-500 text-sm">We'll translate this into portion sizes per meal.</p>
+                </div>
+                
+                <div class="flex justify-between mt-8">
+                    <button onclick="prevStep()" class="text-gray-600 hover:text-gray-800 font-medium py-2 px-4 rounded-lg transition">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button onclick="nextStep()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg transition">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 9: Budget & Shopping Preferences -->
+            <div class="p-6 md:p-8 hidden" id="step-9">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Budget & Shopping Preferences</h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Weekly food budget</label>
+                        <div class="flex items-center">
+                            <span class="mr-2">$</span>
+                            <input type="number" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 100" min="0">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Prefer low-cost options?</label>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-sm text-gray-600">Budget</span>
+                            <span class="text-sm text-gray-600">Premium</span>
+                        </div>
+                        <input type="range" class="w-full" min="0" max="100" value="50">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Do you want a printable shopping list or grocery delivery format?</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <button class="shopping-btn border border-gray-300 rounded-lg p-3 text-left hover:bg-gray-50 transition" data-value="printable">
+                                <i class="fas fa-print text-indigo-500 mr-2"></i> Printable
+                            </button>
+                            <button class="shopping-btn border border-gray-300 rounded-lg p-3 text-left hover:bg-gray-50 transition" data-value="delivery">
+                                <i class="fas fa-truck text-indigo-500 mr-2"></i> Delivery format
+                            </button>
+                            <button class="shopping-btn border border-gray-300 rounded-lg p-3 text-left hover:bg-gray-50 transition" data-value="both">
+                                <i class="fas fa-list text-indigo-500 mr-2"></i> Both
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-500 text-sm">Budget influences swaps (e.g., canned tuna vs fresh salmon).</p>
+                </div>
+                
+                <div class="flex justify-between mt-8">
+                    <button onclick="prevStep()" class="text-gray-600 hover:text-gray-800 font-medium py-2 px-4 rounded-lg transition">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button onclick="nextStep()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg transition">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 10: Supplements & Medications -->
+            <div class="p-6 md:p-8 hidden" id="step-10">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Supplements & Medications</h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Do you take supplements?</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="supplement-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="creatine">
+                                Creatine
+                            </button>
+                            <button class="supplement-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="omega3">
+                                Omega-3
+                            </button>
+                            <button class="supplement-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="multivitamin">
+                                Multivitamin
+                            </button>
+                            <button class="supplement-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="ashwagandha">
+                                Ashwagandha
+                            </button>
+                            <button class="supplement-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="magnesium">
+                                Magnesium
+                            </button>
+                            <button class="supplement-btn border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 transition" data-value="none">
+                                None
+                            </button>
+                        </div>
+                        <div class="mt-3">
+                            <input type="text" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Other supplements (comma separated)">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Any medications?</label>
+                        <textarea class="w-full border border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" rows="3" placeholder="List any medications you're taking (important for safety notes)"></textarea>
+                    </div>
+                    
+                    <p class="text-gray-500 text-sm">This won't change your meals but helps with timing recommendations.</p>
+                </div>
+                
+                <div class="flex justify-between mt-8">
+                    <button onclick="prevStep()" class="text-gray-600 hover:text-gray-800 font-medium py-2 px-4 rounded-lg transition">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button onclick="nextStep()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg transition">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 11: Final Preferences & Exclusions Summary -->
+            <div class="p-6 md:p-8 hidden" id="step-11">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Review Your Preferences</h2>
+                
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                        <h3 class="font-medium text-gray-800 mb-3 flex justify-between items-center">
+                            <span>Dietary Restrictions</span>
+                            <button class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                                Edit
+                            </button>
+                        </h3>
+                        <div class="space-y-2">
+                            <p><span class="text-gray-600">Excluded:</span> peanuts, shellfish, broccoli</p>
+                            <p><span class="text-gray-600">Diet:</span> Pescatarian</p>
+                            <p><span class="text-gray-600">Allergies:</span> None</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                        <h3 class="font-medium text-gray-800 mb-3 flex justify-between items-center">
+                            <span>Meal Preferences</span>
+                            <button class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                                Edit
+                            </button>
+                        </h3>
+                        <div class="space-y-2">
+                            <p><span class="text-gray-600">Preferred meals:</span> grilled salmon bowl, chicken & rice</p>
+                            <p><span class="text-gray-600">Avoid:</span> tuna casserole, broccoli dishes</p>
+                            <p><span class="text-gray-600">Meals per day:</span> 3</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                        <h3 class="font-medium text-gray-800 mb-3 flex justify-between items-center">
+                            <span>Cooking Details</span>
+                            <button class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                                Edit
+                            </button>
+                        </h3>
+                        <div class="space-y-2">
+                            <p><span class="text-gray-600">Cooking:</span> batch cook Sundays, air fryer available</p>
+                            <p><span class="text-gray-600">Time per day:</span> 20-40 minutes</p>
+                            <p><span class="text-gray-600">Skill level:</span> Intermediate</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                        <h3 class="font-medium text-gray-800 mb-3 flex justify-between items-center">
+                            <span>Nutrition Goals</span>
+                            <button class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                                Edit
+                            </button>
+                        </h3>
+                        <div class="space-y-2">
+                            <p><span class="text-gray-600">Daily calories:</span> 2,400 (Moderate activity)</p>
+                            <p><span class="text-gray-600">Macros:</span> 30% Protein, 30% Fat, 40% Carbs</p>
+                            <p><span class="text-gray-600">Goal:</span> Maintain</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                        <h3 class="font-medium text-gray-800 mb-3 flex justify-between items-center">
+                            <span>Other Preferences</span>
+                            <button class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                                Edit
+                            </button>
+                        </h3>
+                        <div class="space-y-2">
+                            <p><span class="text-gray-600">Budget:</span> $100/week (balanced)</p>
+                            <p><span class="text-gray-600">Supplements:</span> Omega-3, Multivitamin</p>
+                            <p><span class="text-gray-600">Shopping list:</span> Printable format</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between mt-8">
+                    <button onclick="prevStep()" class="text-gray-600 hover:text-gray-800 font-medium py-2 px-4 rounded-lg transition">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button onclick="nextStep()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg transition">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 12: Generate Plan Options -->
+            <div class="p-6 md:p-8 hidden" id="step-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Generate Your Meal Plan</h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-3">Choose a plan format</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <button class="plan-btn border-2 border-indigo-100 bg-indigo-50 rounded-lg p-4 text-left hover:border-indigo-300 transition" data-value="balanced">
+                                <div class="flex items-start">
+                                    <div class="bg-indigo-100 p-2 rounded-lg mr-3">
+                                        <i class="fas fa-check-circle text-indigo-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-indigo-800">7-day balanced plan</h4>
+                                        <p class="text-sm text-gray-600 mt-1">(Recommended) Variety of meals with balanced macros</p>
+                                    </div>
+                                </div>
+                            </button>
+                            
+                            <button class="plan-btn border-2 border-gray-100 bg-white rounded-lg p-4 text-left hover:border-gray-300 transition" data-value="workweek">
+                                <div class="flex items-start">
+                                    <div class="bg-gray-100 p-2 rounded-lg mr-3">
+                                        <i class="fas fa-briefcase text-gray-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800">5-day workweek + flexible weekend</h4>
+                                        <p class="text-sm text-gray-600 mt-1">Structured weekdays, relaxed weekends</p>
+                                    </div>
+                                </div>
+                            </button>
+                            
+                            <button class="plan-btn border-2 border-gray-100 bg-white rounded-lg p-4 text-left hover:border-gray-300 transition" data-value="high-protein">
+                                <div class="flex items-start">
+                                    <div class="bg-gray-100 p-2 rounded-lg mr-3">
+                                        <i class="fas fa-dumbbell text-gray-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800">High-protein muscle gain plan</h4>
+                                        <p class="text-sm text-gray-600 mt-1">Optimized for muscle growth and recovery</p>
+                                    </div>
+                                </div>
+                            </button>
+                            
+                            <button class="plan-btn border-2 border-gray-100 bg-white rounded-lg p-4 text-left hover:border-gray-300 transition" data-value="vegetarian">
+                                <div class="flex items-start">
+                                    <div class="bg-gray-100 p-2 rounded-lg mr-3">
+                                        <i class="fas fa-leaf text-gray-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800">Vegetarian plan</h4>
+                                        <p class="text-sm text-gray-600 mt-1">Plant-based protein sources</p>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-3">Add-ons (optional)</label>
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 rounded">
+                                <span class="ml-3">Grocery list organized by store section</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 rounded">
+                                <span class="ml-3">Recipe cards with step-by-step photos</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 rounded">
+                                <span class="ml-3">Interactive cook mode (timer, steps)</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 rounded">
+                                <span class="ml-3">Export to PDF</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 rounded">
+                                <span class="ml-3">Sync to calendar</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-500 text-sm">Choose a plan format — we'll build meals using your ingredient likes/dislikes.</p>
+                </div>
+                
+                <div class="flex justify-between mt-8">
+                    <button onclick="prevStep()" class="text-gray-600 hover:text-gray-800 font-medium py-2 px-4 rounded-lg transition">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button onclick="nextStep()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg transition">
+                        Generate Plan <i class="fas fa-magic ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 13: Preview & Tweak -->
+            <div class="p-6 md:p-8 hidden" id="step-13">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Your Meal Plan Preview</h2>
+                
+                <div class="space-y-8">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-indigo-600 px-6 py-3">
+                            <h3 class="font-bold text-white">Day 1</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="mb-6">
+                                <h4 class="font-medium text-gray-800 mb-3 flex items-center">
+                                    <i class="fas fa-sun mr-2 text-yellow-500"></i> Breakfast
+                                </h4>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h5 class="font-bold">Spinach & Feta Omelet</h5>
+                                            <p class="text-sm text-gray-600">With whole wheat toast and avocado</p>
+                                        </div>
+                                        <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded">450 cal</span>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2 mt-3 text-center text-xs">
+                                        <div class="bg-green-50 text-green-800 p-1 rounded">P: 32g</div>
+                                        <div class="bg-blue-50 text-blue-800 p-1 rounded">F: 28g</div>
+                                        <div class="bg-purple-50 text-purple-800 p-1 rounded">C: 25g</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <h4 class="font-medium text-gray-800 mb-3 flex items-center">
+                                    <i class="fas fa-sun mr-2 text-orange-500"></i> Lunch
+                                </h4>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h5 class="font-bold">Grilled Salmon Bowl</h5>
+                                            <p class="text-sm text-gray-600">With quinoa, roasted veggies, and lemon dressing</p>
+                                        </div>
+                                        <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded">620 cal</span>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2 mt-3 text-center text-xs">
+                                        <div class="bg-green-50 text-green-800 p-1 rounded">P: 42g</div>
+                                        <div class="bg-blue-50 text-blue-800 p-1 rounded">F: 32g</div>
+                                        <div class="bg-purple-50 text-purple-800 p-1 rounded">C: 45g</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <h4 class="font-medium text-gray-800 mb-3 flex items-center">
+                                    <i class="fas fa-moon mr-2 text-indigo-500"></i> Dinner
+                                </h4>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h5 class="font-bold">Chicken Stir-Fry</h5>
+                                            <p class="text-sm text-gray-600">With brown rice and mixed vegetables</p>
+                                        </div>
+                                        <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded">580 cal</span>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2 mt-3 text-center text-xs">
+                                        <div class="bg-green-50 text-green-800 p-1 rounded">P: 48g</div>
+                                        <div class="bg-blue-50 text-blue-800 p-1 rounded">F: 22g</div>
+                                        <div class="bg-purple-50 text-purple-800 p-1 rounded">C: 52g</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-green-600 px-6 py-3">
+                            <h3 class="font-bold text-white">Shopping List</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="mb-4">
+                                <h4 class="font-medium text-gray-800 mb-2 flex items-center">
+                                    <i class="fas fa-carrot mr-2 text-green-500"></i> Produce
+                                </h4>
+                                <ul class="list-disc list-inside text-gray-700 pl-2">
+                                    <li>Spinach - 200g</li>
+                                    <li>Avocado - 2 medium</li>
+                                    <li>Bell peppers - 3</li>
+                                    <li>Broccoli - 1 head</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h4 class="font-medium text-gray-800 mb-2 flex items-center">
+                                    <i class="fas fa-drumstick-bite mr-2 text-red-500"></i> Proteins
+                                </h4>
+                                <ul class="list-disc list-inside text-gray-700 pl-2">
+                                    <li>Chicken breast - 500g</li>
+                                    <li>Salmon fillet - 2 pieces</li>
+                                    <li>Eggs - 12</li>
+                                </ul>
+                            </div>
+                            
+                            <div>
+                                <h4 class="font-medium text-gray-800 mb-2 flex items-center">
+                                    <i class="fas fa-bread-slice mr-2 text-yellow-500"></i> Pantry
+                                </h4>
+                                <ul class="list-disc list-inside text-gray-700 pl-2">
+                                    <li>Quinoa - 200g</li>
+                                    <li>Brown rice - 500g</li>
+                                    <li>Olive oil</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-3">
+                        <button class="flex items-center text-indigo-600 hover:text-indigo-800 font-medium py-2 px-4 rounded-lg border border-indigo-200 hover:border-indigo-300 transition">
+                            <i class="fas fa-exchange-alt mr-2"></i> Swap ingredient
+                        </button>
+                        <button class="flex items-center text-indigo-600 hover:text-indigo-800 font-medium py-2 px-4 rounded-lg border border-indigo-200 hover:border-indigo-300 transition">
+                            <i class="fas fa-plus-circle mr-2"></i> Adjust portion
+                        </button>
+                        <button class="flex items-center text-indigo-600 hover:text-indigo-800 font-medium py-2 px-4 rounded-lg border border-indigo-200 hover:border-indigo-300 transition">
+                            <i class="fas fa-redo mr-2"></i> Regenerate
+                        </button>
+                    </div>
+                    
+                    <div class="flex justify-center gap-4">
+                        <button class="text-gray-600 hover:text-gray-800 font-medium py-2 px-4 rounded-lg border border-gray-200 hover:border-gray-300 transition">
+                            <i class="fas fa-arrow-left mr-2"></i> Show more days
+                        </button>
+                        <button class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-lg transition">
+                            Save Plan <i class="fas fa-save ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Step-by-step form logic
+        let currentStep = 1;
+        const totalSteps = 13;
+
+        function showStep(step) {
+            for (let i = 1; i <= totalSteps; i++) {
+                const el = document.getElementById(`step-${i}`);
+                if (el) el.classList.toggle('hidden', i !== step);
+            }
+            updateProgress(step);
+            currentStep = step;
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                showStep(currentStep + 1);
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                showStep(currentStep - 1);
+            }
+        }
+
+        function updateProgress(step) {
+            const percent = Math.round(((step - 1) / (totalSteps - 1)) * 100);
+            document.getElementById('progress-percentage').textContent = percent + '%';
+            document.querySelector('.progress-bar').style.width = percent + '%';
+        }
+
+        // Button group logic (single select)
+        function setupButtonGroup(className) {
+            document.querySelectorAll(`.${className}`).forEach(btn => {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll(`.${className}`).forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        }
+
+        // Multi-select button logic
+        function setupMultiButtonGroup(className) {
+            document.querySelectorAll(`.${className}`).forEach(btn => {
+                btn.addEventListener('click', function () {
+                    this.classList.toggle('active');
+                });
+            });
+        }
+
+        // Ingredient like/neutral/dislike logic
+        function setupIngredientButtons() {
+            document.querySelectorAll('.ingredient-card').forEach(card => {
+                const likeBtn = card.querySelector('.like-btn');
+                const neutralBtn = card.querySelector('.neutral-btn');
+                const dislikeBtn = card.querySelector('.dislike-btn');
+                [likeBtn, neutralBtn, dislikeBtn].forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        likeBtn.classList.remove('active');
+                        neutralBtn.classList.remove('active');
+                        dislikeBtn.classList.remove('active');
+                        btn.classList.add('active');
+                    });
+                });
+            });
+        }
+
+        // Show/hide batch day container
+        function setupBatchCookingToggle() {
+            const radios = document.querySelectorAll('input[name="batch-cooking"]');
+            const container = document.getElementById('batch-day-container');
+            radios.forEach(radio => {
+                radio.addEventListener('change', function () {
+                    if (radios[0].checked) {
+                        container.classList.remove('hidden');
+                    } else {
+                        container.classList.add('hidden');
+                    }
+                });
+            });
+        }
+
+        // Show/hide snack count container
+        function setupSnackToggle() {
+            const radios = document.querySelectorAll('input[name="snacks"]');
+            const container = document.getElementById('snack-count-container');
+            radios.forEach(radio => {
+                radio.addEventListener('change', function () {
+                    if (radios[0].checked) {
+                        container.classList.remove('hidden');
+                    } else {
+                        container.classList.add('hidden');
+                    }
+                });
+            });
+        }
+
+        // Calorie mode toggle
+        function setupCalorieModeToggle() {
+            const radios = document.querySelectorAll('input[name="calorie-mode"]');
+            const autoDiv = document.getElementById('auto-calories');
+            const manualDiv = document.getElementById('manual-calories');
+            radios.forEach((radio, idx) => {
+                radio.addEventListener('change', function () {
+                    if (idx === 0 && radio.checked) {
+                        autoDiv.classList.remove('hidden');
+                        manualDiv.classList.add('hidden');
+                    } else if (idx === 1 && radio.checked) {
+                        autoDiv.classList.add('hidden');
+                        manualDiv.classList.remove('hidden');
+                    }
+                });
+            });
+        }
+
+        // On page load
+        document.addEventListener('DOMContentLoaded', function () {
+            showStep(1);
+
+            setupButtonGroup('goal-btn');
+            setupButtonGroup('meal-btn');
+            setupButtonGroup('diet-btn');
+            setupButtonGroup('time-btn');
+            setupButtonGroup('skill-btn');
+            setupButtonGroup('shopping-btn');
+            setupButtonGroup('plan-btn');
+            setupButtonGroup('snack-btn');
+
+            setupMultiButtonGroup('allergy-btn');
+            setupMultiButtonGroup('intolerance-btn');
+            setupMultiButtonGroup('equipment-btn');
+            setupMultiButtonGroup('supplement-btn');
+
+            setupIngredientButtons();
+            setupBatchCookingToggle();
+            setupSnackToggle();
+            setupCalorieModeToggle();
+        });
+    </script>
+</body>
+</html>

@@ -19,25 +19,64 @@ client = LocalProxy(get_client)
 
 @ingredient_bp.route('/api/ingredients', methods=['GET'])
 def get_ingredients():
-    """Get all ingredients with optional search query parameter"""
+    """Get all ingredients with optional search query parameter and pagination"""
     try:
+        # Get pagination parameters
+        page = request.args.get('page', 1, type=int)
+        limit = request.args.get('limit', 50, type=int)
+        
+        # Validate pagination parameters
+        if page < 1:
+            return jsonify({"error": "Page must be a positive integer"}), 400
+        if limit < 1:
+            return jsonify({"error": "Limit must be a positive integer"}), 400
+        
+        # Convert page to skip
+        skip = (page - 1) * limit
+        
         # Check for search query parameter
         search_query = request.args.get('search')
         
+        # Check for is_system filter parameter
+        is_system = request.args.get('is_system')
+        if is_system is not None:
+            is_system = is_system.lower() in ('true', '1', 'yes')
+        
         if search_query:
             # Use search_ingredients if search parameter is provided
-            ingredients = client.search_ingredients(search_query)
+            ingredients = client.search_ingredients(search_query, skip=skip, limit=limit, is_system=is_system)
         else:
             # Use get_all_ingredients if no search parameter
-            ingredients = client.get_all_ingredients()
+            ingredients = client.get_all_ingredients(skip=skip, limit=limit)
         
         if ingredients is None:
-            return jsonify([]), 200
+            ingredients = []
             
         # Convert ingredients to dictionary format for JSON response
         ingredients_list = [ingredient.to_dict() for ingredient in ingredients]
-        return jsonify(ingredients_list)
         
+        # Determine if there are more results
+        has_more = len(ingredients_list) == limit
+        
+        # Get total count of ingredients regardless of pagination
+        if search_query:
+            total_count = client.count_ingredients(search_term=search_query, is_system=is_system)
+        else:
+            total_count = client.count_ingredients()
+            
+        # Return response with pagination metadata including total count
+        return jsonify({
+            "ingredients": ingredients_list,
+            "pagination": {
+                "page": page,
+                "limit": limit,
+                "has_more": has_more,
+                "total": total_count
+            }
+        })
+        
+    except ValueError as e:
+        return jsonify({"error": f"Invalid parameter value: {str(e)}"}), 400
     except Exception as e:
         return jsonify({"error": f"Failed to fetch ingredients: {str(e)}"}), 500
 

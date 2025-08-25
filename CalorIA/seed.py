@@ -211,8 +211,29 @@ class DatabaseSeeder(MongoMixin):
         
         click.echo(f" ✓ ({len(meals_data)} found)")
         
+        # Check existing meals first
+        existing_meals = {}
+        try:
+            db = self.get_db_connection()
+            if db is not None:
+                collection = db["sample_meals"]
+                cursor = collection.find({})
+                
+                for doc in cursor:
+                    if 'notes' in doc and doc['notes']:
+                        existing_meals[doc['notes']] = True
+        except Exception as e:
+            click.echo(f"⚠️ Warning: Error checking existing meals: {e}")
+        
         count = 0
         for meal_data in meals_data:
+            # Generate meal note which will be used as unique identifier
+            meal_note = meal_data['notes'] or f"System sample meal: {meal_data['name']}"
+            
+            # Skip if this meal already exists
+            if meal_note in existing_meals:
+                continue
+                
             # Create FoodItem objects for the meal
             food_items = []
             
@@ -246,7 +267,7 @@ class DatabaseSeeder(MongoMixin):
                 meal = Meal(
                     meal_type=meal_data['type'],
                     food_items=food_items,
-                    notes=meal_data['notes'] or f"System sample meal: {meal_data['name']}",
+                    notes=meal_note,
                     timestamp=datetime.now(timezone.utc)
                 )
                 
@@ -254,6 +275,7 @@ class DatabaseSeeder(MongoMixin):
                 result = self.create_document("sample_meals", meal)
                 if result:
                     count += 1
+                    existing_meals[meal_note] = True
         
         return count
     
@@ -273,6 +295,51 @@ class DatabaseSeeder(MongoMixin):
         # Then seed meals
         click.echo("🍽️ Seeding Sample Meals:")
         results['meals'] = self.seed_meals()
+        
+        return results
+    
+    def remove_all_seeded_data(self) -> Dict[str, int]:
+        """Remove all system-generated data (ingredients and sample meals).
+        
+        Returns:
+            Dictionary with counts of removed items
+        """
+        results = {
+            'ingredients': 0,
+            'meals': 0
+        }
+        
+        # Remove system ingredients
+        click.echo("🧹 Removing system-generated ingredients...")
+        try:
+            db = self.get_db_connection()
+            if db is None:
+                click.echo(" ❌ Database connection failed")
+                return results
+                
+            collection = db["ingredients"]
+            query = {"is_system": True}
+            delete_result = collection.delete_many(query)
+            results['ingredients'] = delete_result.deleted_count
+            click.echo(f" ✓ Removed {results['ingredients']} system ingredients")
+        except Exception as e:
+            click.echo(f" ❌ Error removing ingredients: {e}")
+        
+        click.echo()
+        
+        # Remove sample meals
+        click.echo("🧹 Removing sample meals...")
+        try:
+            db = self.get_db_connection()
+            if db is None:
+                return results
+                
+            collection = db["sample_meals"]
+            delete_result = collection.delete_many({})  # All sample meals are system-generated
+            results['meals'] = delete_result.deleted_count
+            click.echo(f" ✓ Removed {results['meals']} sample meals")
+        except Exception as e:
+            click.echo(f" ❌ Error removing meals: {e}")
         
         return results
 
@@ -303,6 +370,35 @@ def seed_database():
     click.echo("   • All items marked as system-generated")
     click.echo()
     click.echo("💡 Run this script again anytime - it's safe and won't create duplicates!")
+    
+    return True
+
+
+def remove_seeded_data():
+    """Remove all system-generated data from the database."""
+    click.echo("🧹 CalorIA Database Cleaner")
+    click.echo("=" * 40)
+    
+    seeder = DatabaseSeeder()
+    
+    # Test database connection
+    if seeder.get_db_connection() is None:
+        click.echo("❌ Failed to connect to database. Please check your MongoDB connection.")
+        return False
+    
+    click.echo("✅ Database connection established")
+    click.echo()
+    
+    # Perform removal
+    results = seeder.remove_all_seeded_data()
+    
+    click.echo()
+    click.echo("=" * 40)
+    click.echo("✅ Cleanup completed!")
+    click.echo(f"   • Removed {results['ingredients']} system ingredients")
+    click.echo(f"   • Removed {results['meals']} sample meals")
+    click.echo()
+    click.echo("💡 Use 'caloria seed' to re-seed the database with fresh data.")
     
     return True
 
