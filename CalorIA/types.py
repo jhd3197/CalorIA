@@ -1,7 +1,7 @@
 # types.py
 from __future__ import annotations
 from enum import Enum
-from typing import Any, Dict, Type, TypeVar, Iterable, List, Optional
+from typing import Any, Dict, Type, TypeVar, Iterable, List, Optional, Literal
 from decimal import Decimal
 from uuid import UUID, uuid4
 from datetime import datetime, date, time, timezone
@@ -56,6 +56,14 @@ class WaterUnit(str, Enum):
     OUNCE = "oz"    # US fluid ounce
     CUP = "cup"     # ~240 ml (approx)
 
+class IngredientUnit(str, Enum):
+    G = "g"
+    ML = "ml"
+    UNIT = "unit"   # e.g., 1 egg, 1 clove
+    TBSP = "tbsp"
+    TSP = "tsp"
+    CUP = "cup"
+    OZ = "oz"
 
 # -------------------------
 # Utility conversion constants
@@ -64,7 +72,8 @@ _LB_TO_KG = 0.45359237
 _OUNCE_TO_ML = 29.5735295625
 _CUP_TO_ML = 240.0
 _LITER_TO_ML = 1000.0
-
+_TBSP_TO_ML = 15.0
+_TSP_TO_ML = 5.0
 
 T = TypeVar("T", bound="CalorIAModel")
 
@@ -181,6 +190,7 @@ class FoodItem(CalorIAModel):
     fat_g: Optional[float] = Field(0.0, ge=0.0)
     portion_size: Optional[str] = None  # e.g., "100 g", "1 cup"
     barcode: Optional[str] = None
+    is_system: bool = Field(False, description="Whether this item was created by the system seed script")
 
     @validator("calories")
     def calories_must_be_positive(cls, v):
@@ -281,3 +291,99 @@ class DailyWaterLog(CalorIAModel):
         if goal_ml is None:
             return None
         return self.total_ml() >= goal_ml
+    
+# -------------------------
+# Ingredient / Recipe link
+# -------------------------
+class Ingredient(CalorIAModel):
+    """
+    Master ingredient record.
+    - kcal_per_100g etc. are stored per 100g.
+    - grams_per_unit: if default_unit == UNIT this tells how many grams per 'unit' (eg 1 egg = 50g)
+    - density_g_per_ml: optional for better volume->weight conversions (e.g., oil ~0.91 g/ml)
+    """
+    id: Optional[UUID] = None
+    name: str
+    aliases: Optional[List[str]] = Field(default_factory=list)
+    category: Optional[str] = None
+    default_unit: IngredientUnit = IngredientUnit.G
+    grams_per_unit: Optional[float] = None         # grams per 1 'unit' (like 1 egg = 50)
+    density_g_per_ml: Optional[float] = None       # g per ml if known (for volume->weight)
+    kcal_per_100g: Optional[float] = None
+    protein_per_100g: Optional[float] = None
+    fat_per_100g: Optional[float] = None
+    carbs_per_100g: Optional[float] = None
+    tags: Optional[List[str]] = Field(default_factory=list)
+    image_url: Optional[str] = None
+    notes: Optional[str] = None
+    created_by: Optional[UUID] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    is_system: bool = Field(False, description="Whether this ingredient was created by the system seed script")
+
+    @validator("kcal_per_100g", "protein_per_100g", "fat_per_100g", "carbs_per_100g")
+    def _non_negative_or_none(cls, v):
+        if v is not None and v < 0:
+            raise ValueError("nutrition values must be >= 0")
+        return v
+
+    def amount_to_grams(self, amount: float, unit: IngredientUnit) -> float:
+        """
+        Convert amount in `unit` to grams using best available data.
+        Fallback assumptions:
+         - ml -> grams: uses density_g_per_ml if present, else assumes 1 g/ml
+         - cup/tbsp/tsp/oz -> convert to ml then to grams (assume 1 g/ml unless density given)
+         - unit -> uses grams_per_unit (must be provided) otherwise raises ValueError
+        """
+        if unit == IngredientUnit.G:
+            return float(amount)
+        if unit == IngredientUnit.ML:
+            density = self.density_g_per_ml if self.density_g_per_ml is not None else 1.0
+            return float(amount) * density
+        if unit == IngredientUnit.TBSP:
+            ml = float(amount) * _TBSP_TO_ML
+            density = self.density_g_per_ml if self.density_g_per_ml is not None else 1.0
+            return ml * density
+        if unit == IngredientUnit.TSP:
+            ml = float(amount) * _TSP_TO_ML
+            density = self.density_g_per_ml if self.density_g_per_ml is not None else 1.0
+            return ml * density
+        if unit == IngredientUnit.CUP:
+            ml = float(amount) * _CUP_TO_ML
+            density = self.density_g_per_ml if self.density_g_per_ml is not None else 1.0
+            return ml * density
+        if unit == IngredientUnit.OZ:
+            # oz as weight -> convert to grams (1 oz = 28.3495 g)
+            return float(amount) * 28.349523125
+        if unit == IngredientUnit.UNIT:
+            if self.grams_per_unit is None:
+                raise ValueError("grams_per_unit required to convert 'unit' to grams for this ingredient")
+            return float(amount) * float(self.grams_per_unit)
+        raise ValueError(f"Unsupported unit: {unit}")
+
+    def calories_for(self, amount: float, unit: IngredientUnit) -> Optional[float]:
+        """
+        Return calories for given amount+unit. Returns None if kcal_per_100g not set.
+        """
+        if self.kcal_per_100g is None:
+            return None
+        grams = self.amount_to_grams(amount, unit)
+        return float(self.kcal_per_100g) * (grams / 100.0)
+
+class RecipeIngredient(CalorIAModel):
+    """
+    Link used inside recipes/meals:
+      - ingredient_id (or whole ingredient object)
+      - amount + unit
+      - computed calories/protein/etc (optional cached fields)
+    """
+    ingredient_id: Optional[UUID] = None
+    ingredient: Optional[Ingredient] = None   # convenience: include full object if available
+    amount: float = 1.0
+    unit: IngredientUnit = IngredientUnit.G
+    notes: Optional[str] = None
+
+    def calories(self) -> Optional[float]:
+        if self.ingredient is None:
+            return None
+        return self.ingredient.calories_for(self.amount, self.unit)

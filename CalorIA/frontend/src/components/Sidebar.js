@@ -9,6 +9,7 @@ import {
   Flag,
   BarChart2,
   BookOpen,
+  Package,
   ShoppingCart,
   Link2,
   Settings,
@@ -23,6 +24,7 @@ const Sidebar = ({ collapsed, onToggle, currentPath }) => {
     { id: 'meal-planner', icon: Calendar, label: 'Meal Planner', path: '/meal-planner' },
     { id: 'activity', icon: Activity, label: 'Activity', path: '/activity' },
     { id: 'recipes', icon: BookOpen, label: 'Recipes', path: '/recipes' },
+    { id: 'ingredients', icon: Package, label: 'Ingredients', path: '/ingredients' },
     { id: 'grocery-list', icon: ShoppingCart, label: 'Grocery List', path: '/grocery-list' },
     { id: 'settings', icon: Settings, label: 'Settings', path: '/settings' },
   ];

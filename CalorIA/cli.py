@@ -149,29 +149,25 @@ def build(output_dir):
 @cli.command()
 def seed():
     """Seed the database with sample data for testing and development."""
-    click.echo("Seeding database with sample data...")
-    
-    project_root = get_project_root()
-    seed_script = project_root / "seed_database.py"
-    
-    if not seed_script.exists():
-        click.echo(f"Error: {seed_script} not found!", err=True)
-        sys.exit(1)
-    
-    # Change to project root directory to run the seed script
-    original_cwd = os.getcwd()
-    os.chdir(project_root)
-    
     try:
-        result = subprocess.run([sys.executable, 'seed_database.py'], check=True)
-        click.echo("✅ Database seeding completed successfully!")
-    except subprocess.CalledProcessError as e:
-        click.echo(f"❌ Error running database seeding script: {e}", err=True)
+        # Import the seeding function from the CalorIA package
+        from CalorIA.seed import seed_database
+        
+        # Run the seeding
+        success = seed_database()
+        
+        if not success:
+            sys.exit(1)
+            
+    except ImportError as e:
+        click.echo(f"❌ Error importing seeding module: {e}", err=True)
         sys.exit(1)
     except KeyboardInterrupt:
-        click.echo("\nDatabase seeding interrupted.")
-    finally:
-        os.chdir(original_cwd)
+        click.echo("\n Database seeding interrupted.")
+        sys.exit(1)
+    except Exception as e:
+        click.echo(f"❌ Unexpected error during seeding: {e}", err=True)
+        sys.exit(1)
 
 
 if __name__ == '__main__':

@@ -313,3 +313,157 @@ class MongoMixin:
         except Exception as e:
             print(f"Error getting daily water log for user {user_id}: {e}")
             return None
+    
+    # Ingredient management functions
+    def create_ingredient(self, ingredient: Type.Ingredient) -> Optional[Any]:
+        """Create a new ingredient in the ingredients collection.
+        
+        Args:
+            ingredient: Ingredient model instance
+            
+        Returns:
+            The inserted_id if successful, None otherwise
+        """
+        return self.create_document("ingredients", ingredient)
+    
+    def get_ingredient_by_id(self, ingredient_id: UUID) -> Optional[Type.Ingredient]:
+        """Retrieve an ingredient by its ID.
+        
+        Args:
+            ingredient_id: UUID of the ingredient to retrieve
+            
+        Returns:
+            Ingredient instance if found, None otherwise
+        """
+        query = {"id": str(ingredient_id)}  # Convert UUID to string for MongoDB query
+        return self.get_document("ingredients", query, Type.Ingredient)
+    
+    def get_all_ingredients(self, limit: int = 100) -> list[Type.Ingredient]:
+        """Get all ingredients with optional limit.
+        
+        Args:
+            limit: Maximum number of ingredients to return
+            
+        Returns:
+            List of Ingredient instances
+        """
+        try:
+            db = self.get_db_connection()
+            if db is None:
+                return []
+                
+            collection = db["ingredients"]
+            
+            # Get all ingredients with limit
+            cursor = collection.find().limit(limit)
+            
+            ingredients = []
+            for doc in cursor:
+                if '_id' in doc:
+                    del doc['_id']
+                try:
+                    ingredient = Type.Ingredient.from_dict(doc)
+                    ingredients.append(ingredient)
+                except Exception as e:
+                    print(f"Error parsing ingredient: {e}")
+                    continue
+                    
+            return ingredients
+        except Exception as e:
+            print(f"Error getting all ingredients: {e}")
+            return []
+    
+    def update_ingredient(self, ingredient_id: UUID, ingredient_data: Dict[str, Any]) -> bool:
+        """Update an ingredient by its ID.
+        
+        Args:
+            ingredient_id: UUID of the ingredient to update
+            ingredient_data: Data to update (will be wrapped in $set)
+            
+        Returns:
+            True if update was successful, False otherwise
+        """
+        query = {"id": str(ingredient_id)}  # Convert UUID to string for MongoDB query
+        return self.update_document("ingredients", query, ingredient_data)
+    
+    def delete_ingredient(self, ingredient_id: UUID) -> bool:
+        """Delete an ingredient by its ID.
+        
+        Args:
+            ingredient_id: UUID of the ingredient to delete
+            
+        Returns:
+            True if deletion was successful, False otherwise
+        """
+        query = {"id": str(ingredient_id)}  # Convert UUID to string for MongoDB query
+        return self.delete_document("ingredients", query)
+    
+    def get_ingredient_by_name(self, name: str) -> Optional[Type.Ingredient]:
+        """Get an ingredient by its name (case-insensitive).
+        
+        Args:
+            name: Name of the ingredient to retrieve
+            
+        Returns:
+            Ingredient instance if found, None otherwise
+        """
+        query = {"name": {"$regex": f"^{name}$", "$options": "i"}}  # Case-insensitive exact match
+        return self.get_document("ingredients", query, Type.Ingredient)
+    
+    def search_ingredients(self, search_term: str, limit: int = 20, is_system: Optional[bool] = None) -> list[Type.Ingredient]:
+        """Search ingredients by name or aliases with optional system filter.
+        
+        Args:
+            search_term: Term to search for in ingredient names and aliases
+            limit: Maximum number of ingredients to return
+            is_system: If provided, filter by system status (True for system ingredients, False for user ingredients)
+            
+        Returns:
+            List of matching Ingredient instances
+        """
+        try:
+            db = self.get_db_connection()
+            if db is None:
+                return []
+                
+            collection = db["ingredients"]
+            
+            # Create regex pattern for case-insensitive search
+            search_pattern = {"$regex": search_term, "$options": "i"}
+            
+            # Build base query for search in name and aliases fields
+            search_query = {
+                "$or": [
+                    {"name": search_pattern},
+                    {"aliases": {"$elemMatch": search_pattern}}
+                ]
+            }
+            
+            # Add is_system filter if provided
+            if is_system is not None:
+                query = {
+                    "$and": [
+                        search_query,
+                        {"is_system": is_system}
+                    ]
+                }
+            else:
+                query = search_query
+            
+            cursor = collection.find(query).limit(limit)
+            
+            ingredients = []
+            for doc in cursor:
+                if '_id' in doc:
+                    del doc['_id']
+                try:
+                    ingredient = Type.Ingredient.from_dict(doc)
+                    ingredients.append(ingredient)
+                except Exception as e:
+                    print(f"Error parsing ingredient: {e}")
+                    continue
+                    
+            return ingredients
+        except Exception as e:
+            print(f"Error searching ingredients with term '{search_term}': {e}")
+            return []

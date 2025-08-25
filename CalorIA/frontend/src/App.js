@@ -11,6 +11,7 @@ import TrendCharts from './components/TrendCharts';
 import MealPlanner from './components/MealPlanner';
 import ActivityPage from './components/ActivityPage';
 import Recipes from './components/Recipes';
+import Ingredients from './components/Ingredients';
 import GroceryList from './components/GroceryList';
 import SettingsPage from './components/SettingsPage';
 import Login from './components/Login';
@@ -236,6 +237,11 @@ function App() {
           <Route path="/recipes" element={
             <AppLayout>
               <Recipes userData={userData} />
+            </AppLayout>
+          } />
+          <Route path="/ingredients" element={
+            <AppLayout>
+              <Ingredients userData={userData} />
             </AppLayout>
           } />
           <Route path="/grocery-list" element={
