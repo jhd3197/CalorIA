@@ -18,40 +18,90 @@ weight_bp = Blueprint('weight', __name__)
 # Use LocalProxy to defer client resolution until request context
 client = LocalProxy(get_client)
 
-@weight_bp.route('/api/user/<uuid:user_id>/weight', methods=['GET'])
-def get_user_weight_entries(user_id):
-    """Get weight entries for a specific user"""
+@weight_bp.route('/api/weight/<user_id>', methods=['GET'])
+def get_weight_history(user_id):
+    """Get weight history for a user.
+    
+    Supports pagination and date range filtering.
+    """
     try:
-        # Get limit parameter from query string, default to 30
-        limit = request.args.get('limit', 30, type=int)
-        
-        # Fetch user's weight entries
-        weight_entries = client.get_user_weight_entries(user_id, limit)
-        
-        # Convert weight entries to dictionary format for JSON response
-        entries_data = []
-        for entry in weight_entries:
-            entry_dict = entry.to_dict()
-            entries_data.append(entry_dict)
+        # Parse UUID from string
+        try:
+            user_id = UUID(user_id)
+        except ValueError:
+            return jsonify({"error": "Invalid user ID format"}), 400
             
-        return jsonify(entries_data)
+        # Get query parameters
+        start_date_str = request.args.get('start_date')
+        end_date_str = request.args.get('end_date')
+        days = request.args.get('days')
+        skip = request.args.get('skip', 0, type=int)
+        limit = request.args.get('limit', type=int)
+        
+        # If days parameter is provided, get weight history summary
+        if days is not None:
+            try:
+                days = int(days)
+                if days <= 0:
+                    return jsonify({"error": "Days parameter must be a positive integer"}), 400
+            except ValueError:
+                return jsonify({"error": "Days parameter must be a valid integer"}), 400
+                
+            history = client.get_user_weight_history(user_id, days)
+            return jsonify({"history": history})
+        
+        # Parse date parameters if provided
+        start_date = None
+        end_date = None
+        
+        if start_date_str:
+            try:
+                start_date = date.fromisoformat(start_date_str)
+            except ValueError:
+                return jsonify({"error": "Invalid start_date format. Use YYYY-MM-DD"}), 400
+                
+        if end_date_str:
+            try:
+                end_date = date.fromisoformat(end_date_str)
+            except ValueError:
+                return jsonify({"error": "Invalid end_date format. Use YYYY-MM-DD"}), 400
+        
+        # Get weight entries
+        entries = client.get_user_weight_entries(user_id, start_date, end_date, skip, limit)
+        
+        # Convert entries to dictionaries for JSON response
+        entries_dict = [entry.to_dict() for entry in entries]
+        
+        return jsonify({
+            "user_id": str(user_id),
+            "entries": entries_dict,
+            "count": len(entries_dict)
+        })
         
     except Exception as e:
-        return jsonify({"error": f"Failed to fetch weight entries: {str(e)}"}), 500
+        return jsonify({"error": f"Failed to fetch weight history: {str(e)}"}), 500
 
-@weight_bp.route('/api/user/<uuid:user_id>/weight', methods=['POST'])
-def add_weight_entry(user_id):
+@weight_bp.route('/api/weight', methods=['POST'])
+def add_weight_entry():
     """Add a new weight entry for a user"""
     try:
-        
         # Parse JSON request body
         data = request.get_json()
         if not data:
             return jsonify({"error": "Request body must be valid JSON"}), 400
         
         # Validate required fields
+        if 'user_id' not in data:
+            return jsonify({"error": "Missing required field: user_id"}), 400
+            
         if 'weight_kg' not in data:
             return jsonify({"error": "Missing required field: weight_kg"}), 400
+        
+        # Parse UUID from string
+        try:
+            user_id = UUID(data['user_id'])
+        except ValueError:
+            return jsonify({"error": "Invalid user ID format"}), 400
             
         # Get date from request or use today
         entry_date = data.get('on_date')
@@ -83,6 +133,100 @@ def add_weight_entry(user_id):
         }), 201
         
     except ValueError as e:
-        return jsonify({"error": f"Invalid weight value: {str(e)}"}), 400
+        return jsonify({"error": f"Invalid value: {str(e)}"}), 400
     except Exception as e:
         return jsonify({"error": f"Failed to add weight entry: {str(e)}"}), 500
+
+@weight_bp.route('/api/weight/<entry_id>', methods=['PUT'])
+def update_weight_entry(entry_id):
+    """Update an existing weight entry"""
+    try:
+        # Parse UUID from string
+        try:
+            entry_id = UUID(entry_id)
+        except ValueError:
+            return jsonify({"error": "Invalid entry ID format"}), 400
+        
+        # Parse JSON request body
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Request body must be valid JSON"}), 400
+        
+        # Get the existing entry to validate it exists
+        existing_entry = client.get_weight_entry_by_id(entry_id)
+        if existing_entry is None:
+            return jsonify({"error": "Weight entry not found"}), 404
+        
+        # Prepare update data
+        update_data = {}
+        
+        # Handle weight_kg update
+        if 'weight_kg' in data:
+            try:
+                update_data['weight_kg'] = float(data['weight_kg'])
+                if update_data['weight_kg'] <= 0:
+                    return jsonify({"error": "Weight must be positive"}), 400
+            except ValueError:
+                return jsonify({"error": "Invalid weight value"}), 400
+        
+        # Handle on_date update
+        if 'on_date' in data:
+            try:
+                # Store as ISO format string for MongoDB
+                update_data['on_date'] = date.fromisoformat(data['on_date']).isoformat()
+            except ValueError:
+                return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
+        
+        # Handle notes update
+        if 'notes' in data:
+            update_data['notes'] = data['notes']
+        
+        # If no fields to update, return error
+        if not update_data:
+            return jsonify({"error": "No valid fields to update"}), 400
+        
+        # Update the entry
+        success = client.update_weight_entry(entry_id, update_data)
+        
+        if not success:
+            return jsonify({"error": "Failed to update weight entry"}), 500
+        
+        # Get updated entry
+        updated_entry = client.get_weight_entry_by_id(entry_id)
+        
+        return jsonify({
+            "message": "Weight entry updated successfully",
+            "entry": updated_entry.to_dict() if updated_entry else None
+        })
+        
+    except Exception as e:
+        return jsonify({"error": f"Failed to update weight entry: {str(e)}"}), 500
+
+@weight_bp.route('/api/weight/<entry_id>', methods=['DELETE'])
+def delete_weight_entry(entry_id):
+    """Delete a weight entry"""
+    try:
+        # Parse UUID from string
+        try:
+            entry_id = UUID(entry_id)
+        except ValueError:
+            return jsonify({"error": "Invalid entry ID format"}), 400
+        
+        # Get the existing entry to validate it exists
+        existing_entry = client.get_weight_entry_by_id(entry_id)
+        if existing_entry is None:
+            return jsonify({"error": "Weight entry not found"}), 404
+        
+        # Delete the entry
+        success = client.delete_weight_entry(entry_id)
+        
+        if not success:
+            return jsonify({"error": "Failed to delete weight entry"}), 500
+        
+        return jsonify({
+            "message": "Weight entry deleted successfully",
+            "id": str(entry_id)
+        })
+        
+    except Exception as e:
+        return jsonify({"error": f"Failed to delete weight entry: {str(e)}"}), 500

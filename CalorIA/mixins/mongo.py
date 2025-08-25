@@ -4,10 +4,6 @@ import re
 from typing import Optional, Type as TypingType, TypeVar, Any, Dict
 from uuid import UUID
 from datetime import datetime, date
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
 
 from .. import types as Type
 
