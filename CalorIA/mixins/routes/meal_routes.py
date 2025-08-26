@@ -19,6 +19,7 @@ meal_bp = Blueprint('meal', __name__)
 client = LocalProxy(get_client)
 
 @meal_bp.route('/api/meals/<user_id>', methods=['GET'])
+@meal_bp.route('/api/user/<user_id>/meals', methods=['GET'])
 def get_user_meals(user_id):
     """Get meals for a user.
     
@@ -81,11 +82,11 @@ def add_meal_entry():
         if 'user_id' not in data:
             return jsonify({"error": "Missing required field: user_id"}), 400
             
-        if 'name' not in data:
-            return jsonify({"error": "Missing required field: name"}), 400
+        if 'meal_type' not in data:
+            return jsonify({"error": "Missing required field: meal_type"}), 400
             
-        if 'items' not in data or not isinstance(data['items'], list):
-            return jsonify({"error": "Missing or invalid required field: items (must be an array)"}), 400
+        if 'food_items' not in data or not isinstance(data['food_items'], list):
+            return jsonify({"error": "Missing or invalid required field: food_items (must be an array)"}), 400
         
         # Parse UUID from string
         try:
@@ -104,32 +105,26 @@ def add_meal_entry():
             meal_date = date.today()
         
         # Process meal items
-        meal_items = []
-        for item_data in data['items']:
+        food_items = []
+        for item_data in data['food_items']:
             try:
-                meal_item = Type.MealItem(
+                food_item = Type.FoodItem(
                     name=item_data['name'],
-                    quantity=item_data.get('quantity', 1.0),
-                    unit=item_data.get('unit', 'serving'),
-                    calories=item_data.get('calories', 0),
+                    calories=item_data.get('calories', 100),  # FoodItem requires calories > 0
                     protein_g=item_data.get('protein_g', 0),
                     carbs_g=item_data.get('carbs_g', 0),
                     fat_g=item_data.get('fat_g', 0),
-                    fiber_g=item_data.get('fiber_g', 0),
-                    sugar_g=item_data.get('sugar_g', 0),
-                    sodium_mg=item_data.get('sodium_mg', 0)
+                    portion_size=f"{item_data.get('quantity', 1.0)} {item_data.get('unit', 'serving')}"
                 )
-                meal_items.append(meal_item)
+                food_items.append(food_item)
             except KeyError as e:
                 return jsonify({"error": f"Missing required field in meal item: {str(e)}"}), 400
         
         # Create meal entry
         meal_entry = Type.Meal(
             user_id=user_id,
-            name=data['name'],
-            meal_date=meal_date,
-            meal_time=data.get('meal_time', '12:00'),
-            items=meal_items,
+            meal_type=data['meal_type'],
+            food_items=food_items,
             notes=data.get('notes', '')
         )
         
@@ -172,9 +167,9 @@ def update_meal_entry(meal_id):
         # Prepare update data
         update_data = {}
         
-        # Handle name update
-        if 'name' in data:
-            update_data['name'] = data['name']
+        # Handle meal_type update
+        if 'meal_type' in data:
+            update_data['meal_type'] = data['meal_type']
         
         # Handle meal_date update
         if 'meal_date' in data:
@@ -192,28 +187,24 @@ def update_meal_entry(meal_id):
         if 'notes' in data:
             update_data['notes'] = data['notes']
         
-        # Handle items update
-        if 'items' in data and isinstance(data['items'], list):
-            # Process meal items
+        # Handle food_items update
+        if 'food_items' in data and isinstance(data['food_items'], list):
+            # Process food items
             try:
-                meal_items = []
-                for item_data in data['items']:
-                    meal_item = Type.MealItem(
+                food_items = []
+                for item_data in data['food_items']:
+                    food_item = Type.FoodItem(
                         name=item_data['name'],
-                        quantity=item_data.get('quantity', 1.0),
-                        unit=item_data.get('unit', 'serving'),
-                        calories=item_data.get('calories', 0),
+                        calories=item_data.get('calories', 100),  # FoodItem requires calories > 0
                         protein_g=item_data.get('protein_g', 0),
                         carbs_g=item_data.get('carbs_g', 0),
                         fat_g=item_data.get('fat_g', 0),
-                        fiber_g=item_data.get('fiber_g', 0),
-                        sugar_g=item_data.get('sugar_g', 0),
-                        sodium_mg=item_data.get('sodium_mg', 0)
+                        portion_size=f"{item_data.get('quantity', 1.0)} {item_data.get('unit', 'serving')}"
                     )
-                    meal_items.append(meal_item)
+                    food_items.append(food_item)
                 
-                # Convert meal items to dictionaries for MongoDB update
-                update_data['items'] = [item.to_dict() for item in meal_items]
+                # Convert food items to dictionaries for MongoDB update
+                update_data['food_items'] = [item.to_dict() for item in food_items]
             except KeyError as e:
                 return jsonify({"error": f"Missing required field in meal item: {str(e)}"}), 400
         

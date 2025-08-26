@@ -166,6 +166,23 @@ export const fetchMeals = async (userId, date = null) => {
   });
 };
 
+export const fetchDashboardData = async (userId = null, dateStr = null) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+  
+  if (!userId) {
+    throw new Error('User ID is required to fetch dashboard data');
+  }
+  
+  const dateParam = dateStr ? `?date=${dateStr}` : '';
+  return await apiRequest(`/dashboard/${userId}${dateParam}`, {
+    method: 'GET',
+  });
+};
+
 // Utility function to check if user is authenticated
 export const isAuthenticated = () => {
   const token = getAuthToken();
@@ -186,6 +203,7 @@ const apiUtils = {
   checkAuthHealth,
   fetchUserProfile,
   fetchMeals,
+  fetchDashboardData,
   isAuthenticated,
   logout,
 };

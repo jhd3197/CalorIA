@@ -198,8 +198,21 @@ class FoodItem(CalorIAModel):
             raise ValueError("calories must be greater than 0")
         return v
 
+class MealItem(CalorIAModel):
+    """Individual food item within a meal with quantity and nutritional information."""
+    name: str
+    quantity: float = Field(1.0, gt=0, description="Amount in the specified unit")
+    unit: str = "serving"
+    calories: int = Field(0, ge=0)
+    protein_g: float = Field(0.0, ge=0.0)
+    carbs_g: float = Field(0.0, ge=0.0)
+    fat_g: float = Field(0.0, ge=0.0)
+    fiber_g: float = Field(0.0, ge=0.0)
+    sugar_g: float = Field(0.0, ge=0.0)
+    sodium_mg: float = Field(0.0, ge=0.0)
 
 class Meal(CalorIAModel):
+    user_id: UUID
     meal_type: MealType
     food_items: List["FoodItem"]
     notes: Optional[str] = None
@@ -207,7 +220,6 @@ class Meal(CalorIAModel):
 
     def total_calories(self) -> int:
         return sum(item.calories for item in self.food_items)
-
 
 class DailyLog(CalorIAModel):
     user_id: UUID
@@ -217,7 +229,6 @@ class DailyLog(CalorIAModel):
 
     def total_calories(self) -> int:
         return sum(m.total_calories() for m in self.meals)
-
 
 # -------------------------
 # Weight entry (with unit + conversions)
@@ -292,6 +303,25 @@ class DailyWaterLog(CalorIAModel):
             return None
         return self.total_ml() >= goal_ml
     
+# -------------------------
+# Activity tracking models
+# -------------------------
+class ActivityEntry(CalorIAModel):
+    """Activity record that stores workout data and calories burned."""
+    id: UUID = Field(default_factory=uuid4)
+    user_id: UUID
+    on_date: date = Field(default_factory=lambda: datetime.now(timezone.utc).date())
+    activity_name: str
+    duration_minutes: int = Field(..., gt=0)
+    calories_burned: int = Field(..., gt=0)
+    notes: Optional[str] = None
+
+    @validator("duration_minutes", "calories_burned")
+    def positive_values(cls, v):
+        if v <= 0:
+            raise ValueError("Value must be greater than 0")
+        return v
+
 # -------------------------
 # Ingredient / Recipe link
 # -------------------------

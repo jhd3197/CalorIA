@@ -12,15 +12,15 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 from CalorIA.backend.app import get_client
 from CalorIA import types as Type
 
-# Create the water routes blueprint
-water_bp = Blueprint('water', __name__)
+# Create the activity routes blueprint
+activity_bp = Blueprint('activity', __name__)
 
 # Use LocalProxy to defer client resolution until request context
 client = LocalProxy(get_client)
 
-@water_bp.route('/api/water/<user_id>', methods=['GET'])
-def get_water_entries(user_id):
-    """Get water entries for a user.
+@activity_bp.route('/api/activity/<user_id>', methods=['GET'])
+def get_activity_entries(user_id):
+    """Get activity entries for a user.
     
     Supports pagination and date range filtering.
     """
@@ -53,8 +53,8 @@ def get_water_entries(user_id):
             except ValueError:
                 return jsonify({"error": "Invalid end_date format. Use YYYY-MM-DD"}), 400
         
-        # Get water entries
-        entries = client.get_user_water_entries(user_id, start_date, end_date, skip, limit)
+        # Get activity entries
+        entries = client.get_user_activity_entries(user_id, start_date, end_date, skip, limit)
         
         # Convert entries to dictionaries for JSON response
         entries_dict = [entry.to_dict() for entry in entries]
@@ -66,11 +66,11 @@ def get_water_entries(user_id):
         })
         
     except Exception as e:
-        return jsonify({"error": f"Failed to fetch water entries: {str(e)}"}), 500
+        return jsonify({"error": f"Failed to fetch activity entries: {str(e)}"}), 500
 
-@water_bp.route('/api/water', methods=['POST'])
-def add_water_entry():
-    """Add a new water entry for a user"""
+@activity_bp.route('/api/activity', methods=['POST'])
+def add_activity_entry():
+    """Add a new activity entry for a user"""
     try:
         # Parse JSON request body
         data = request.get_json()
@@ -81,8 +81,14 @@ def add_water_entry():
         if 'user_id' not in data:
             return jsonify({"error": "Missing required field: user_id"}), 400
             
-        if 'amount' not in data:
-            return jsonify({"error": "Missing required field: amount"}), 400
+        if 'activity_name' not in data:
+            return jsonify({"error": "Missing required field: activity_name"}), 400
+            
+        if 'duration_minutes' not in data:
+            return jsonify({"error": "Missing required field: duration_minutes"}), 400
+            
+        if 'calories_burned' not in data:
+            return jsonify({"error": "Missing required field: calories_burned"}), 400
         
         # Parse UUID from string
         try:
@@ -102,51 +108,48 @@ def add_water_entry():
         
         # Validate numeric fields
         try:
-            amount = float(data['amount'])
-            if amount <= 0:
-                return jsonify({"error": "Amount must be positive"}), 400
+            duration_minutes = int(data['duration_minutes'])
+            if duration_minutes <= 0:
+                return jsonify({"error": "Duration must be a positive integer"}), 400
         except ValueError:
-            return jsonify({"error": "Amount must be a valid number"}), 400
-        
-        # Get unit or use default
-        unit = data.get('unit', Type.WaterUnit.ML)
-        
-        # Validate unit
+            return jsonify({"error": "Duration must be a valid integer"}), 400
+            
         try:
-            unit = Type.WaterUnit(unit)
+            calories_burned = int(data['calories_burned'])
+            if calories_burned <= 0:
+                return jsonify({"error": "Calories burned must be a positive integer"}), 400
         except ValueError:
-            return jsonify({
-                "error": f"Invalid unit. Must be one of: {', '.join([u.value for u in Type.WaterUnit])}"
-            }), 400
+            return jsonify({"error": "Calories burned must be a valid integer"}), 400
         
-        # Create water entry
-        water_entry = Type.WaterEntry(
+        # Create activity entry
+        activity_entry = Type.ActivityEntry(
             user_id=user_id,
-            amount=amount,
-            unit=unit,
-            on_date=entry_date
+            activity_name=data['activity_name'],
+            duration_minutes=duration_minutes,
+            calories_burned=calories_burned,
+            on_date=entry_date,
+            notes=data.get('notes', '')
         )
         
         # Add to database
-        result = client.add_water_entry(water_entry)
+        result = client.add_activity_entry(activity_entry)
         
         if result is None:
-            return jsonify({"error": "Failed to save water entry"}), 500
+            return jsonify({"error": "Failed to save activity entry"}), 500
             
         return jsonify({
-            "message": "Water entry added successfully",
-            "entry": water_entry.to_dict(),
-            "amount_ml": water_entry.amount_ml  # Include converted amount in ml
+            "message": "Activity entry added successfully",
+            "entry": activity_entry.to_dict()
         }), 201
         
     except ValueError as e:
         return jsonify({"error": f"Invalid value: {str(e)}"}), 400
     except Exception as e:
-        return jsonify({"error": f"Failed to add water entry: {str(e)}"}), 500
+        return jsonify({"error": f"Failed to add activity entry: {str(e)}"}), 500
 
-@water_bp.route('/api/water/<entry_id>', methods=['PUT'])
-def update_water_entry(entry_id):
-    """Update an existing water entry"""
+@activity_bp.route('/api/activity/<entry_id>', methods=['PUT'])
+def update_activity_entry(entry_id):
+    """Update an existing activity entry"""
     try:
         # Parse UUID from string
         try:
@@ -160,32 +163,36 @@ def update_water_entry(entry_id):
             return jsonify({"error": "Request body must be valid JSON"}), 400
         
         # Get the existing entry to validate it exists
-        existing_entry = client.get_water_entry_by_id(entry_id)
+        existing_entry = client.get_activity_entry_by_id(entry_id)
         if existing_entry is None:
-            return jsonify({"error": "Water entry not found"}), 404
+            return jsonify({"error": "Activity entry not found"}), 404
         
         # Prepare update data
         update_data = {}
         
-        # Handle amount update
-        if 'amount' in data:
-            try:
-                amount = float(data['amount'])
-                if amount <= 0:
-                    return jsonify({"error": "Amount must be positive"}), 400
-                update_data['amount'] = amount
-            except ValueError:
-                return jsonify({"error": "Invalid amount value"}), 400
+        # Handle activity_name update
+        if 'activity_name' in data:
+            update_data['activity_name'] = data['activity_name']
         
-        # Handle unit update
-        if 'unit' in data:
+        # Handle duration_minutes update
+        if 'duration_minutes' in data:
             try:
-                unit = Type.WaterUnit(data['unit'])
-                update_data['unit'] = unit.value
+                duration_minutes = int(data['duration_minutes'])
+                if duration_minutes <= 0:
+                    return jsonify({"error": "Duration must be positive"}), 400
+                update_data['duration_minutes'] = duration_minutes
             except ValueError:
-                return jsonify({
-                    "error": f"Invalid unit. Must be one of: {', '.join([u.value for u in Type.WaterUnit])}"
-                }), 400
+                return jsonify({"error": "Invalid duration value"}), 400
+        
+        # Handle calories_burned update
+        if 'calories_burned' in data:
+            try:
+                calories_burned = int(data['calories_burned'])
+                if calories_burned <= 0:
+                    return jsonify({"error": "Calories burned must be positive"}), 400
+                update_data['calories_burned'] = calories_burned
+            except ValueError:
+                return jsonify({"error": "Invalid calories burned value"}), 400
         
         # Handle on_date update
         if 'on_date' in data:
@@ -195,31 +202,34 @@ def update_water_entry(entry_id):
             except ValueError:
                 return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
         
+        # Handle notes update
+        if 'notes' in data:
+            update_data['notes'] = data['notes']
+        
         # If no fields to update, return error
         if not update_data:
             return jsonify({"error": "No valid fields to update"}), 400
         
         # Update the entry
-        success = client.update_water_entry(entry_id, update_data)
+        success = client.update_activity_entry(entry_id, update_data)
         
         if not success:
-            return jsonify({"error": "Failed to update water entry"}), 500
+            return jsonify({"error": "Failed to update activity entry"}), 500
         
         # Get updated entry
-        updated_entry = client.get_water_entry_by_id(entry_id)
+        updated_entry = client.get_activity_entry_by_id(entry_id)
         
         return jsonify({
-            "message": "Water entry updated successfully",
-            "entry": updated_entry.to_dict() if updated_entry else None,
-            "amount_ml": updated_entry.amount_ml if updated_entry else None  # Include converted amount in ml
+            "message": "Activity entry updated successfully",
+            "entry": updated_entry.to_dict() if updated_entry else None
         })
         
     except Exception as e:
-        return jsonify({"error": f"Failed to update water entry: {str(e)}"}), 500
+        return jsonify({"error": f"Failed to update activity entry: {str(e)}"}), 500
 
-@water_bp.route('/api/water/<entry_id>', methods=['DELETE'])
-def delete_water_entry(entry_id):
-    """Delete a water entry"""
+@activity_bp.route('/api/activity/<entry_id>', methods=['DELETE'])
+def delete_activity_entry(entry_id):
+    """Delete an activity entry"""
     try:
         # Parse UUID from string
         try:
@@ -228,20 +238,20 @@ def delete_water_entry(entry_id):
             return jsonify({"error": "Invalid entry ID format"}), 400
         
         # Get the existing entry to validate it exists
-        existing_entry = client.get_water_entry_by_id(entry_id)
+        existing_entry = client.get_activity_entry_by_id(entry_id)
         if existing_entry is None:
-            return jsonify({"error": "Water entry not found"}), 404
+            return jsonify({"error": "Activity entry not found"}), 404
         
         # Delete the entry
-        success = client.delete_water_entry(entry_id)
+        success = client.delete_activity_entry(entry_id)
         
         if not success:
-            return jsonify({"error": "Failed to delete water entry"}), 500
+            return jsonify({"error": "Failed to delete activity entry"}), 500
         
         return jsonify({
-            "message": "Water entry deleted successfully",
+            "message": "Activity entry deleted successfully",
             "id": str(entry_id)
         })
         
     except Exception as e:
-        return jsonify({"error": f"Failed to delete water entry: {str(e)}"}), 500
+        return jsonify({"error": f"Failed to delete activity entry: {str(e)}"}), 500
