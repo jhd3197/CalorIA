@@ -149,23 +149,6 @@ export const fetchUserProfile = async (userId) => {
   });
 };
 
-export const fetchMeals = async (userId, date = null) => {
-  if (!userId) {
-    // Try to get user ID from stored user data
-    const userData = getUserData();
-    userId = userData?.user_id || userData?.id;
-  }
-  
-  if (!userId) {
-    throw new Error('User ID is required to fetch meals');
-  }
-  
-  const dateParam = date ? `?date=${date}` : '';
-  return await apiRequest(`/user/${userId}/meals${dateParam}`, {
-    method: 'GET',
-  });
-};
-
 export const fetchDashboardData = async (userId = null, dateStr = null) => {
   if (!userId) {
     // Try to get user ID from stored user data
@@ -202,7 +185,6 @@ const apiUtils = {
   getCurrentUser,
   checkAuthHealth,
   fetchUserProfile,
-  fetchMeals,
   fetchDashboardData,
   isAuthenticated,
   logout,

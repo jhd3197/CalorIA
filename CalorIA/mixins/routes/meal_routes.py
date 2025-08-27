@@ -18,57 +18,6 @@ meal_bp = Blueprint('meal', __name__)
 # Use LocalProxy to defer client resolution until request context
 client = LocalProxy(get_client)
 
-@meal_bp.route('/api/meals/<user_id>', methods=['GET'])
-@meal_bp.route('/api/user/<user_id>/meals', methods=['GET'])
-def get_user_meals(user_id):
-    """Get meals for a user.
-    
-    Supports pagination and date range filtering.
-    """
-    try:
-        # Parse UUID from string
-        try:
-            user_id = UUID(user_id)
-        except ValueError:
-            return jsonify({"error": "Invalid user ID format"}), 400
-            
-        # Get query parameters
-        start_date_str = request.args.get('start_date')
-        end_date_str = request.args.get('end_date')
-        skip = request.args.get('skip', 0, type=int)
-        limit = request.args.get('limit', type=int)
-        
-        # Parse date parameters if provided
-        start_date = None
-        end_date = None
-        
-        if start_date_str:
-            try:
-                start_date = date.fromisoformat(start_date_str)
-            except ValueError:
-                return jsonify({"error": "Invalid start_date format. Use YYYY-MM-DD"}), 400
-                
-        if end_date_str:
-            try:
-                end_date = date.fromisoformat(end_date_str)
-            except ValueError:
-                return jsonify({"error": "Invalid end_date format. Use YYYY-MM-DD"}), 400
-        
-        # Get meals for the user
-        meals = client.get_user_meals(user_id, start_date, end_date, skip, limit)
-        
-        # Convert meals to dictionaries for JSON response
-        meals_dict = [meal.to_dict() for meal in meals]
-        
-        return jsonify({
-            "user_id": str(user_id),
-            "meals": meals_dict,
-            "count": len(meals_dict)
-        })
-        
-    except Exception as e:
-        return jsonify({"error": f"Failed to fetch meals: {str(e)}"}), 500
-
 @meal_bp.route('/api/meals', methods=['POST'])
 def add_meal_entry():
     """Add a new meal entry for a user"""
@@ -120,12 +69,19 @@ def add_meal_entry():
             except KeyError as e:
                 return jsonify({"error": f"Missing required field in meal item: {str(e)}"}), 400
         
-        # Create meal entry
+        # Create meal entry with the provided date
+        from datetime import datetime, time, timezone
+        
+        # Create a datetime object for the meal using the provided date and current time
+        # We'll use the server's time but with the user's date
+        meal_datetime = datetime.combine(meal_date, datetime.now().time())
+        
         meal_entry = Type.Meal(
             user_id=user_id,
             meal_type=data['meal_type'],
             food_items=food_items,
-            notes=data.get('notes', '')
+            notes=data.get('notes', ''),
+            timestamp=meal_datetime
         )
         
         # Add to database

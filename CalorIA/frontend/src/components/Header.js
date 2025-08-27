@@ -7,7 +7,7 @@ const Header = ({ onMobileMenuToggle, userData }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const navigate = useNavigate();
   // Get today's date in YYYY-MM-DD format
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('en-CA');
 
   // Get user's initials for avatar
   const getUserInitials = () => {

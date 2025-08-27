@@ -151,6 +151,7 @@ class CalorIAModel(BaseModel):
 class UserPreferences(CalorIAModel):
     sex: Sex
     age: Optional[int] = Field(None, ge=0, le=120)
+    height: Optional[float] = Field(None, gt=0, description="Height in centimeters")
     measurement_system: MeasurementSystem = MeasurementSystem.METRIC
     default_weight_unit: WeightUnit = WeightUnit.KG
     activity_level: ActivityLevel = ActivityLevel.SEDENTARY
@@ -161,6 +162,9 @@ class UserPreferences(CalorIAModel):
         None, gt=0, description="Daily water goal stored in milliliters"
     )
     preferred_language: str = "en"  # e.g., 'en' or 'es'
+    timezone: str = "America/New_York"
+    theme: str = "light"
+    week_starts_on: str = "monday"
     diet_preferences: Optional[List[str]] = None  # e.g., ['vegetarian', 'keto']
 
     @validator("target_weight")
@@ -174,6 +178,8 @@ class User(CalorIAModel):
     user_id: UUID = Field(default_factory=uuid4)
     name: str
     email: Optional[str] = None
+    phone: Optional[str] = None
+    date_of_birth: Optional[date] = None
     password_hash: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     preferences: UserPreferences

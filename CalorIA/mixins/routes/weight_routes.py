@@ -93,9 +93,9 @@ def add_weight_entry():
         # Validate required fields
         if 'user_id' not in data:
             return jsonify({"error": "Missing required field: user_id"}), 400
-            
-        if 'weight_kg' not in data:
-            return jsonify({"error": "Missing required field: weight_kg"}), 400
+
+        if 'weight' not in data:
+            return jsonify({"error": "Missing required field: weight"}), 400
         
         # Parse UUID from string
         try:
@@ -116,9 +116,9 @@ def add_weight_entry():
         # Create weight entry
         weight_entry = Type.WeightEntry(
             user_id=user_id,
-            weight_kg=float(data['weight_kg']),
-            on_date=entry_date,
-            notes=data.get('notes', '')
+            weight=float(data['weight']),
+            unit=data.get('unit', 'kg'),
+            on_date=entry_date
         )
         
         # Add to database
@@ -160,14 +160,18 @@ def update_weight_entry(entry_id):
         # Prepare update data
         update_data = {}
         
-        # Handle weight_kg update
-        if 'weight_kg' in data:
+        # Handle weight update
+        if 'weight' in data:
             try:
-                update_data['weight_kg'] = float(data['weight_kg'])
-                if update_data['weight_kg'] <= 0:
+                update_data['weight'] = float(data['weight'])
+                if update_data['weight'] <= 0:
                     return jsonify({"error": "Weight must be positive"}), 400
             except ValueError:
                 return jsonify({"error": "Invalid weight value"}), 400
+
+        # Handle unit update
+        if 'unit' in data:
+            update_data['unit'] = data['unit']
         
         # Handle on_date update
         if 'on_date' in data:
@@ -177,9 +181,6 @@ def update_weight_entry(entry_id):
             except ValueError:
                 return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
         
-        # Handle notes update
-        if 'notes' in data:
-            update_data['notes'] = data['notes']
         
         # If no fields to update, return error
         if not update_data:

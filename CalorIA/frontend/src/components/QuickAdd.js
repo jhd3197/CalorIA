@@ -59,6 +59,11 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
   const [waterUnit, setWaterUnit] = useState('ml');
   const [isAddingWater, setIsAddingWater] = useState(false);
 
+  // Weight form state
+  const [weightValue, setWeightValue] = useState('');
+  const [weightUnit, setWeightUnit] = useState('kg');
+  const [isAddingWeight, setIsAddingWeight] = useState(false);
+
   // Function to get the effective user ID
   const getEffectiveUserId = () => {
     // Try to use the prop first
@@ -163,9 +168,9 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
     setIsAddingFood(true);
     
     try {
-      // Get current date and time
+      // Get current date and time using local time
       const now = new Date();
-      const mealDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
+      const mealDate = now.toLocaleDateString('en-CA'); // YYYY-MM-DD using local time
       const mealTime = now.toTimeString().split(' ')[0].substring(0, 5); // HH:MM
       
       // Create a food item object for the items array
@@ -178,6 +183,52 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
         carbs_g: 0,
         fat_g: 0
       };
+      
+      // If the food name matches an ingredient, calculate nutritional values
+      const matchingIngredient = searchResults.find(ing => 
+        ing.name.toLowerCase() === foodName.trim().toLowerCase()
+      );
+      
+      if (matchingIngredient && matchingIngredient.kcal_per_100g !== undefined) {
+        // Calculate nutritional values based on the ingredient
+        const amount = Number(quantity);
+        let grams = amount; // Default to grams
+        
+        // Convert to grams based on unit
+        switch (unit) {
+          case 'g':
+            grams = amount;
+            break;
+          case '100g':
+            grams = amount * 100;
+            break;
+          case 'oz':
+            grams = amount * 28.35; // 1 oz = 28.35g
+            break;
+          case 'cup':
+            grams = amount * 125; // Approximate, could be more specific per ingredient
+            break;
+          case 'tbsp':
+            grams = amount * 15; // 1 tbsp = 15g
+            break;
+          case 'tsp':
+            grams = amount * 5; // 1 tsp = 5g
+            break;
+          default: // 'serving' or other
+            grams = amount * 100; // Default to 100g per serving
+            break;
+        }
+        
+        // Calculate nutritional values per 100g
+        const factor = grams / 100;
+        foodItem.calories = Math.round(matchingIngredient.kcal_per_100g * factor);
+        foodItem.protein_g = matchingIngredient.protein_per_100g ? 
+          Number((matchingIngredient.protein_per_100g * factor).toFixed(1)) : 0;
+        foodItem.carbs_g = matchingIngredient.carbs_per_100g ? 
+          Number((matchingIngredient.carbs_per_100g * factor).toFixed(1)) : 0;
+        foodItem.fat_g = matchingIngredient.fat_per_100g ? 
+          Number((matchingIngredient.fat_per_100g * factor).toFixed(1)) : 0;
+      }
       
       // Format the meal request according to the backend Type.Meal model
       const mealData = {
@@ -210,8 +261,6 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
       setQuantity(1);
       setUnit('serving');
       
-      // Show success message
-      alert('Food added successfully!');
     } catch (error) {
       console.error('Error adding food:', error);
       alert('Failed to add food. Please try again.');
@@ -232,11 +281,11 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
     const effectiveUserId = getEffectiveUserId();
 
     setIsAddingWater(true);
-    
+
     try {
       // Get current date
       const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-      
+
       const waterData = {
         user_id: effectiveUserId,
         amount: Number(waterAmount),
@@ -265,14 +314,76 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
       // Reset water form after successful submission
       setWaterAmount(250);
       setWaterUnit('ml');
-      
-      // Show success message
-      alert('Water added successfully!');
+
     } catch (error) {
       console.error('Error adding water:', error);
       alert('Failed to add water. Please try again.');
     } finally {
       setIsAddingWater(false);
+    }
+  };
+
+  // Handle weight form submission
+  const handleAddWeight = async () => {
+    // Basic validation
+    if (!weightValue || isNaN(weightValue) || Number(weightValue) <= 0) {
+      alert('Please enter a valid weight');
+      return;
+    }
+
+    // Get user ID
+    const effectiveUserId = getEffectiveUserId();
+
+    setIsAddingWeight(true);
+
+    try {
+      // Convert weight to kg based on unit
+      let weightInKg = Number(weightValue);
+      switch (weightUnit) {
+        case 'lbs':
+          weightInKg = weightInKg * 0.453592; // 1 lb = 0.453592 kg
+          break;
+        case 'oz':
+          weightInKg = weightInKg * 0.0283495; // 1 oz = 0.0283495 kg
+          break;
+        case 'kg':
+        default:
+          // Already in kg
+          break;
+      }
+
+      // Get current date using same logic as other forms
+      const now = new Date();
+      const weightDate = now.toLocaleDateString('en-CA'); // YYYY-MM-DD using local time
+
+      const weightData = {
+        user_id: effectiveUserId,
+        weight: Number(weightInKg.toFixed(2)),
+        unit: 'kg',
+        on_date: weightDate
+      };
+
+      console.log('Sending weight data:', JSON.stringify(weightData));
+
+      // Make API call to add weight
+      await apiRequest('/weight', {
+        method: 'POST',
+        body: JSON.stringify(weightData),
+      });
+
+      // Trigger dashboard update
+      if (onDashboardUpdate && typeof onDashboardUpdate === 'function') {
+        await onDashboardUpdate();
+      }
+
+      // Reset weight form after successful submission
+      setWeightValue('');
+
+    } catch (error) {
+      console.error('Error adding weight:', error);
+      alert('Failed to add weight. Please try again.');
+    } finally {
+      setIsAddingWeight(false);
     }
   };
 
@@ -301,6 +412,16 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
           onClick={() => setActiveTab('water')}
         >
           Add Water
+        </button>
+        <button
+          className={`px-4 py-2 font-medium text-sm ${
+            activeTab === 'weight'
+              ? 'border-b-2 border-emerald-500 text-emerald-600'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+          onClick={() => setActiveTab('weight')}
+        >
+          Add Weight
         </button>
       </div>
       
@@ -434,7 +555,7 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
               </select>
             </div>
           </div>
-          
+
           <div className="flex justify-end">
             <button
               onClick={handleAddWater}
@@ -446,6 +567,53 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
               }`}
             >
               {isAddingWater ? 'Adding...' : 'Add Water'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Weight Tab Content */}
+      {activeTab === 'weight' && (
+        <div>
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div>
+              <label className="block text-sm text-gray-500 mb-1">Weight</label>
+              <input
+                type="number"
+                placeholder="70.5"
+                value={weightValue}
+                onChange={(e) => setWeightValue(e.target.value)}
+                min="0.1"
+                step="0.1"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-500 mb-1">Unit</label>
+              <select
+                value={weightUnit}
+                onChange={(e) => setWeightUnit(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              >
+                <option value="kg">kg</option>
+                <option value="lbs">lbs</option>
+                <option value="oz">oz</option>
+              </select>
+            </div>
+          </div>
+
+
+          <div className="flex justify-end">
+            <button
+              onClick={handleAddWeight}
+              disabled={isAddingWeight}
+              className={`px-4 py-2 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${
+                isAddingWeight
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-emerald-500 hover:bg-emerald-600'
+              }`}
+            >
+              {isAddingWeight ? 'Adding...' : 'Add Weight'}
             </button>
           </div>
         </div>

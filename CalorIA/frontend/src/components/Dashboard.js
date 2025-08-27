@@ -4,6 +4,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import { fetchDashboardData, getUserData } from '../utils/api';
 import MacroBreakdown from './MacroBreakdown';
+import MealTimeline from './MealTimeline';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -108,7 +109,7 @@ const Dashboard = ({ userData: propUserData, mealsData }) => {
         
         // Get current date in YYYY-MM-DD format
         const today = new Date();
-        const dateStr = today.toISOString().split('T')[0];
+        const dateStr = new Date().toLocaleDateString('en-CA');
         
         // Fetch data from API
         const data = await fetchDashboardData(userId, dateStr);
@@ -390,8 +391,11 @@ const Dashboard = ({ userData: propUserData, mealsData }) => {
 
           {/* Macro Breakdown - Now uses the MacroBreakdown component with proper data structure */}
           <MacroBreakdown mealsData={
-            // Structure the data properly for MacroBreakdown
-            mealsData?.mealTimeline ?
+            // Prioritize dashboard data over mealsData prop when available
+            dashboardData?.macros ?
+              // If we have macros from dashboard API, use those (highest priority)
+              { macros: dashboardData.macros }
+              : mealsData?.mealTimeline ?
               // If we have meal timeline data, convert to the format MacroBreakdown expects
               {
                 meals: [
@@ -401,12 +405,66 @@ const Dashboard = ({ userData: propUserData, mealsData }) => {
                   ...(mealsData.mealTimeline.snack?.items ? [{ food_items: mealsData.mealTimeline.snack.items }] : [])
                 ]
               }
-              : dashboardData?.macros ?
-                // If we have macros directly, use those
-                { macros: dashboardData.macros }
+              : mealsData?.meals ?
+                // If we have meals data from API, pass it directly
+                mealsData
                 :
                 // Last resort: use calculated macros
                 calculatedMacros ? { macros: calculatedMacros } : null
+          } />
+
+          {/* Meal Timeline - Use dashboard data when available */}
+          <MealTimeline mealsData={
+            // Prioritize dashboard mealTimeline data over mealsData prop when available
+            dashboardData?.mealTimeline ?
+              // Transform dashboard mealTimeline to match MealTimeline component format
+              (() => {
+                const result = {};
+                Object.entries(dashboardData.mealTimeline).forEach(([mealType, mealData]) => {
+                  // Map "snack" to "snacks" to match component expectations
+                  const componentMealType = mealType === 'snack' ? 'snacks' : mealType;
+
+                  // Transform items to match expected format
+                  const transformedItems = Array.isArray(mealData.items) ? mealData.items.map((item, index) => ({
+                    id: `${componentMealType}-${index}`,
+                    name: item.name,
+                    portion: item.quantity,
+                    calories: item.calories,
+                    icon: null // Will be set by MealTimeline component
+                  })) : [];
+
+                  result[componentMealType] = {
+                    items: transformedItems,
+                    totalCalories: mealData.totalCalories || 0
+                  };
+                });
+                return result;
+              })()
+              : mealsData?.mealTimeline ?
+              // If we have meal timeline data from mealsData prop, transform it
+              (() => {
+                const result = {};
+                Object.entries(mealsData.mealTimeline).forEach(([mealType, mealData]) => {
+                  const componentMealType = mealType === 'snack' ? 'snacks' : mealType;
+                  const transformedItems = Array.isArray(mealData.items) ? mealData.items.map((item, index) => ({
+                    id: `${componentMealType}-${index}`,
+                    name: item.name,
+                    portion: item.quantity,
+                    calories: item.calories,
+                    icon: null
+                  })) : [];
+
+                  result[componentMealType] = {
+                    items: transformedItems,
+                    totalCalories: mealData.totalCalories || 0
+                  };
+                });
+                return result;
+              })()
+              : mealsData?.meals ?
+                // If we have meals data from API, pass it directly (will be transformed by MealTimeline)
+                mealsData
+                : null
           } />
         </div>
       </div>

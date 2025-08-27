@@ -25,8 +25,10 @@ def get_user(user_id):
         if user is None:
             return jsonify({"error": "User not found"}), 404
             
-        # Convert user to dictionary for JSON response
+        # Convert user to dictionary for JSON response, excluding password
         user_data = user.to_dict()
+        if 'password_hash' in user_data:
+            del user_data['password_hash']
         return jsonify(user_data)
         
     except Exception as e:

@@ -17,7 +17,7 @@ import SettingsPage from './components/SettingsPage';
 import Login from './components/Login';
 import Register from './components/Register';
 import ProtectedRoute from './components/ProtectedRoute';
-import { isAuthenticated, getCurrentUser, fetchUserProfile, fetchMeals, getUserData, clearAuthData } from './utils/api';
+import { isAuthenticated, getCurrentUser, fetchUserProfile, getUserData, clearAuthData } from './utils/api';
 
 function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -93,14 +93,6 @@ function App() {
         console.error('Failed to fetch user profile:', error);
       }
 
-      // Fetch meals data
-      try {
-        const mealsResponse = await fetchMeals(userId);
-        setMealsData(mealsResponse);
-      } catch (error) {
-        console.error('Failed to fetch meals data:', error);
-        // Will use default data in components if API fails
-      }
     };
 
     initializeApp();
@@ -159,12 +151,6 @@ function App() {
           </div>
         </div>
 
-        {/* Floating Add Button - Only show on dashboard */}
-        {currentPath === '/dashboard' && (
-          <button className="floating-button">
-            <Plus size={24} />
-          </button>
-        )}
       </div>
     );
   };
@@ -172,10 +158,9 @@ function App() {
   // Individual page components
   const DashboardPage = () => (
     <div className="dashboard-grid">
-      {/* Left Column - Dashboard and Meal Timeline */}
+      {/* Left Column - Dashboard (includes Meal Timeline internally) */}
       <div className="dashboard-left">
         <Dashboard userData={userData} mealsData={mealsData} />
-        <MealTimeline mealsData={mealsData} />
       </div>
 
       {/* Right Column - Quick Add, Top Foods, and Trends */}
