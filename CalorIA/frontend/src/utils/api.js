@@ -34,7 +34,7 @@ export const clearAuthData = () => {
 };
 
 // Fetch wrapper with automatic Bearer token inclusion
-const apiRequest = async (endpoint, options = {}) => {
+export const apiRequest = async (endpoint, options = {}) => {
   const token = getAuthToken();
   
   const config = {
@@ -181,6 +181,7 @@ const apiUtils = {
   setUserData,
   removeUserData,
   clearAuthData,
+  apiRequest,
   login,
   getCurrentUser,
   checkAuthHealth,

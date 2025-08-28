@@ -9,6 +9,7 @@ import QuickAdd from './components/QuickAdd';
 import TopFoods from './components/TopFoods';
 import TrendCharts from './components/TrendCharts';
 import MealPlanner from './components/MealPlanner';
+import MealPrepForm from './components/MealPrepForm';
 import ActivityPage from './components/ActivityPage';
 import Recipes from './components/Recipes';
 import Ingredients from './components/Ingredients';
@@ -212,6 +213,11 @@ function App() {
           <Route path="/meal-planner" element={
             <AppLayout>
               <MealPlanner userData={userData} />
+            </AppLayout>
+          } />
+          <Route path="/meal-prep" element={
+            <AppLayout>
+              <MealPrepForm />
             </AppLayout>
           } />
           <Route path="/activity" element={
