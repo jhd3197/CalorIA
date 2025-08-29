@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 CalorIA Database Seeding Module
-Reads CSV files and seeds the database with ingredients and meals.
+Reads CSV files and seeds the database with ingredients and recipes.
 """
 
 import csv
@@ -12,7 +12,7 @@ from uuid import uuid4
 from typing import Dict, List, Optional
 from pathlib import Path
 
-from .types import Ingredient, FoodItem, Meal, MealType, IngredientUnit
+from .types import Ingredient, FoodItem, Meal, MealType, IngredientUnit, Recipe, RecipeCategory, DifficultyLevel, RecipeIngredient
 from . import Client
 
 
@@ -61,15 +61,15 @@ class DatabaseSeeder:
             return []
         
         return ingredients
-    
-    def load_meals_from_csv(self) -> List[Dict]:
-        """Load meal data from CSV file."""
-        csv_path = self.seed_data_dir / "meals.csv"
+
+    def load_recipes_from_csv(self) -> List[Dict]:
+        """Load recipe data from CSV file."""
+        csv_path = self.seed_data_dir / "recipes.csv"
         if not csv_path.exists():
-            click.echo(f"❌ Meals CSV not found: {csv_path}")
+            click.echo(f"❌ Recipes CSV not found: {csv_path}")
             return []
-        
-        meals = []
+
+        recipes = []
         try:
             with open(csv_path, 'r', encoding='utf-8') as file:
                 reader = csv.DictReader(file)
@@ -85,19 +85,31 @@ class DatabaseSeeder:
                                     'amount': float(parts[1]),
                                     'unit': self.client._parse_unit(parts[2])
                                 })
-                    
-                    meal_data = {
+
+                    # Parse tags
+                    tags = [tag.strip() for tag in row['tags'].split(',')] if row['tags'] else []
+
+                    # Parse instructions
+                    instructions = [step.strip() for step in row['instructions'].split('.')] if row['instructions'] else []
+
+                    recipe_data = {
                         'name': row['name'],
-                        'type': self.client._parse_meal_type(row['type']),
+                        'category': self.client._parse_recipe_category(row['category']),
+                        'prep_time_minutes': int(row['prep_time_minutes']),
+                        'cook_time_minutes': int(row['cook_time_minutes']) if row['cook_time_minutes'] else None,
+                        'servings': int(row['servings']),
+                        'difficulty': self.client._parse_difficulty_level(row['difficulty']),
+                        'tags': tags,
+                        'description': row['description'],
                         'ingredients': ingredients,
-                        'notes': row.get('notes', '')
+                        'instructions': instructions
                     }
-                    meals.append(meal_data)
+                    recipes.append(recipe_data)
         except Exception as e:
-            click.echo(f"❌ Error reading meals CSV: {e}")
+            click.echo(f"❌ Error reading recipes CSV: {e}")
             return []
-        
-        return meals
+
+        return recipes
     
     def seed_ingredients(self) -> int:
         """Seed ingredients from CSV file."""
@@ -156,95 +168,85 @@ class DatabaseSeeder:
             click.echo(f"   • {category}: {cat_count} new")
         
         return count
-    
-    def seed_meals(self) -> int:
-        """Seed sample meals from CSV file."""
+
+    def seed_recipes(self) -> int:
+        """Seed recipes from CSV file."""
         if not self.seeded_ingredients:
-            click.echo("❌ No ingredients available for meal creation")
+            click.echo("❌ No ingredients available for recipe creation")
             return 0
-        
-        click.echo("Loading meals from CSV...", nl=False)
-        meals_data = self.load_meals_from_csv()
-        
-        if not meals_data:
-            click.echo(" ❌ No meals to seed")
+
+        click.echo("Loading recipes from CSV...", nl=False)
+        recipes_data = self.load_recipes_from_csv()
+
+        if not recipes_data:
+            click.echo(" ❌ No recipes to seed")
             return 0
-        
-        click.echo(f" ✓ ({len(meals_data)} found)")
-        
-        # Check existing meals first
-        existing_meals = {}
-        try:
-            db = self.client.get_db_connection()
-            if db is not None:
-                collection = db["sample_meals"]
-                cursor = collection.find({})
-                
-                for doc in cursor:
-                    if 'notes' in doc and doc['notes']:
-                        existing_meals[doc['notes']] = True
-        except Exception as e:
-            click.echo(f"⚠️ Warning: Error checking existing meals: {e}")
-        
+
+        click.echo(f" ✓ ({len(recipes_data)} found)")
+
         count = 0
-        for meal_data in meals_data:
-            # Generate meal note which will be used as unique identifier
-            meal_note = meal_data['notes'] or f"System sample meal: {meal_data['name']}"
-            
-            # Skip if this meal already exists
-            if meal_note in existing_meals:
-                continue
-                
-            # Create FoodItem objects for the meal
-            food_items = []
-            
-            for ingredient_data in meal_data['ingredients']:
+        for recipe_data in recipes_data:
+            # Check if recipe already exists
+            try:
+                db = self.client.get_db_connection()
+                if db is not None:
+                    collection = db["recipes"]
+                    existing = collection.find_one({"name": recipe_data['name']})
+                    if existing:
+                        continue
+            except Exception:
+                pass
+
+            # Create RecipeIngredient objects
+            recipe_ingredients = []
+
+            for ingredient_data in recipe_data['ingredients']:
                 ingredient_name = ingredient_data['name']
                 amount = ingredient_data['amount']
                 unit = ingredient_data['unit']
-                
+
                 if ingredient_name in self.seeded_ingredients:
                     ingredient = self.seeded_ingredients[ingredient_name]
-                    calories = ingredient.calories_for(amount, unit)
-                    
-                    if calories:
-                        # Calculate macros based on ingredient nutrition per 100g
-                        grams = ingredient.amount_to_grams(amount, unit)
-                        multiplier = grams / 100.0
-                        
-                        food_item = FoodItem(
-                            name=f"{amount} {unit.value} {ingredient_name}",
-                            calories=int(calories),
-                            protein_g=ingredient.protein_per_100g * multiplier if ingredient.protein_per_100g else 0,
-                            carbs_g=ingredient.carbs_per_100g * multiplier if ingredient.carbs_per_100g else 0,
-                            fat_g=ingredient.fat_per_100g * multiplier if ingredient.fat_per_100g else 0,
-                            portion_size=f"{amount} {unit.value}",
-                            is_system=True
-                        )
-                        food_items.append(food_item)
-            
-            if food_items:
-                # Create meal
-                meal = Meal(
-                    meal_type=meal_data['type'],
-                    food_items=food_items,
-                    notes=meal_note,
-                    timestamp=datetime.now(timezone.utc)
+
+                    recipe_ingredient = RecipeIngredient(
+                        ingredient_id=ingredient.id,
+                        ingredient=ingredient,
+                        amount=amount,
+                        unit=unit
+                    )
+                    recipe_ingredients.append(recipe_ingredient)
+
+            if recipe_ingredients:
+                # Create recipe
+                recipe = Recipe(
+                    id=uuid4(),
+                    name=recipe_data['name'],
+                    description=recipe_data['description'],
+                    category=recipe_data['category'],
+                    prep_time_minutes=recipe_data['prep_time_minutes'],
+                    cook_time_minutes=recipe_data['cook_time_minutes'],
+                    servings=recipe_data['servings'],
+                    difficulty=recipe_data['difficulty'],
+                    ingredients=recipe_ingredients,
+                    instructions=recipe_data['instructions'],
+                    tags=recipe_data['tags'],
+                    is_system=True,  # Mark as system-created
+                    created_at=datetime.now(timezone.utc)
                 )
-                
-                # Store as sample meal (in practice, these would be part of user daily logs)
-                result = self.client.create_document("sample_meals", meal)
+
+                result = self.client.create_recipe(recipe)
                 if result:
                     count += 1
-                    existing_meals[meal_note] = True
-        
+
         return count
+    
+    # Removed seed_meals method - meal seeding deprecated in favor of recipe seeding
     
     def seed_all(self) -> Dict[str, int]:
         """Seed all data from CSV files."""
         results = {
             'ingredients': 0,
-            'meals': 0
+            'recipes': 0
         }
         
         # Seed ingredients first
@@ -253,21 +255,23 @@ class DatabaseSeeder:
         
         click.echo()
         
-        # Then seed meals
-        click.echo("🍽️ Seeding Sample Meals:")
-        results['meals'] = self.seed_meals()
-        
+        # Skip meal seeding - deprecated in favor of recipe seeding
+
+        # Finally seed recipes
+        click.echo("📖 Seeding Recipes:")
+        results['recipes'] = self.seed_recipes()
+
         return results
     
     def remove_all_seeded_data(self) -> Dict[str, int]:
-        """Remove all system-generated data (ingredients and sample meals).
-        
+        """Remove all system-generated data (ingredients and recipes).
+
         Returns:
             Dictionary with counts of removed items
         """
         results = {
             'ingredients': 0,
-            'meals': 0
+            'recipes': 0
         }
         
         # Remove system ingredients
@@ -288,20 +292,23 @@ class DatabaseSeeder:
         
         click.echo()
         
-        # Remove sample meals
-        click.echo("🧹 Removing sample meals...")
+        # Skip meal cleanup - meal seeding deprecated
+
+        # Remove system recipes
+        click.echo("🧹 Removing system recipes...")
         try:
             db = self.client.get_db_connection()
             if db is None:
                 return results
-                
-            collection = db["sample_meals"]
-            delete_result = collection.delete_many({})  # All sample meals are system-generated
-            results['meals'] = delete_result.deleted_count
-            click.echo(f" ✓ Removed {results['meals']} sample meals")
+
+            collection = db["recipes"]
+            query = {"is_system": True}
+            delete_result = collection.delete_many(query)
+            results['recipes'] = delete_result.deleted_count
+            click.echo(f" ✓ Removed {results['recipes']} system recipes")
         except Exception as e:
-            click.echo(f" ❌ Error removing meals: {e}")
-        
+            click.echo(f" ❌ Error removing recipes: {e}")
+
         return results
 
 
@@ -327,7 +334,7 @@ def seed_database():
     click.echo("=" * 40)
     click.echo("✅ Seeding completed!")
     click.echo(f"   • {results['ingredients']} new ingredients added")
-    click.echo(f"   • {results['meals']} sample meals created")
+    click.echo(f"   • {results['recipes']} recipes created")
     click.echo("   • All items marked as system-generated")
     click.echo()
     click.echo("💡 Run this script again anytime - it's safe and won't create duplicates!")
@@ -357,7 +364,7 @@ def remove_seeded_data():
     click.echo("=" * 40)
     click.echo("✅ Cleanup completed!")
     click.echo(f"   • Removed {results['ingredients']} system ingredients")
-    click.echo(f"   • Removed {results['meals']} sample meals")
+    click.echo(f"   • Removed {results['recipes']} system recipes")
     click.echo()
     click.echo("💡 Use 'caloria seed' to re-seed the database with fresh data.")
     

@@ -1,15 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { apiRequest } from '../utils/api';
+import { Heart, Minus, X } from 'lucide-react';
+import { apiRequest, getCurrentUser, getUserData } from '../utils/api';
 
 const MealPrepForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [validationErrors, setValidationErrors] = useState({});
   const [ingredients, setIngredients] = useState([]);
+  const [allergiesIngredients, setAllergiesIngredients] = useState([]);
+  const [excludeIngredients, setExcludeIngredients] = useState([]);
   const [popularIngredients, setPopularIngredients] = useState([]);
   const [ratedIngredients, setRatedIngredients] = useState(new Set());
   const [ingredientSearchTerm, setIngredientSearchTerm] = useState('');
+  const [allergiesSearchTerm, setAllergiesSearchTerm] = useState('');
+  const [excludeSearchTerm, setExcludeSearchTerm] = useState('');
   const [isLoadingIngredients, setIsLoadingIngredients] = useState(false);
   const [showIngredientDropdown, setShowIngredientDropdown] = useState(false);
+  const [showExcludeDropdown, setShowExcludeDropdown] = useState(false);
+  const [showAllergiesDropdown, setShowAllergiesDropdown] = useState(false);
   const [selectedAllergies, setSelectedAllergies] = useState([]);
   const [selectedExcludedIngredients, setSelectedExcludedIngredients] = useState([]);
   const [selectedLikesDislikes, setSelectedLikesDislikes] = useState({});
@@ -23,6 +30,8 @@ const MealPrepForm = () => {
     weight: '',
     weightUnit: 'kg',
     height: '',
+    heightFeet: '',
+    heightInches: '',
     heightUnit: 'cm',
     age: '',
     activityLevel: '',
@@ -74,7 +83,6 @@ const MealPrepForm = () => {
     addOns: [],
     // Step 13: Preview & tweak
     previewAccepted: false,
-    // Step 14: Save profile & delivery options
     profileName: '',
     notifications: [],
     deliveryOption: ''
@@ -87,15 +95,21 @@ const MealPrepForm = () => {
       case 2:
         if (!formData.goal) errors.goal = 'Please select your main goal';
         if (!formData.weight) errors.weight = 'Please enter your current weight';
-        if (!formData.height) errors.height = 'Please enter your height';
+        if (formData.heightUnit === 'ft-in') {
+          if (!formData.heightFeet || !formData.heightInches) {
+            errors.height = 'Please enter both feet and inches';
+          }
+        } else {
+          if (!formData.height) errors.height = 'Please enter your height';
+        }
         if (!formData.age) errors.age = 'Please enter your age';
         if (!formData.activityLevel) errors.activityLevel = 'Please select your activity level';
         if (!formData.mealsPerDay) errors.mealsPerDay = 'Please select meals per day preference';
         break;
 
       case 3:
-        if (!formData.dietaryPreference) errors.dietaryPreference = 'Please select your dietary preference';
-        if (selectedAllergies.length === 0) errors.allergies = 'Please select at least one allergy or indicate none';
+        // Dietary preference is now optional
+        // Allergies are now optional - users can skip if they have none
         break;
 
       case 4:
@@ -124,15 +138,15 @@ const MealPrepForm = () => {
         break;
 
       case 11:
-        if (!formData.exclusionsConfirmed) errors.exclusionsConfirmed = 'Please confirm the exclusions';
+        if (!formData.exclusionsConfirmed) errors.exclusionsConfirmed = 'Please confirm the review and proceed';
         break;
 
       case 12:
-        if (!formData.previewAccepted) errors.previewAccepted = 'Please accept the preview to continue';
+        if (!formData.profileName) errors.profileName = 'Please enter a profile name';
         break;
 
       case 13:
-        if (!formData.profileName) errors.profileName = 'Please enter a profile name';
+        // Step 13 (Final step) - no required fields
         break;
     }
 
@@ -251,7 +265,7 @@ const MealPrepForm = () => {
     }
   };
 
-  // Debounced search function
+  // Debounced search function for likes/dislikes field
   const handleIngredientSearch = (searchTerm) => {
     setIngredientSearchTerm(searchTerm);
 
@@ -268,6 +282,48 @@ const MealPrepForm = () => {
         // When search is cleared, show popular ingredients again
         setIngredients(popularIngredients);
         setShowIngredientDropdown(false);
+      }
+    }, 300);
+  };
+
+  // Debounced search function for allergies field
+  const handleAllergiesSearch = (searchTerm) => {
+    setAllergiesSearchTerm(searchTerm);
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(async () => {
+      if (searchTerm.length >= 2) {
+        const results = await fetchIngredients(searchTerm);
+        setAllergiesIngredients(results);
+        setShowAllergiesDropdown(true);
+      } else {
+        // When search is cleared, show popular ingredients again
+        setAllergiesIngredients(popularIngredients);
+        setShowAllergiesDropdown(false);
+      }
+    }, 300);
+  };
+
+  // Debounced search function for exclude ingredients field
+  const handleExcludeSearch = (searchTerm) => {
+    setExcludeSearchTerm(searchTerm);
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(async () => {
+      if (searchTerm.length >= 2) {
+        const results = await fetchIngredients(searchTerm);
+        setExcludeIngredients(results);
+        setShowExcludeDropdown(true);
+      } else {
+        // When search is cleared, show popular ingredients again
+        setExcludeIngredients(popularIngredients);
+        setShowExcludeDropdown(false);
       }
     }, 300);
   };
@@ -413,6 +469,48 @@ const MealPrepForm = () => {
     }
   }, [formData.calculateCalories, formData.targetCalories, formData.macroPreference.protein]);
 
+  // Fetch and pre-fill user data
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userData = getUserData();
+        if (userData) {
+          // Pre-fill form with user data
+          const updates = {};
+
+          if (userData.weight) {
+            updates.weight = userData.weight.toString();
+            updates.weightUnit = userData.weight_unit || 'kg';
+          }
+
+          if (userData.height) {
+            updates.height = userData.height.toString();
+            updates.heightUnit = userData.height_unit || 'cm';
+
+            // If height is in ft-in format, split it
+            if (userData.height_unit === 'ft-in' && userData.height.includes("'")) {
+              const [feet, inches] = userData.height.split("'");
+              updates.heightFeet = feet.replace(/[^0-9]/g, '');
+              updates.heightInches = inches ? inches.replace(/[^0-9]/g, '') : '';
+            }
+          }
+
+          if (userData.age) {
+            updates.age = userData.age.toString();
+          }
+
+          if (Object.keys(updates).length > 0) {
+            setFormData(prev => ({ ...prev, ...updates }));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
   const renderStep = () => {
     switch (currentStep) {
       case 1:
@@ -482,21 +580,56 @@ const MealPrepForm = () => {
                 <div>
                   <label className="block text-sm font-medium mb-2">Height *</label>
                   <div className={`flex ${validationErrors.height ? 'border border-red-300 rounded-lg' : ''}`}>
-                    <input
-                      type="number"
-                      value={formData.height}
-                      onChange={(e) => updateFormData('height', e.target.value)}
-                      className={`flex-1 p-2 border rounded-l-lg ${validationErrors.height ? 'border-red-300' : ''}`}
-                      placeholder="Height"
-                    />
-                    <select
-                      value={formData.heightUnit}
-                      onChange={(e) => updateFormData('heightUnit', e.target.value)}
-                      className={`p-2 border-t border-r border-b rounded-r-lg ${validationErrors.height ? 'border-red-300' : ''}`}
-                    >
-                      <option value="cm">cm</option>
-                      <option value="ft-in">ft-in</option>
-                    </select>
+                    {formData.heightUnit === 'ft-in' ? (
+                      <>
+                        <input
+                          type="number"
+                          value={formData.heightFeet}
+                          onChange={(e) => updateFormData('heightFeet', e.target.value)}
+                          className={`flex-1 p-2 border rounded-l-lg ${validationErrors.height ? 'border-red-300' : ''}`}
+                          placeholder="Feet"
+                          min="0"
+                          max="8"
+                        />
+                        <span className="px-2 py-2 bg-gray-100 border-t border-b text-gray-600">ft</span>
+                        <input
+                          type="number"
+                          value={formData.heightInches}
+                          onChange={(e) => updateFormData('heightInches', e.target.value)}
+                          className={`flex-1 p-2 border ${validationErrors.height ? 'border-red-300' : ''}`}
+                          placeholder="Inches"
+                          min="0"
+                          max="11"
+                        />
+                        <span className="px-2 py-2 bg-gray-100 border-t border-b text-gray-600">in</span>
+                        <select
+                          value={formData.heightUnit}
+                          onChange={(e) => updateFormData('heightUnit', e.target.value)}
+                          className={`p-2 border-t border-r border-b rounded-r-lg ${validationErrors.height ? 'border-red-300' : ''}`}
+                        >
+                          <option value="cm">cm</option>
+                          <option value="ft-in">ft-in</option>
+                        </select>
+                      </>
+                    ) : (
+                      <>
+                        <input
+                          type="number"
+                          value={formData.height}
+                          onChange={(e) => updateFormData('height', e.target.value)}
+                          className={`flex-1 p-2 border rounded-l-lg ${validationErrors.height ? 'border-red-300' : ''}`}
+                          placeholder="Height"
+                        />
+                        <select
+                          value={formData.heightUnit}
+                          onChange={(e) => updateFormData('heightUnit', e.target.value)}
+                          className={`p-2 border-t border-r border-b rounded-r-lg ${validationErrors.height ? 'border-red-300' : ''}`}
+                        >
+                          <option value="cm">cm</option>
+                          <option value="ft-in">ft-in</option>
+                        </select>
+                      </>
+                    )}
                   </div>
                   {renderError('height')}
                 </div>
@@ -560,7 +693,7 @@ const MealPrepForm = () => {
             <h2 className="text-xl font-semibold mb-6">Dietary Restrictions & Preferences</h2>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2">Any food allergies? *</label>
+                <label className="block text-sm font-medium mb-2">Any food allergies? (optional)</label>
 
                 {/* Selected allergies tags */}
                 {selectedAllergies.length > 0 && (
@@ -588,16 +721,19 @@ const MealPrepForm = () => {
                     type="text"
                     placeholder="Search for ingredients (e.g., peanuts, milk, eggs)..."
                     className={`w-full p-2 border rounded-lg ${validationErrors.allergies ? 'border-red-300' : ''}`}
-                    value={ingredientSearchTerm}
-                    onChange={(e) => handleIngredientSearch(e.target.value)}
+                    value={allergiesSearchTerm}
+                    onChange={(e) => {
+                      setAllergiesSearchTerm(e.target.value);
+                      handleAllergiesSearch(e.target.value);
+                    }}
                     onFocus={() => {
                       if (ingredients.length > 0) {
-                        setShowIngredientDropdown(true);
+                        setShowAllergiesDropdown(true);
                       }
                     }}
                     onBlur={() => {
                       // Delay hiding dropdown to allow for clicks
-                      setTimeout(() => setShowIngredientDropdown(false), 200);
+                      setTimeout(() => setShowAllergiesDropdown(false), 200);
                     }}
                   />
 
@@ -609,9 +745,9 @@ const MealPrepForm = () => {
                   )}
 
                   {/* Dropdown with suggestions */}
-                  {showIngredientDropdown && ingredients.length > 0 && (
+                  {showAllergiesDropdown && allergiesIngredients.length > 0 && (
                     <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                      {ingredients.map(ingredient => (
+                      {allergiesIngredients.map(ingredient => (
                         <div
                           key={ingredient.id}
                           className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
@@ -688,9 +824,9 @@ const MealPrepForm = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Dietary preference *</label>
-                <div className={`grid grid-cols-2 gap-3 ${validationErrors.dietaryPreference ? 'border border-red-300 rounded-lg p-2' : ''}`}>
-                  {['Omnivore', 'Pescatarian', 'Vegetarian', 'Vegan', 'Keto', 'Other'].map(pref => (
+                <label className="block text-sm font-medium mb-2">Dietary preference (optional)</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {['Omnivore', 'Pescatarian', 'Vegetarian', 'Vegan', 'Keto', 'Flexible'].map(pref => (
                     <label key={pref} className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
                       <input
                         type="radio"
@@ -704,7 +840,7 @@ const MealPrepForm = () => {
                     </label>
                   ))}
                 </div>
-                {renderError('dietaryPreference')}
+                <p className="text-xs text-gray-500 mt-2">Select your preferred diet or choose "Flexible" if you're open to various options</p>
               </div>
             </div>
           </div>
@@ -733,21 +869,39 @@ const MealPrepForm = () => {
                             )}
                           </div>
                           <div className="flex space-x-1 ml-2">
-                            {['Like', 'Neutral', 'Dislike'].map(status => (
-                              <button
-                                key={status}
-                                onClick={() => handleIngredientPreference(ingredient, status.toLowerCase())}
-                                className={`px-2 py-1 text-xs rounded ${
-                                  (formData.ingredientPreferences || {})[ingredient.name] === status.toLowerCase()
-                                    ? status === 'Like' ? 'bg-green-600 text-white'
-                                    : status === 'Dislike' ? 'bg-red-600 text-white'
-                                    : 'bg-yellow-600 text-white'
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                }`}
-                              >
-                                {status.charAt(0)}
-                              </button>
-                            ))}
+                            <button
+                              onClick={() => handleIngredientPreference(ingredient, 'like')}
+                              className={`p-1.5 rounded ${
+                                (formData.ingredientPreferences || {})[ingredient.name] === 'like'
+                                  ? 'bg-green-600 text-white'
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                              title="Like"
+                            >
+                              <Heart className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={() => handleIngredientPreference(ingredient, 'neutral')}
+                              className={`p-1.5 rounded ${
+                                (formData.ingredientPreferences || {})[ingredient.name] === 'neutral'
+                                  ? 'bg-yellow-600 text-white'
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                              title="Neutral"
+                            >
+                              <Minus className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={() => handleIngredientPreference(ingredient, 'dislike')}
+                              className={`p-1.5 rounded ${
+                                (formData.ingredientPreferences || {})[ingredient.name] === 'dislike'
+                                  ? 'bg-red-600 text-white'
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                              title="Dislike"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
                           </div>
                         </div>
                       ))}
@@ -764,7 +918,10 @@ const MealPrepForm = () => {
                     placeholder="Search for ingredients to rate..."
                     className="w-full p-2 border rounded-lg"
                     value={ingredientSearchTerm}
-                    onChange={(e) => handleIngredientSearch(e.target.value)}
+                    onChange={(e) => {
+                      setIngredientSearchTerm(e.target.value);
+                      handleIngredientSearch(e.target.value);
+                    }}
                     onFocus={() => {
                       if (popularIngredients.length > 0) {
                         setShowIngredientDropdown(true);
@@ -805,21 +962,39 @@ const MealPrepForm = () => {
                                 </span>
                               )}
                               <div className="flex space-x-1">
-                                {['Like', 'Neutral', 'Dislike'].map(status => (
-                                  <button
-                                    key={status}
-                                    onClick={() => handleIngredientPreference(ingredient, status.toLowerCase())}
-                                    className={`px-2 py-1 text-xs rounded ${
-                                      (formData.ingredientPreferences || {})[ingredient.name] === status.toLowerCase()
-                                        ? status === 'Like' ? 'bg-green-600 text-white'
-                                        : status === 'Dislike' ? 'bg-red-600 text-white'
-                                        : 'bg-yellow-600 text-white'
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                    }`}
-                                  >
-                                    {status}
-                                  </button>
-                                ))}
+                                <button
+                                  onClick={() => handleIngredientPreference(ingredient, 'like')}
+                                  className={`p-1.5 rounded ${
+                                    (formData.ingredientPreferences || {})[ingredient.name] === 'like'
+                                      ? 'bg-green-600 text-white'
+                                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                  }`}
+                                  title="Like"
+                                >
+                                  <Heart className="w-3 h-3" />
+                                </button>
+                                <button
+                                  onClick={() => handleIngredientPreference(ingredient, 'neutral')}
+                                  className={`p-1.5 rounded ${
+                                    (formData.ingredientPreferences || {})[ingredient.name] === 'neutral'
+                                      ? 'bg-yellow-600 text-white'
+                                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                  }`}
+                                  title="Neutral"
+                                >
+                                  <Minus className="w-3 h-3" />
+                                </button>
+                                <button
+                                  onClick={() => handleIngredientPreference(ingredient, 'dislike')}
+                                  className={`p-1.5 rounded ${
+                                    (formData.ingredientPreferences || {})[ingredient.name] === 'dislike'
+                                      ? 'bg-red-600 text-white'
+                                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                  }`}
+                                  title="Dislike"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -896,15 +1071,18 @@ const MealPrepForm = () => {
                     type="text"
                     placeholder="Search for ingredients to exclude..."
                     className="w-full p-2 border rounded-lg"
-                    value={ingredientSearchTerm}
-                    onChange={(e) => handleIngredientSearch(e.target.value)}
+                    value={excludeSearchTerm}
+                    onChange={(e) => {
+                      setExcludeSearchTerm(e.target.value);
+                      handleExcludeSearch(e.target.value);
+                    }}
                     onFocus={() => {
                       if (popularIngredients.length > 0) {
-                        setShowIngredientDropdown(true);
+                        setShowExcludeDropdown(true);
                       }
                     }}
                     onBlur={() => {
-                      setTimeout(() => setShowIngredientDropdown(false), 200);
+                      setTimeout(() => setShowExcludeDropdown(false), 200);
                     }}
                   />
 
@@ -915,9 +1093,9 @@ const MealPrepForm = () => {
                   )}
 
                   {/* Dropdown with ingredient suggestions for exclusion */}
-                  {showIngredientDropdown && popularIngredients.length > 0 && (
+                  {showExcludeDropdown && excludeIngredients.length > 0 && (
                     <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                      {popularIngredients
+                      {excludeIngredients
                         .filter(ingredient => !ratedIngredients.has(ingredient.id))
                         .map(ingredient => (
                         <div
@@ -951,7 +1129,7 @@ const MealPrepForm = () => {
                 </div>
 
                 {/* Popular ingredients suggestions for exclusion */}
-                {ingredientSearchTerm === '' && popularIngredients.length > 0 && (
+                {excludeSearchTerm === '' && popularIngredients.length > 0 && (
                   <div className="mt-3">
                     <p className="text-sm text-gray-600 mb-2">Popular ingredients to exclude:</p>
                     <div className="flex flex-wrap gap-2">
@@ -1379,24 +1557,6 @@ const MealPrepForm = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Shopping list format</label>
-                <div className="grid grid-cols-1 gap-3">
-                  {['Printable', 'Grocery app', 'Delivery format'].map(format => (
-                    <label key={format} className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                      <input
-                        type="radio"
-                        name="shoppingFormat"
-                        value={format}
-                        checked={formData.shoppingFormat === format}
-                        onChange={(e) => updateFormData('shoppingFormat', e.target.value)}
-                        className="mr-3"
-                      />
-                      {format}
-                    </label>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
         );
@@ -1440,76 +1600,206 @@ const MealPrepForm = () => {
       case 11:
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-6">Review & Exclusions Summary</h2>
-            <div className="space-y-6">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="font-semibold mb-3">Auto-generated exclusions based on your preferences:</h3>
-                <div className="space-y-2">
+            <h2 className="text-xl font-semibold mb-6">Complete Review & Preview</h2>
+            <div className="space-y-8">
+              {/* Profile Summary */}
+              <div className="bg-blue-50 p-6 rounded-lg">
+                <h3 className="font-semibold text-lg mb-4 text-blue-900">📋 Your Profile Summary</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p><strong>Goal:</strong> {formData.goal || 'Not specified'}</p>
+                    <p><strong>Weight:</strong> {formData.weight} {formData.weightUnit}</p>
+                    <p><strong>Height:</strong> {
+                      formData.heightUnit === 'ft-in'
+                        ? `${formData.heightFeet || 0}'${formData.heightInches || 0}"`
+                        : `${formData.height} ${formData.heightUnit}`
+                    }</p>
+                    <p><strong>Age:</strong> {formData.age} years</p>
+                  </div>
+                  <div>
+                    <p><strong>Activity Level:</strong> {formData.activityLevel || 'Not specified'}</p>
+                    <p><strong>Meals per Day:</strong> {formData.mealsPerDay || 'Not specified'}</p>
+                    <p><strong>Dietary Preference:</strong> {formData.dietaryPreference || 'Not specified'}</p>
+                    <p><strong>Cooking Time:</strong> {formData.cookingTime || 'Not specified'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Nutritional Goals */}
+              <div className="bg-green-50 p-6 rounded-lg">
+                <h3 className="font-semibold text-lg mb-4 text-green-900">🎯 Nutritional Goals</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p><strong>Calorie Calculation:</strong> {formData.calculateCalories === 'Auto' ? 'Auto-calculated' : 'Manual'}</p>
+                    {formData.calculateCalories === 'Manual' && formData.targetCalories && (
+                      <p><strong>Target Calories:</strong> {formData.targetCalories} kcal/day</p>
+                    )}
+                  </div>
+                  <div>
+                    <p><strong>Protein:</strong> {formData.macroPreference.protein}g</p>
+                    <p><strong>Fat:</strong> {formData.macroPreference.fat}g</p>
+                    <p><strong>Carbs:</strong> {formData.macroPreference.carbs}g</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Exclusions Summary */}
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <h3 className="font-semibold text-lg mb-4 text-gray-900">🚫 Auto-generated Exclusions</h3>
+                <div className="space-y-3">
                   {selectedAllergies.length > 0 && (
-                    <p><strong>Allergies:</strong> {selectedAllergies.join(', ')}</p>
+                    <div className="flex items-start">
+                      <span className="text-red-500 mr-2">⚠️</span>
+                      <div>
+                        <p className="font-medium text-red-800">Allergies to avoid:</p>
+                        <p className="text-sm text-red-700">{selectedAllergies.join(', ')}</p>
+                      </div>
+                    </div>
                   )}
                   {formData.intolerances.length > 0 && (
-                    <p><strong>Intolerances:</strong> {formData.intolerances.join(', ')}</p>
+                    <div className="flex items-start">
+                      <span className="text-orange-500 mr-2">⚠️</span>
+                      <div>
+                        <p className="font-medium text-orange-800">Intolerances to avoid:</p>
+                        <p className="text-sm text-orange-700">{formData.intolerances.join(', ')}</p>
+                      </div>
+                    </div>
                   )}
                   {selectedExcludedIngredients.length > 0 && (
-                    <p><strong>Excluded ingredients:</strong> {selectedExcludedIngredients.join(', ')}</p>
+                    <div className="flex items-start">
+                      <span className="text-gray-500 mr-2">🚫</span>
+                      <div>
+                        <p className="font-medium text-gray-800">Manually excluded ingredients:</p>
+                        <p className="text-sm text-gray-700">{selectedExcludedIngredients.join(', ')}</p>
+                      </div>
+                    </div>
                   )}
                   {Object.entries(formData.ingredientPreferences || {}).filter(([_, preference]) => preference === 'dislike').length > 0 && (
-                    <p><strong>Disliked ingredients:</strong> {Object.entries(formData.ingredientPreferences || {}).filter(([_, preference]) => preference === 'dislike').map(([name, _]) => name).join(', ')}</p>
+                    <div className="flex items-start">
+                      <span className="text-gray-500 mr-2">👎</span>
+                      <div>
+                        <p className="font-medium text-gray-800">Disliked ingredients:</p>
+                        <p className="text-sm text-gray-700">
+                          {Object.entries(formData.ingredientPreferences || {})
+                            .filter(([_, preference]) => preference === 'dislike')
+                            .map(([name, _]) => name)
+                            .join(', ')}
+                        </p>
+                      </div>
+                    </div>
                   )}
                   {formData.hatedMeals.filter(meal => meal).length > 0 && (
-                    <p><strong>Meals to avoid:</strong> {formData.hatedMeals.filter(meal => meal).join(', ')}</p>
+                    <div className="flex items-start">
+                      <span className="text-gray-500 mr-2">😖</span>
+                      <div>
+                        <p className="font-medium text-gray-800">Meals to avoid:</p>
+                        <p className="text-sm text-gray-700">{formData.hatedMeals.filter(meal => meal).join(', ')}</p>
+                      </div>
+                    </div>
                   )}
-                  {selectedAllergies.length === 0 && formData.intolerances.length === 0 && selectedExcludedIngredients.length === 0 && Object.entries(formData.ingredientPreferences || {}).filter(([_, preference]) => preference === 'dislike').length === 0 && formData.hatedMeals.filter(meal => meal).length === 0 && (
-                    <p className="text-gray-600 italic">No exclusions specified</p>
+                  {selectedAllergies.length === 0 && formData.intolerances.length === 0 &&
+                   selectedExcludedIngredients.length === 0 &&
+                   Object.entries(formData.ingredientPreferences || {}).filter(([_, preference]) => preference === 'dislike').length === 0 &&
+                   formData.hatedMeals.filter(meal => meal).length === 0 && (
+                    <div className="flex items-center">
+                      <span className="text-green-500 mr-2">✅</span>
+                      <p className="text-green-700 italic">No exclusions specified - you can enjoy a wide variety of foods!</p>
+                    </div>
                   )}
                 </div>
               </div>
 
-              <div>
-                <label className={`flex items-center ${validationErrors.exclusionsConfirmed ? 'border border-red-300 rounded-lg p-2' : ''}`}>
-                  <input
-                    type="checkbox"
-                    checked={formData.exclusionsConfirmed}
-                    onChange={(e) => updateFormData('exclusionsConfirmed', e.target.checked)}
-                    className="mr-3"
-                  />
-                  I confirm these exclusions and understand they will be applied to my meal plan
-                </label>
-                {renderError('exclusionsConfirmed')}
+              {/* Sample Day Preview */}
+              <div className="bg-amber-50 p-6 rounded-lg">
+                <h3 className="font-semibold text-lg mb-4 text-amber-900">👀 Sample Day Preview</h3>
+                <div className="bg-white p-4 rounded-lg border border-amber-200">
+                  <h4 className="font-medium mb-3 text-gray-800">Your typical day might look like:</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center">
+                      <span className="w-20 text-sm font-medium text-amber-700">Breakfast:</span>
+                      <span className="text-sm">Oatmeal with berries and nuts ({Math.round((formData.macroPreference.carbs * 0.3) + (formData.macroPreference.protein * 0.2))}g carbs, {Math.round(formData.macroPreference.protein * 0.2)}g protein)</span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="w-20 text-sm font-medium text-amber-700">Lunch:</span>
+                      <span className="text-sm">Grilled chicken salad with mixed vegetables ({Math.round((formData.macroPreference.carbs * 0.3) + (formData.macroPreference.protein * 0.4))}g carbs, {Math.round(formData.macroPreference.protein * 0.4)}g protein)</span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="w-20 text-sm font-medium text-amber-700">Dinner:</span>
+                      <span className="text-sm">Baked salmon with vegetables ({Math.round((formData.macroPreference.carbs * 0.4) + (formData.macroPreference.protein * 0.4))}g carbs, {Math.round(formData.macroPreference.protein * 0.4)}g protein)</span>
+                    </div>
+                    {formData.wantSnacks === 'Yes' && (
+                      <div className="flex items-center">
+                        <span className="w-20 text-sm font-medium text-amber-700">Snacks:</span>
+                        <span className="text-sm">Greek yogurt and apple ({Math.round(formData.macroPreference.carbs * 0.1)}g carbs, {Math.round(formData.macroPreference.protein * 0.1)}g protein)</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-amber-200">
+                    <p className="text-xs text-amber-600">
+                      <strong>Estimated daily totals:</strong> {getEstimatedTotalCalories()} calories, {formData.macroPreference.protein}g protein, {formData.macroPreference.fat}g fat, {formData.macroPreference.carbs}g carbs
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Preferences Summary */}
+              <div className="bg-purple-50 p-6 rounded-lg">
+                <h3 className="font-semibold text-lg mb-4 text-purple-900">⚙️ Cooking & Shopping Preferences</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p><strong>Batch Cooking:</strong> {formData.batchCooking || 'Not specified'}</p>
+                    <p><strong>Cooking Time:</strong> {formData.cookingTime || 'Not specified'}</p>
+                    <p><strong>Kitchen Equipment:</strong> {formData.kitchenEquipment.length > 0 ? formData.kitchenEquipment.join(', ') : 'None specified'}</p>
+                  </div>
+                  <div>
+                    <p><strong>Weekly Budget:</strong> {formData.weeklyBudget ? `$${formData.weeklyBudget}` : 'Not specified'}</p>
+                    <p><strong>Budget Preference:</strong> {formData.budgetPreference < 33 ? 'Budget-friendly' : formData.budgetPreference > 66 ? 'Premium' : 'Balanced'}</p>
+                    <p><strong>Meal Timing:</strong> {formData.mealTimes.breakfast ? 'Custom times' : 'Flexible'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Final Confirmation */}
+              <div className="bg-white border-2 border-gray-200 p-6 rounded-lg">
+                <h3 className="font-semibold text-lg mb-4 text-gray-900">🎉 Ready to Create Your Meal Plan?</h3>
+                <p className="text-gray-600 mb-4">
+                  This comprehensive review shows everything we've collected about your preferences.
+                  Your personalized meal plan will be generated based on this information.
+                </p>
+                <div className="space-y-3">
+                  <label className={`flex items-start ${validationErrors.exclusionsConfirmed ? 'border border-red-300 rounded-lg p-3' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={formData.exclusionsConfirmed}
+                      onChange={(e) => updateFormData('exclusionsConfirmed', e.target.checked)}
+                      className="mr-3 mt-1"
+                    />
+                    <span className="text-sm">
+                      I confirm that all the information above is accurate and I understand that my meal plan will be generated based on these preferences and restrictions.
+                    </span>
+                  </label>
+                  {renderError('exclusionsConfirmed')}
+                </div>
               </div>
             </div>
           </div>
         );
 
-
       case 12:
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-6">Preview & Tweak</h2>
+            <h2 className="text-xl font-semibold mb-6">Save Profile</h2>
             <div className="space-y-6">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="font-semibold mb-3">Sample Day Preview:</h3>
-                <div className="space-y-2">
-                  <p><strong>Breakfast:</strong> Oatmeal with berries and nuts</p>
-                  <p><strong>Lunch:</strong> Grilled chicken salad</p>
-                  <p><strong>Dinner:</strong> Baked salmon with vegetables</p>
-                  {formData.wantSnacks === 'Yes' && <p><strong>Snacks:</strong> Greek yogurt, apple</p>}
-                </div>
-              </div>
-
               <div>
-                <p className="text-sm text-gray-600 mb-4">You can swap ingredients or adjust portions in your final plan</p>
-                <label className={`flex items-center ${validationErrors.previewAccepted ? 'border border-red-300 rounded-lg p-2' : ''}`}>
-                  <input
-                    type="checkbox"
-                    checked={formData.previewAccepted}
-                    onChange={(e) => updateFormData('previewAccepted', e.target.checked)}
-                    className="mr-3"
-                  />
-                  I accept this sample and want to proceed
-                </label>
-                {renderError('previewAccepted')}
+                <label className="block text-sm font-medium mb-2">Profile name *</label>
+                <input
+                  type="text"
+                  value={formData.profileName}
+                  onChange={(e) => updateFormData('profileName', e.target.value)}
+                  className={`w-full p-2 border rounded-lg ${validationErrors.profileName ? 'border-red-300' : ''}`}
+                  placeholder="Name your meal prep profile"
+                />
+                {renderError('profileName')}
               </div>
             </div>
           </div>

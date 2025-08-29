@@ -42,6 +42,27 @@ class MealType(str, Enum):
     SNACK = "snack"
 
 
+class DifficultyLevel(str, Enum):
+    EASY = "easy"
+    MEDIUM = "medium"
+    HARD = "hard"
+
+
+class RecipeCategory(str, Enum):
+    BREAKFAST = "breakfast"
+    LUNCH = "lunch"
+    DINNER = "dinner"
+    SNACK = "snack"
+    DESSERT = "dessert"
+    BEVERAGE = "beverage"
+    APPETIZER = "appetizer"
+    SOUP = "soup"
+    SALAD = "salad"
+    MAIN_COURSE = "main_course"
+    SIDE_DISH = "side_dish"
+    HEALTHY = "healthy"
+
+
 class ActivityLevel(str, Enum):
     SEDENTARY = "sedentary"
     LIGHT = "light"
@@ -235,6 +256,45 @@ class DailyLog(CalorIAModel):
 
     def total_calories(self) -> int:
         return sum(m.total_calories() for m in self.meals)
+
+
+class Recipe(CalorIAModel):
+    """Recipe model for storing recipe templates that can be used to create meals."""
+    id: UUID = Field(default_factory=uuid4)
+    name: str
+    description: Optional[str] = None
+    category: RecipeCategory
+    prep_time_minutes: int = Field(..., gt=0, description="Preparation time in minutes")
+    cook_time_minutes: Optional[int] = Field(None, ge=0, description="Cooking time in minutes")
+    servings: int = Field(..., gt=0, description="Number of servings this recipe makes")
+    difficulty: DifficultyLevel = DifficultyLevel.MEDIUM
+    ingredients: List["RecipeIngredient"] = Field(default_factory=list)
+    instructions: Optional[List[str]] = Field(default_factory=list, description="Step-by-step cooking instructions")
+    tags: List[str] = Field(default_factory=list, description="Tags for filtering and searching")
+    image_url: Optional[str] = None
+    source_url: Optional[str] = None
+    notes: Optional[str] = None
+    is_system: bool = Field(False, description="Whether this recipe was created by the system")
+    created_by: Optional[UUID] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = None
+
+    def total_calories(self) -> int:
+        """Calculate total calories for the entire recipe (all servings)."""
+        return sum(ingredient.calories() or 0 for ingredient in self.ingredients if ingredient.calories() is not None)
+
+    def calories_per_serving(self) -> float:
+        """Calculate calories per serving."""
+        total_calories = self.total_calories()
+        return total_calories / self.servings if self.servings > 0 else 0
+
+    def total_prep_time(self) -> int:
+        """Get total preparation time including cooking time."""
+        total = self.prep_time_minutes
+        if self.cook_time_minutes:
+            total += self.cook_time_minutes
+        return total
+
 
 # -------------------------
 # Weight entry (with unit + conversions)

@@ -34,6 +34,33 @@ class ToolsMixin:
             'snack': Type.MealType.SNACK
         }
         return type_map.get(type_str.lower(), Type.MealType.SNACK)
+
+    def _parse_recipe_category(self, category_str: str) -> Type.RecipeCategory:
+        """Parse recipe category string to RecipeCategory enum."""
+        category_map = {
+            'breakfast': Type.RecipeCategory.BREAKFAST,
+            'lunch': Type.RecipeCategory.LUNCH,
+            'dinner': Type.RecipeCategory.DINNER,
+            'snack': Type.RecipeCategory.SNACK,
+            'dessert': Type.RecipeCategory.DESSERT,
+            'beverage': Type.RecipeCategory.BEVERAGE,
+            'appetizer': Type.RecipeCategory.APPETIZER,
+            'soup': Type.RecipeCategory.SOUP,
+            'salad': Type.RecipeCategory.SALAD,
+            'main_course': Type.RecipeCategory.MAIN_COURSE,
+            'side_dish': Type.RecipeCategory.SIDE_DISH,
+            'healthy': Type.RecipeCategory.HEALTHY
+        }
+        return category_map.get(category_str.lower(), Type.RecipeCategory.MAIN_COURSE)
+
+    def _parse_difficulty_level(self, difficulty_str: str) -> Type.DifficultyLevel:
+        """Parse difficulty level string to DifficultyLevel enum."""
+        difficulty_map = {
+            'easy': Type.DifficultyLevel.EASY,
+            'medium': Type.DifficultyLevel.MEDIUM,
+            'hard': Type.DifficultyLevel.HARD
+        }
+        return difficulty_map.get(difficulty_str.lower(), Type.DifficultyLevel.MEDIUM)
     
     def _safe_float(self, value: str) -> Optional[float]:
         """Safely parse float value, return None if empty or invalid."""

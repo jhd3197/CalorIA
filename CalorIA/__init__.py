@@ -7,6 +7,7 @@ from CalorIA.mixins.mongo import MongoMixin
 # Modules
 from CalorIA.mixins.modules.ingredients import IngredientMixin
 from CalorIA.mixins.modules.meals import MealMixin
+from CalorIA.mixins.modules.recipes import RecipeMixin
 from CalorIA.mixins.modules.users import UserMixin
 from CalorIA.mixins.modules.water import WaterMixin
 from CalorIA.mixins.modules.weight import WeightMixin
@@ -20,6 +21,7 @@ class Client(
     MongoMixin,
     IngredientMixin,
     MealMixin,
+    RecipeMixin,
     UserMixin,
     WaterMixin,
     WeightMixin,
