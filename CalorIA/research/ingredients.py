@@ -18,20 +18,30 @@ class IngredientResearcher(BaseResearcher):
     """AI-powered ingredient research and discovery system."""
 
     def get_existing_ingredients_by_category(self, category: str) -> List[str]:
-        """Get list of existing ingredient names for a category."""
+        """Get list of existing ingredient names for a category from CSV."""
+
         try:
-            db = self.client.get_db_connection()
-            if db is None:
+            import csv
+            from pathlib import Path
+
+            csv_path = Path(__file__).parent.parent / "seed_db" / "ingredients.csv"
+
+            if not csv_path.exists():
+                click.echo(f"⚠️  CSV file not found: {csv_path}")
                 return []
 
-            collection = db["ingredients"]
-            cursor = collection.find({"category": category}, {"name": 1})
+            existing_ingredients = []
+            with open(csv_path, 'r', encoding='utf-8') as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    if row.get('category') == category:
+                        existing_ingredients.append(row['name'])
 
-            return [doc["name"] for doc in cursor]
+            return existing_ingredients
+
         except Exception as e:
-            click.echo(f"❌ Error getting existing ingredients: {e}")
+            click.echo(f"❌ Error reading CSV: {e}")
             return []
-
     def generate_research_prompt(self, category: str, existing_ingredients: List[str], letters: Optional[List[str]] = None) -> str:
         """Generate a prompt for the AI to research missing ingredients by letter."""
 
@@ -42,20 +52,30 @@ class IngredientResearcher(BaseResearcher):
         # Create existing ingredients set for quick lookup
         existing_set = set(ing.lower() for ing in existing_ingredients)
 
+        # For single letter processing, filter existing ingredients by that letter
+        if len(letters) == 1:
+            letter = letters[0]
+            existing_for_letter = [ing for ing in existing_ingredients if ing.lower().startswith(letter.lower())]
+            click.echo(f"🔍 Found {len(existing_for_letter)} existing ingredients starting with '{letter}': {existing_for_letter}")
+            existing_text = f"All existing {category} starting with '{letter}': {', '.join(existing_for_letter)}"
+        else:
+            # For multiple letters, show general existing ingredients
+            existing_text = f"Existing ingredients to avoid: {', '.join(existing_ingredients[:10])}{'...' if len(existing_ingredients) > 10 else ''}"
+
         # Generate letter-based requests
         letter_requests = []
         for letter in letters[:5]:  # Limit to 5 letters per request to avoid overwhelming
-            letter_requests.append(f"3-5 {category} starting with '{letter}'")
+            letter_requests.append(f"exactly 5 {category} starting with '{letter}'")
 
         prompt = f"""I need you to generate a JSON array of missing {category} ingredients for a nutrition database, organized by letter.
 
 Focus on ingredients that start with these letters: {', '.join(letters[:5])}
 
-Existing ingredients to avoid: {', '.join(existing_ingredients[:10])}{'...' if len(existing_ingredients) > 10 else ''}
+{existing_text}
 
 Please think step by step, then provide the final JSON array.
 
-Step 1: For each letter, list 3-5 {category} that start with that letter and are not in the existing list.
+Step 1: For each letter, list exactly 5 {category} that start with that letter and do not include any of the existing ingredients listed above.
 Step 2: For each ingredient, gather nutritional data (kcal, protein, fat, carbs per 100g).
 Step 3: Format as JSON array with these fields: name, category ("{category}"), default_unit, kcal_per_100g, protein_per_100g, fat_per_100g, carbs_per_100g, aliases, tags, popularity_score.
 
@@ -122,10 +142,13 @@ After your thinking, end with the JSON array:"""
                 click.echo(f"❌ Invalid unit: {unit_str}, defaulting to 'g'")
                 default_unit = IngredientUnit.G
 
+            # Clean the ingredient name
+            cleaned_name = self.clean_ingredient_name(ingredient_data['name'])
+
             # Create ingredient object
             ingredient = Ingredient(
                 id=uuid4(),
-                name=ingredient_data['name'],
+                name=cleaned_name,
                 category=ingredient_data.get('category', 'Unknown'),
                 default_unit=default_unit,
                 grams_per_unit=ingredient_data.get('grams_per_unit'),
@@ -146,76 +169,130 @@ After your thinking, end with the JSON array:"""
         except Exception as e:
             click.echo(f"❌ Error parsing ingredient data: {e}")
             return None
+    def clean_ingredient_name(self, name: str) -> str:
+        """Clean ingredient name by removing parentheses, quotes, and simplifying."""
+        import re
 
-    def is_duplicate_ingredient(self, ingredient: Ingredient) -> bool:
-        """Check if an ingredient already exists (case-insensitive)."""
+        # Remove parentheses and their contents
+        name = re.sub(r'\([^)]*\)', '', name).strip()
 
-        # Check by exact name match
-        existing = self.client.get_ingredient_by_name(ingredient.name)
-        if existing:
-            return True
+        # Remove quotes
+        name = name.replace('"', '').replace("'", '').strip()
 
-        # Check aliases
-        for alias in ingredient.aliases:
-            existing = self.client.get_ingredient_by_name(alias)
-            if existing:
-                return True
+        # Remove extra spaces
+        name = re.sub(r'\s+', ' ', name).strip()
 
-        return False
+        # If the cleaned name is empty or too short, return original
+        if len(name) < 2:
+            return name
+
+        return name
+
+    def is_duplicate_ingredient(self, ingredient: Ingredient, category: str) -> bool:
+        """Check if an ingredient already exists in CSV (case-insensitive)."""
+
+        try:
+            import csv
+            from pathlib import Path
+
+            csv_path = Path(__file__).parent.parent / "seed_db" / "ingredients.csv"
+
+            if not csv_path.exists():
+                return False
+
+            with open(csv_path, 'r', encoding='utf-8') as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    # Check exact name match (case-insensitive)
+                    if row['name'].lower() == ingredient.name.lower():
+                        return True
+
+                    # Check aliases (case-insensitive)
+                    if row.get('aliases'):
+                        aliases = [alias.strip().lower() for alias in row['aliases'].split(',')]
+                        if ingredient.name.lower() in aliases:
+                            return True
+                        for alias in ingredient.aliases:
+                            if alias.lower() in aliases:
+                                return True
+
+            return False
+
+        except Exception as e:
+            click.echo(f"❌ Error checking duplicates in CSV: {e}")
+            return False
 
     def research_and_add_ingredients(self, category: str, max_ingredients: int = 20, dry_run: bool = False, letters: Optional[List[str]] = None) -> ResearchResult:
         """Research and add missing ingredients for a category."""
 
         results = ResearchResult()
 
-        if letters:
-            click.echo(f"🔍 Researching missing ingredients for category: {category} (letters: {', '.join(letters)})")
+        # Define research strategy: vowels first, then full alphabet
+        if not letters:
+            vowels = ['A', 'E', 'I', 'O', 'U']
+            consonants = ['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z']
+            letters = vowels + consonants
+            click.echo(f"🔍 Researching missing ingredients for category: {category} (vowels first, then full alphabet)")
         else:
-            click.echo(f"🔍 Researching missing ingredients for category: {category}")
+            click.echo(f"🔍 Researching missing ingredients for category: {category} (letters: {', '.join(letters)})")
 
-        # Query AI for ingredients
-        ingredients_data = self.query_ai_for_ingredients(category, letters)
-        if not ingredients_data:
-            click.echo("❌ Failed to get ingredients from AI")
-            return results
-
-        results.researched = len(ingredients_data)
-        click.echo(f"✓ Found {len(ingredients_data)} potential ingredients from AI")
-
-        # Process each ingredient
+        # Process letters one by one
         added_count = 0
-        for i, ingredient_data in enumerate(ingredients_data):
-            if added_count >= max_ingredients:
-                break
+        for letter in letters:
+            click.echo(f"📝 Processing letter: {letter}")
 
-            click.echo(f"  Processing {i+1}/{len(ingredients_data)}: {ingredient_data.get('name', 'Unknown')}")
-
-            # Parse ingredient data
-            ingredient = self.parse_ingredient_data(ingredient_data)
-            if not ingredient:
-                results.errors += 1
+            # Query AI for this single letter
+            click.echo(f"🔍 Querying AI for letter {letter}...")
+            ingredients_data = self.query_ai_for_ingredients(category, [letter])
+            if not ingredients_data:
+                click.echo(f"❌ Failed to get ingredients for letter {letter}")
                 continue
 
-            # Check for duplicates
-            if self.is_duplicate_ingredient(ingredient):
-                click.echo(f"    ⚠️  Duplicate found: {ingredient.name}")
-                results.duplicates += 1
-                continue
+            # Validate we have exactly 5 ingredients for this letter
+            expected_count = 5
+            if len(ingredients_data) != expected_count:
+                click.echo(f"⚠️  Expected {expected_count} ingredients for letter {letter}, got {len(ingredients_data)}")
+                # Continue processing what we have, but log the discrepancy
 
-            # Add ingredient
-            if not dry_run:
-                result = self.client.create_ingredient(ingredient)
-                if result:
-                    click.echo(f"    ✅ Added: {ingredient.name}")
+            results.researched += len(ingredients_data)
+            click.echo(f"✓ Found {len(ingredients_data)} potential ingredients for letter {letter}")
+
+            # Process each ingredient for this letter
+            for j, ingredient_data in enumerate(ingredients_data):
+                if added_count >= max_ingredients:
+                    break
+
+                click.echo(f"  Processing {j+1}/{len(ingredients_data)}: {ingredient_data.get('name', 'Unknown')}")
+
+                # Parse ingredient data
+                ingredient = self.parse_ingredient_data(ingredient_data)
+                if not ingredient:
+                    results.errors += 1
+                    continue
+
+                # Check for duplicates
+                if self.is_duplicate_ingredient(ingredient, category):
+                    click.echo(f"    ⚠️  Duplicate found: {ingredient.name}")
+                    results.duplicates += 1
+                    continue
+
+                # Add ingredient to CSV
+                if not dry_run:
+                    success = self.add_ingredient_to_csv(ingredient)
+                    if success:
+                        click.echo(f"    ✅ Added: {ingredient.name}")
+                        results.added += 1
+                        added_count += 1
+                    else:
+                        click.echo(f"    ❌ Failed to add: {ingredient.name}")
+                        results.errors += 1
+                else:
+                    click.echo(f"    🔍 Would add: {ingredient.name} (dry run)")
                     results.added += 1
                     added_count += 1
-                else:
-                    click.echo(f"    ❌ Failed to add: {ingredient.name}")
-                    results.errors += 1
-            else:
-                click.echo(f"    🔍 Would add: {ingredient.name} (dry run)")
-                results.added += 1
-                added_count += 1
+
+            if added_count >= max_ingredients:
+                break
 
         return results
 
@@ -234,6 +311,109 @@ After your thinking, end with the JSON array:"""
         except Exception as e:
             click.echo(f"❌ Error getting categories: {e}")
             return []
+
+    def add_ingredient_to_csv(self, ingredient: Ingredient) -> bool:
+        """Add a single ingredient to the CSV file."""
+        import csv
+        from pathlib import Path
+
+        csv_path = Path(__file__).parent.parent / "seed_db" / "ingredients.csv"
+
+        try:
+            # Read existing ingredients
+            existing_ingredients = []
+            if csv_path.exists():
+                with open(csv_path, 'r', encoding='utf-8') as csvfile:
+                    reader = csv.DictReader(csvfile)
+                    existing_ingredients = list(reader)
+
+            # Add new ingredient
+            new_row = {
+                'name': ingredient.name,
+                'category': ingredient.category,
+                'default_unit': ingredient.default_unit.value if ingredient.default_unit else 'g',
+                'grams_per_unit': str(ingredient.grams_per_unit) if ingredient.grams_per_unit else '',
+                'density_g_per_ml': str(ingredient.density_g_per_ml) if ingredient.density_g_per_ml else '',
+                'kcal_per_100g': str(ingredient.kcal_per_100g),
+                'protein_per_100g': str(ingredient.protein_per_100g),
+                'fat_per_100g': str(ingredient.fat_per_100g),
+                'carbs_per_100g': str(ingredient.carbs_per_100g),
+                'aliases': ','.join(ingredient.aliases) if ingredient.aliases else '',
+                'tags': ','.join(ingredient.tags) if ingredient.tags else '',
+                'popularity_score': str(ingredient.popularity_score)
+            }
+
+            existing_ingredients.append(new_row)
+
+            # Sort by category then name
+            existing_ingredients.sort(key=lambda x: (x['category'], x['name']))
+
+            # Write back to CSV
+            with open(csv_path, 'w', newline='', encoding='utf-8') as csvfile:
+                fieldnames = [
+                    'name', 'category', 'default_unit', 'grams_per_unit',
+                    'density_g_per_ml', 'kcal_per_100g', 'protein_per_100g',
+                    'fat_per_100g', 'carbs_per_100g', 'aliases', 'tags', 'popularity_score'
+                ]
+
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+
+                for row in existing_ingredients:
+                    writer.writerow(row)
+
+            return True
+
+        except Exception as e:
+            click.echo(f"❌ Error adding ingredient to CSV: {e}")
+            return False
+
+    def export_to_csv(self, csv_path: str = None) -> bool:
+        """Export all ingredients from CSV to CSV file (re-sort)."""
+        import csv
+        from pathlib import Path
+
+        if csv_path is None:
+            # Default to the seed_db directory
+            csv_path = Path(__file__).parent.parent / "seed_db" / "ingredients.csv"
+
+        try:
+            if not csv_path.exists():
+                click.echo(f"⚠️  CSV file not found: {csv_path}")
+                return False
+
+            # Read all ingredients
+            with open(csv_path, 'r', encoding='utf-8') as csvfile:
+                reader = csv.DictReader(csvfile)
+                ingredients = list(reader)
+
+            if not ingredients:
+                click.echo("⚠️  No ingredients found in CSV")
+                return False
+
+            # Sort by category then name
+            ingredients.sort(key=lambda x: (x['category'], x['name']))
+
+            # Write back sorted
+            with open(csv_path, 'w', newline='', encoding='utf-8') as csvfile:
+                fieldnames = [
+                    'name', 'category', 'default_unit', 'grams_per_unit',
+                    'density_g_per_ml', 'kcal_per_100g', 'protein_per_100g',
+                    'fat_per_100g', 'carbs_per_100g', 'aliases', 'tags', 'popularity_score'
+                ]
+
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+
+                for ingredient in ingredients:
+                    writer.writerow(ingredient)
+
+            click.echo(f"✅ Re-sorted {len(ingredients)} ingredients in {csv_path}")
+            return True
+
+        except Exception as e:
+            click.echo(f"❌ Error re-sorting CSV: {e}")
+            return False
 
 
 def research_ingredients_command(category=None, max_ingredients=20, letters=None, dry_run=False):
@@ -261,13 +441,12 @@ def research_ingredients_command(category=None, max_ingredients=20, letters=None
         click.echo(f"📂 Available categories: {', '.join(categories)}")
         return
 
-    # Letters selection
+    # Letters selection - if not provided, use systematic approach (no prompt)
     if not letters:
-        letters_input = click.prompt("Enter letters to research (comma-separated, e.g., 'A,B,C')", default="")
-        if letters_input.strip():
-            letters = [letter.strip().upper() for letter in letters_input.split(',')]
-        else:
-            letters = None
+        click.echo("📝 Using systematic research approach (vowels first, then full alphabet)")
+        letters = None
+    else:
+        click.echo(f"📝 Researching specific letters: {', '.join(letters)}")
 
     # Max ingredients
     if not max_ingredients or max_ingredients <= 0:

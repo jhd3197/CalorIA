@@ -185,17 +185,6 @@ class BaseResearcher:
             click.echo(f"🔍 Final cleaned response preview: {repr(content[:200])}")
             click.echo(f"🔍 Full cleaned content: {repr(content)}")
 
-            # Save debug response if needed
-            if len(original_content) < 10000:
-                debug_file = "ollama_response_debug.txt"
-                try:
-                    with open(debug_file, 'w', encoding='utf-8') as f:
-                        f.write(f"=== ORIGINAL RESPONSE ===\n{original_content}\n\n")
-                        f.write(f"=== CLEANED RESPONSE ===\n{content}\n")
-                    click.echo(f"💾 Debug response saved to {debug_file}")
-                except Exception as e:
-                    click.echo(f"⚠️  Could not save debug file: {e}")
-
             return content
 
         except requests.exceptions.RequestException as e:

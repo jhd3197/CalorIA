@@ -202,8 +202,9 @@ def unseed(confirm):
 @click.option('--category', help='Specific category to research (if not provided, will show available categories)')
 @click.option('--max-ingredients', default=20, help='Maximum number of ingredients to add')
 @click.option('--letters', help='Comma-separated letters to research (e.g., "A,B,C") - if not provided, uses systematic approach')
+@click.option('--vowels', is_flag=True, help='Research only vowels (A, E, I, O, U)')
 @click.option('--dry-run', is_flag=True, help='Show what would be added without actually adding ingredients')
-def research_ingredients(category, max_ingredients, letters, dry_run):
+def research_ingredients(category, max_ingredients, letters, vowels, dry_run):
     """Research and add missing ingredients using AI for a specific category, organized by letter."""
     try:
         # Import the research function from the CalorIA package
@@ -211,7 +212,9 @@ def research_ingredients(category, max_ingredients, letters, dry_run):
 
         # Parse letters if provided
         letters_list = None
-        if letters:
+        if vowels:
+            letters_list = ['A', 'E', 'I', 'O', 'U']
+        elif letters:
             letters_list = [letter.strip().upper() for letter in letters.split(',')]
 
         # Run the research with parameters
@@ -236,6 +239,33 @@ def research_ingredients(category, max_ingredients, letters, dry_run):
         sys.exit(1)
     except Exception as e:
         click.echo(f"❌ Unexpected error during research: {e}", err=True)
+        sys.exit(1)
+
+
+@cli.command()
+@click.option('--output', default='CalorIA/seed_db/ingredients.csv', help='Output CSV file path')
+def export_ingredients(output):
+    """Export all ingredients from database to CSV file."""
+    try:
+        # Import the research function from the CalorIA package
+        from CalorIA.research.ingredients import IngredientResearcher
+
+        # Create researcher instance and export
+        researcher = IngredientResearcher()
+        success = researcher.export_to_csv(output)
+
+        if not success:
+            click.echo("❌ Export failed")
+            sys.exit(1)
+
+    except ImportError as e:
+        click.echo(f"❌ Error importing research module: {e}", err=True)
+        sys.exit(1)
+    except KeyboardInterrupt:
+        click.echo("\n Export interrupted.")
+        sys.exit(1)
+    except Exception as e:
+        click.echo(f"❌ Unexpected error during export: {e}", err=True)
         sys.exit(1)
 
 

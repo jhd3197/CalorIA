@@ -1,165 +1,264 @@
 name,category,default_unit,grams_per_unit,density_g_per_ml,kcal_per_100g,protein_per_100g,fat_per_100g,carbs_per_100g,aliases,tags,popularity_score
-Chicken Breast,Proteins,g,,1.0,165,31.0,3.6,0.0,"chicken breast,chicken fillet","lean,protein,poultry",95.0
-Salmon,Proteins,g,,1.0,208,22.1,12.4,0.0,atlantic salmon,"fish,omega3,protein",85.0
-Ground Beef,Proteins,g,,1.0,250,26.1,15.0,0.0,"minced beef,hamburger meat","protein,meat",95.0
-Eggs,Proteins,unit,50.0,1.0,155,13.0,11.0,1.1,"egg,chicken eggs","protein,breakfast",95.0
-Tuna,Proteins,g,,1.0,130,30.0,1.0,0.0,"canned tuna,tuna fish","fish,lean,protein",85.0
-Tofu,Proteins,g,,1.0,70,8.0,4.0,2.0,bean curd,"vegetarian,protein,soy",85.0
-Greek Yogurt,Proteins,g,,1.03,59,10.0,0.4,3.6,plain greek yogurt,"dairy,protein,probiotic",85.0
-Turkey Breast,Proteins,g,,1.0,135,30.0,1.0,0.0,turkey meat,"lean,protein,poultry",85.0
-Cottage Cheese,Proteins,g,,1.0,98,11.0,4.3,3.4,low fat cottage cheese,"dairy,protein",85.0
-Shrimp,Proteins,g,,1.0,85,18.0,1.0,1.0,prawns,"seafood,lean,protein",85.0
-Broccoli,Vegetables,g,,1.0,34,2.8,0.4,7.0,broccoli florets,"vegetable,fiber,vitamin",75.0
-Spinach,Vegetables,g,,1.0,23,2.9,0.4,3.6,"fresh spinach,baby spinach","leafy green,iron,vegetable",75.0
-Bell Pepper,Vegetables,g,,1.0,31,1.0,0.3,7.0,"bell peppers,sweet pepper","vegetable,vitamin c",100.0
-Carrots,Vegetables,g,,1.0,41,0.9,0.2,10.0,carrot,"root vegetable,beta carotene",97.5
-Tomatoes,Vegetables,g,,1.0,18,0.9,0.2,3.9,"tomato,fresh tomatoes","vegetable,lycopene",95.0
-Cucumber,Vegetables,g,,1.0,16,0.7,0.1,4.0,cucumbers,"vegetable,hydrating",75.0
-Onions,Vegetables,g,,1.0,40,1.1,0.1,9.0,"onion,yellow onion","vegetable,flavor",95.0
-Garlic,Vegetables,unit,3.0,1.0,149,6.4,0.5,33.0,"garlic clove,fresh garlic","vegetable,flavor,antibacterial",95.0
-Mushrooms,Vegetables,g,,1.0,22,3.1,0.3,3.3,"white mushrooms,button mushrooms","vegetable,umami",75.0
-Zucchini,Vegetables,g,,1.0,17,1.2,0.3,3.1,courgette,"vegetable,low carb",75.0
-Banana,Fruits,unit,120.0,1.0,89,1.1,0.3,23.0,bananas,"fruit,potassium,energy",95.0
-Apple,Fruits,unit,182.0,1.0,52,0.3,0.2,14.0,apples,"fruit,fiber",95.0
-Blueberries,Fruits,g,,1.0,57,0.7,0.3,14.0,fresh blueberries,"berry,antioxidant,fruit",75.0
-Strawberries,Fruits,g,,1.0,32,0.7,0.3,8.0,fresh strawberries,"berry,vitamin c,fruit",75.0
-Orange,Fruits,unit,154.0,1.0,47,0.9,0.1,12.0,oranges,"citrus,vitamin c,fruit",75.0
-Avocado,Fruits,unit,150.0,1.0,160,2.0,15.0,9.0,avocados,"fruit,healthy fat,fiber",75.0
-Milk,Dairy,ml,,1.03,42,3.4,1.0,5.0,"2% milk,whole milk","dairy,calcium",95.0
-Cheddar Cheese,Dairy,g,,1.0,403,25.0,33.0,1.3,cheddar,"dairy,cheese,calcium",95.0
-Mozzarella,Dairy,g,,1.0,280,28.0,17.0,3.1,mozzarella cheese,"dairy,cheese,calcium",80.0
+Almond Flour,Baking & Flours,g,,1.0,571,21.0,50.0,21.0,blanched almond flour,"baking,gluten free",45.0
+Coconut Flour,Baking & Flours,g,,1.0,443,18.0,14.0,64.0,coconut powder,"baking,gluten free,fiber",45.0
+Whole Wheat Flour,Baking & Flours,g,,1.0,340,13.2,2.5,72.0,"wholemeal flour,atta","baking,grain",88.6
+Black Coffee (Brewed),Beverages,ml,,1.00,1,0.1,0.0,0.0,coffee,"beverage,zero calorie",45.0
+Coconut Water,Beverages,ml,,1.00,18,0.7,0.2,4.2,"agua de coco,coconut juice","hydration,electrolytes",45.0
+Green Tea (Brewed),Beverages,ml,,1.00,1,0.0,0.0,0.0,"green tea,brewed tea","beverage,zero calorie",45.0
+BBQ Sauce,Condiments & Sauces,ml,,1.20,175,1.3,0.3,41.0,barbecue sauce,"condiment,sauce,sweet",25.0
+Hummus,Condiments & Sauces,g,,1.0,166,8.0,9.6,14.3,chickpea dip,"dip,mediterranean",25.0
+Ketchup,Condiments & Sauces,ml,,1.20,112,1.3,0.2,26.0,tomato ketchup,"condiment,sauce",25.0
+Mayonnaise,Condiments & Sauces,ml,,0.90,680,1.0,75.0,1.0,real mayo,"condiment,sauce",25.0
+Pesto,Condiments & Sauces,g,,1.0,460,8.0,47.0,5.0,basil pesto,"sauce,italian",25.0
+Pico de Gallo,Condiments & Sauces,ml,,1.05,27,1.0,0.2,6.0,"fresh salsa,salsa fresca","condiment,low calorie",25.0
+Salsa (Tomato),Condiments & Sauces,ml,,1.05,29,1.5,0.2,6.4,"salsa roja,table salsa","condiment,low calorie",25.0
+Soy Sauce,Condiments & Sauces,ml,,1.20,53,8.0,0.6,4.9,shoyu,"condiment,umami",25.0
+Sriracha,Condiments & Sauces,ml,,1.10,93,1.3,0.7,20.6,hot chili sauce,"condiment,spicy",25.0
+Vinegar (Apple Cider),Condiments & Sauces,ml,,1.01,22,0.0,0.0,0.9,acv,"acid,condiment",100.0
+Yellow Mustard,Condiments & Sauces,ml,,1.00,66,3.7,3.3,5.8,prepared mustard,"condiment,sauce",25.0
 Butter,Dairy,g,,0.91,717,0.9,81.0,0.1,unsalted butter,"dairy,fat",95.0
-Brown Rice,Grains & Starches,g,,1.0,111,2.6,0.9,23.0,cooked brown rice,"grain,fiber,carbs",100.0
-Quinoa,Grains & Starches,g,,1.0,120,4.4,1.9,22.0,cooked quinoa,"grain,complete protein,carbs",80.0
-Oats,Grains & Starches,g,,1.0,389,16.9,6.9,66.0,"rolled oats,oatmeal","grain,fiber,breakfast",80.0
-Whole Wheat Bread,Grains & Starches,unit,28.0,1.0,247,13.0,4.2,41.0,"whole grain bread,bread slice","grain,fiber,carbs",100.0
-Sweet Potato,Grains & Starches,g,,1.0,86,1.6,0.1,20.0,sweet potatoes,"root vegetable,beta carotene,carbs",100.0
-White Rice,Grains & Starches,g,,1.0,130,2.7,0.3,28.0,"cooked white rice,jasmine rice","grain,carbs",100.0
-Olive Oil,Oils & Fats,ml,,0.91,884,0.0,100.0,0.0,extra virgin olive oil,"oil,healthy fat,monounsaturated",95.0
-Coconut Oil,Oils & Fats,ml,,0.92,862,0.0,99.0,0.0,virgin coconut oil,"oil,saturated fat",45.0
-Almonds,Nuts & Seeds,g,,1.0,579,21.0,50.0,22.0,raw almonds,"nut,healthy fat,protein",75.0
-Walnuts,Nuts & Seeds,g,,1.0,654,15.0,65.0,14.0,walnut halves,"nut,omega3,healthy fat",45.0
-Chia Seeds,Nuts & Seeds,g,,1.0,486,17.0,31.0,42.0,chia,"seed,omega3,fiber",45.0
-Peanut Butter,Nuts & Seeds,g,,1.0,588,25.0,50.0,20.0,natural peanut butter,"nut butter,protein,fat",100.0
-Pork Loin (Lean),Proteins,g,,1.0,242,27.0,14.0,0.0,"pork loin,lean pork","protein,meat,lean",85.0
-Chicken Thigh (Skinless),Proteins,g,,1.0,209,26.0,10.9,0.0,"chicken thigh,skinless thigh","protein,poultry",85.0
-Cod,Proteins,g,,1.0,105,23.0,0.9,0.0,atlantic cod,"fish,lean,protein",85.0
-Tilapia,Proteins,g,,1.0,96,20.1,1.7,0.0,tilapia fillet,"fish,lean,protein",85.0
-"Sardines (Water, Drained)",Proteins,g,,1.0,208,24.6,11.5,0.0,"sardines,canned sardines","fish,omega3,protein",85.0
-Tempeh,Proteins,g,,1.0,193,20.3,10.8,7.6,fermented soybean cake,"vegetarian,protein,soy",85.0
-Seitan,Proteins,g,,1.0,143,25.0,2.0,7.0,wheat gluten,"vegetarian,protein",85.0
-Ground Turkey (93% Lean),Proteins,g,,1.0,169,22.0,9.0,0.0,"minced turkey,lean turkey","protein,poultry,lean",85.0
-Edamame (Boiled),Proteins,g,,1.0,122,11.9,5.2,9.9,soybeans,"vegetarian,protein,legume",85.0
-Black Beans (Cooked),Proteins,g,,1.0,132,8.9,0.5,23.7,"black beans,frijoles negros","legume,fiber,protein",85.0
-Chickpeas (Cooked),Proteins,g,,1.0,164,8.9,2.6,27.4,"garbanzo,channa","legume,fiber,protein",85.0
-Lentils (Cooked),Proteins,g,,1.0,116,9.0,0.4,20.1,"brown lentils,red lentils","legume,fiber,protein",85.0
-Kale,Vegetables,g,,1.0,49,4.3,0.9,9.0,curly kale,"leafy green,vitamin k,vegetable",75.0
-Romaine Lettuce,Vegetables,g,,1.0,17,1.2,0.3,3.3,cos lettuce,"leafy green,hydrating,vegetable",75.0
-Asparagus,Vegetables,g,,1.0,20,2.2,0.1,3.9,asparagus spears,"vegetable,fiber",75.0
-Cauliflower,Vegetables,g,,1.0,25,1.9,0.3,5.0,cauli,"vegetable,low carb",75.0
-Green Beans,Vegetables,g,,1.0,31,1.8,0.1,7.0,string beans,"vegetable,fiber",75.0
-Brussels Sprouts,Vegetables,g,,1.0,43,3.4,0.3,9.0,brussels,"vegetable,fiber",75.0
-"Corn (Sweet, Boiled)",Vegetables,g,,1.0,96,3.4,1.5,21.0,"sweet corn,kernels","vegetable,carbs",75.0
-Pineapple,Fruits,g,,1.0,50,0.5,0.1,13.1,ananas,"fruit,tropical,vitamin c",100.0
-Mango,Fruits,g,,1.0,60,0.8,0.4,15.0,mangos,"fruit,tropical",75.0
-Grapes,Fruits,g,,1.0,69,0.7,0.2,18.1,table grapes,"fruit,antioxidant",75.0
-Watermelon,Fruits,g,,1.0,30,0.6,0.2,7.6,water melon,"fruit,hydrating",75.0
-Kiwi,Fruits,g,,1.0,61,1.1,0.5,15.0,kiwifruit,"fruit,vitamin c",75.0
-Pear,Fruits,g,,1.0,57,0.4,0.1,15.0,pears,"fruit,fiber",75.0
-Peach,Fruits,g,,1.0,39,0.9,0.3,10.0,peaches,"fruit,summer",75.0
-Plantain (Ripe),Fruits,unit,200.0,1.0,122,1.3,0.4,32.0,"plantains,plátano macho","fruit,starch,carbs",75.0
-Skim Milk,Dairy,ml,,1.03,34,3.4,0.1,5.0,"fat free milk,nonfat milk","dairy,calcium",100.0
+Cheddar Cheese,Dairy,g,,1.0,403,25.0,33.0,1.3,cheddar,"dairy,cheese,calcium",95.0
 Feta Cheese,Dairy,g,,1.0,265,14.2,21.5,4.1,feta,"dairy,cheese,salty",80.0
-Parmesan,Dairy,g,,1.0,431,38.0,29.0,4.1,parmigiano,"dairy,cheese,hard",80.0
-Skyr,Dairy,g,,1.03,63,11.0,0.2,4.0,icelandic yogurt,"dairy,protein,low fat",80.0
 Kefir,Dairy,ml,,1.03,63,3.4,3.5,4.7,fermented milk,"dairy,probiotic",80.0
-Pasta (Cooked),Grains & Starches,g,,1.0,131,5.0,1.1,25.0,boiled pasta,"grain,carbs",100.0
-Whole Wheat Pasta (Cooked),Grains & Starches,g,,1.0,124,5.5,1.0,27.0,"ww pasta,boiled whole wheat pasta","grain,fiber,carbs",100.0
-Couscous (Cooked),Grains & Starches,g,,1.0,112,3.8,0.2,23.2,steamed couscous,"grain,carbs",80.0
+Milk,Dairy,ml,,1.03,42,3.4,1.0,5.0,"2% milk,whole milk","dairy,calcium",95.0
+Mozzarella,Dairy,g,,1.0,280,28.0,17.0,3.1,mozzarella cheese,"dairy,cheese,calcium",80.0
+Parmesan,Dairy,g,,1.0,431,38.0,29.0,4.1,parmigiano,"dairy,cheese,hard",80.0
+Queso Fresco,Dairy,g,,1.0,299,18.0,23.0,3.0,queso blanco,"dairy,cheese,latin",80.0
+Ricotta (Whole),Dairy,g,,1.0,174,11.0,13.0,3.5,ricotta cheese,"dairy,cheese,soft",80.0
+Skim Milk,Dairy,ml,,1.03,34,3.4,0.1,5.0,"fat free milk,nonfat milk","dairy,calcium",100.0
+Skyr,Dairy,g,,1.03,63,11.0,0.2,4.0,icelandic yogurt,"dairy,protein,low fat",80.0
+Almond Milk (Unsweetened),Dairy Alternatives,ml,,1.01,15,0.6,1.2,0.3,unsweetened almond milk,"plant milk,low calorie",100.0
+Coconut Milk (Canned),Dairy Alternatives,g,,1.0,230,2.3,24.0,6.0,"canned coconut milk,full-fat coconut milk","plant milk,cooking",100.0
+Oat Milk (Unsweetened),Dairy Alternatives,ml,,1.03,43,1.0,1.5,6.7,unsweetened oat milk,plant milk,100.0
+Soy Milk (Unsweetened),Dairy Alternatives,ml,,1.03,33,3.3,1.8,2.0,unsweetened soy milk,"plant milk,protein",100.0
+Abiu,Fruits,g,,,73.0,0.5,0.3,17.7,Pouteria caimito,"tropical fruit,sweet,custard apple",45.0
+Acerola Cherry,Fruits,g,,,32.0,0.4,0.3,8.8,"Barbados Cherry,West Indian Cherry","tropical fruit,vitamin C rich",60.0
+Ackee,Fruits,g,,,78.0,1.1,0.5,13.8,Blighia sapida,"tropical fruit,Jamaican cuisine,savoury",55.0
+African Breadfruit,Fruits,g,,,103.0,1.7,0.5,23.8,African Breadfruit,"tropical fruit,starchy fruit",45.0
+Almond,Fruits,g,,,46.0,1.7,1.3,6.7,"Almond Plum,Prunus dulcis","stone fruit,Mediterranean,summer fruit",65.0
+Ambarella,Fruits,g,,,95.0,0.8,0.5,23.1,"June Plum,Spondias dulcis","tropical fruit,tart,sweet and sour",40.0
+Amla,Fruits,g,,,66.0,1.7,0.2,14.8,"Indian Gooseberry,Emblica officinalis","superfood,vitamin C,tart",60.0
+Apple,Fruits,unit,182.0,1.0,52,0.3,0.2,14.0,apples,"fruit,fiber",95.0
+Apricot,Fruits,g,,,48.0,0.9,0.4,11.4,Apricot,"stone fruit,summer fruit",80.0
+Araza,Fruits,g,,,68.0,0.8,0.2,16.0,Amazonian Pear,"tropical fruit,tart fruit",40.0
+Atemoya,Fruits,g,,,83.0,1.0,0.3,20.0,"Sugar Apple,Custard Apple","tropical fruit,sweet fruit",55.0
+Avocado,Fruits,unit,150.0,1.0,160,2.0,15.0,9.0,avocados,"fruit,healthy fat,fiber",75.0
+Banana,Fruits,unit,120.0,1.0,89,1.1,0.3,23.0,bananas,"fruit,potassium,energy",95.0
+Blueberries,Fruits,g,,1.0,57,0.7,0.3,14.0,fresh blueberries,"berry,antioxidant,fruit",75.0
+Coconut Meat,Fruits,g,,1.0,354,3.3,33.5,15.2,fresh coconut,"fruit,healthy fat",75.0
+Dates (Medjool),Fruits,unit,24.0,1.0,277,1.8,0.2,75.0,medjool dates,"fruit,energy",75.0
+Eggfruit,Fruits,g,,,80.0,1.0,0.3,19.0,"Canistel,Atemoya","tropical fruit,yellow fruit,sweet",40.0
+Elaeagnus umbellata,Fruits,g,,,80.0,1.5,0.5,16.0,"Autumn Olive,Silverberry","shrub fruit,invasive species,vitamin C",20.0
+Elderberry,Fruits,g,,,68.0,1.1,0.3,17.8,"Sambucus nigra,Black Elderberry","berry,dark purple,antioxidant",65.0
+Emblem Berry,Fruits,g,,,60.0,1.2,0.3,14.0,Rainforest Berry,"rare fruit,tropical fruit,antioxidant",30.0
+Emu Apple,Fruits,g,,,50.0,0.5,0.2,12.0,Davidson Plum,"Australian native fruit,purple fruit,tart",25.0
+Espino Blanco,Fruits,g,,,45.0,0.5,0.1,10.0,"White Hawthorne,Mayhaw","hawthorn fruit,heart health,traditional medicine",40.0
+Ethiopian Blueberry,Fruits,g,,,57.0,0.7,0.3,14.0,Vaccinium ethiopicum,"African blueberry,small berry,sweet-tart",35.0
+European Barberry,Fruits,g,,,37.0,1.3,0.5,9.0,"Berberis vulgaris,Barberry","tart fruit,red berry,medicinal",30.0
+European Crabapple,Fruits,g,,,50.0,0.4,0.2,12.0,"crab apple,wild apple","tart fruit,small apple,autumn fruit",45.0
+Evergreen Huckleberry,Fruits,g,,,57.0,0.7,0.3,14.0,winter huckleberry,"evergreen,forest fruit,wild berry",35.0
+Grapes,Fruits,g,,1.0,69,0.7,0.2,18.1,table grapes,"fruit,antioxidant",75.0
+Guava,Fruits,g,,1.0,68,2.6,1.0,14.0,guayaba,"fruit,tropical,vitamin c",75.0
+Ice Apple,Fruits,g,,,92.0,0.5,0.3,22.8,"tari,sugar palm fruit","tropical fruit,refreshing,summer fruit",40.0
+Ice Cream Bean,Fruits,g,,,120.0,3.0,0.5,25.0,"Pataxte,Babaco","tropical fruit,sweet,vanilla flavor",55.0
+Ilama,Fruits,g,,,75.0,0.6,0.4,18.0,"ekek,ekek fruit","african fruit,tropical,sweet",20.0
+Imbe,Fruits,g,,,68.0,0.4,0.2,17.0,"umbu,imbu","brazilian fruit,tropical,sweet",30.0
+Imbuvia,Fruits,g,,,50.0,0.8,0.4,12.0,Brazilian Guava,"tropical fruit,sweet,guava-like",50.0
+Indian Plum,Fruits,g,,,57.0,0.7,0.3,14.5,"ber,jujube","small fruit,tart,asian fruit",25.0
+Iriki,Fruits,g,,,70.0,1.0,0.2,17.0,Solomon Islands Fruit,"tropical fruit,orange fruit,sweet",40.0
+Italian Plum,Fruits,g,,,46.0,0.7,0.3,12.0,"prune plum,fellenberg plum","stone fruit,european plum,dessert fruit",60.0
+Jabuticaba,Fruits,g,,,60.0,0.5,0.3,15.0,"Brazilian Grape Tree,Jabotica","tropical fruit,purple fruit,sweet",60.0
+Kiwi,Fruits,g,,1.0,61,1.1,0.5,15.0,kiwifruit,"fruit,vitamin c",75.0
+Lemon,Fruits,unit,58.0,1.0,29,1.1,0.3,9.3,lemons,"citrus,vitamin c,fruit",75.0
+Lime,Fruits,unit,67.0,1.0,30,0.7,0.2,10.5,limes,"citrus,vitamin c,fruit",75.0
+Mango,Fruits,g,,1.0,60,0.8,0.4,15.0,mangos,"fruit,tropical",75.0
+OHare Grape,Fruits,g,,,69.0,0.7,0.2,18.0,O'Hare Seedless,"grape,table grape",35.0
+Obi-Obi,Fruits,g,,,60.0,1.0,0.3,15.0,Amazonian Obi-Obi,"tropical fruit,exotic fruit",30.0
+October Pear,Fruits,g,,,57.0,0.4,0.1,14.0,Autumn Pear,"pear,seasonal fruit",45.0
+Ogon Berry,Fruits,g,,,50.0,1.0,0.3,12.0,Ogon berries,"rare fruit,berry,sweet",30.0
+Olives,Fruits,g,,,115.0,1.1,14.9,6.1,olive fruit,"Mediterranean,salty,brined",80.0
+Orange,Fruits,unit,154.0,1.0,47,0.9,0.1,12.0,oranges,"citrus,vitamin c,fruit",75.0
+Oregon Pear,Fruits,g,,,57.0,0.4,0.1,14.0,Pacific Pear,"pear,Northwest fruit",40.0
+Oroblanco Grapefruit,Fruits,g,,,42.0,0.9,0.1,10.0,sweetie grapefruit,"citrus fruit,hybrid grapefruit,sweet",50.0
+Osage Orange,Fruits,g,,,80.0,0.9,0.5,17.0,"Hedge Apple,Horse Apple","uncommon fruit,native fruit,bitter",20.0
+Otaheite Gooseberry,Fruits,g,,,64.0,1.2,0.5,14.0,"Chinese Gooseberry,Kiwi Berry","gooseberry,tropical fruit",50.0
+Oval Kumquat,Fruits,g,,,64.0,1.0,0.9,15.0,kumquat,"citrus fruit,sweet rind,small fruit",60.0
+Papaya,Fruits,g,,1.0,43,0.5,0.3,11.0,lechoza,"fruit,tropical",75.0
+Passion Fruit,Fruits,g,,1.0,97,2.2,0.4,23.0,maracuyá,"fruit,tropical",75.0
+Peach,Fruits,g,,1.0,39,0.9,0.3,10.0,peaches,"fruit,summer",75.0
+Pear,Fruits,g,,1.0,57,0.4,0.1,15.0,pears,"fruit,fiber",75.0
+Pineapple,Fruits,g,,1.0,50,0.5,0.1,13.1,ananas,"fruit,tropical,vitamin c",100.0
+Plantain (Ripe),Fruits,unit,200.0,1.0,122,1.3,0.4,32.0,"plantains,plátano macho","fruit,starch,carbs",75.0
+Raisins,Fruits,g,,1.0,299,3.1,0.5,79.0,dried grapes,"fruit,dried",75.0
+Strawberries,Fruits,g,,1.0,32,0.7,0.3,8.0,fresh strawberries,"berry,vitamin c,fruit",75.0
+Ugli Fruit,Fruits,g,,,63.0,1.0,0.2,15.6,"Tangelo,Jamaican Tangelo","citrus fruit,tropical fruit,vitamin C",60.0
+Watermelon,Fruits,g,,1.0,30,0.6,0.2,7.6,water melon,"fruit,hydrating",75.0
+Arepa (Plain),Grains & Starches,unit,100.0,1.0,219,5.0,5.1,39.0,"arepa de maíz,arepa blanca","grain,carbs,venezuelan",80.0
 Barley (Cooked),Grains & Starches,g,,1.0,123,2.3,0.4,28.2,pearled barley,"grain,fiber,carbs",80.0
+Brown Rice,Grains & Starches,g,,1.0,111,2.6,0.9,23.0,cooked brown rice,"grain,fiber,carbs",100.0
 Buckwheat (Cooked),Grains & Starches,g,,1.0,92,3.4,0.6,20.0,boiled buckwheat,"grain,gluten free,carbs",80.0
 Corn Tortilla,Grains & Starches,unit,24.0,1.0,218,5.7,2.9,44.6,"maize tortilla,tortilla de maíz","grain,carbs,tortilla",80.0
-Flour Tortilla (Medium),Grains & Starches,unit,40.0,1.0,313,8.7,7.2,52.0,"wheat tortilla,tortilla de harina","grain,carbs,tortilla",80.0
-Arepa (Plain),Grains & Starches,unit,100.0,1.0,219,5.0,5.1,39.0,"arepa de maíz,arepa blanca","grain,carbs,venezuelan",80.0
-Yuca (Cassava),Grains & Starches,g,,1.0,160,1.4,0.3,38.1,"cassava,mandioca,yuca","root,carbs,latin",80.0
+Cornmeal,Grains & Starches,g,,1.0,370,8.1,4.6,79.0,polenta,"grain,baking",80.0
+Couscous (Cooked),Grains & Starches,g,,1.0,112,3.8,0.2,23.2,steamed couscous,"grain,carbs",80.0
 Farro (Cooked),Grains & Starches,g,,1.0,125,4.2,1.0,26.0,emmer wheat,"grain,fiber,carbs",80.0
-Avocado Oil,Oils & Fats,ml,,0.91,884,0.0,100.0,0.0,"avocado oil,extra virgin avocado oil","oil,healthy fat,monounsaturated",89.3
-Sesame Oil,Oils & Fats,ml,,0.92,884,0.0,100.0,0.0,"toasted sesame oil,light sesame oil","oil,flavor",45.0
-Ghee,Oils & Fats,ml,,0.91,876,0.0,99.8,0.0,clarified butter,"fat,cooking",45.0
+Flour Tortilla (Medium),Grains & Starches,unit,40.0,1.0,313,8.7,7.2,52.0,"wheat tortilla,tortilla de harina","grain,carbs,tortilla",80.0
+Harina P.A.N. (Precooked Corn Flour),Grains & Starches,g,,1.0,370,8.0,1.5,79.0,"precooked corn flour,masarepa","grain,venezuelan,arepa",80.0
+Masa Harina,Grains & Starches,g,,1.0,365,8.0,3.7,75.0,"masa harina,nixtamalized corn flour","grain,tortilla",80.0
+Millet (Cooked),Grains & Starches,g,,1.0,119,3.5,1.0,23.7,cooked millet,"grain,gluten free",80.0
+Oats,Grains & Starches,g,,1.0,389,16.9,6.9,66.0,"rolled oats,oatmeal","grain,fiber,breakfast",80.0
+Pasta (Cooked),Grains & Starches,g,,1.0,131,5.0,1.1,25.0,boiled pasta,"grain,carbs",100.0
+Quinoa,Grains & Starches,g,,1.0,120,4.4,1.9,22.0,cooked quinoa,"grain,complete protein,carbs",80.0
+Rice Noodles (Cooked),Grains & Starches,g,,1.0,109,1.8,0.2,25.0,"rice vermicelli,cooked rice noodles","grain,gluten free",100.0
+Sweet Potato,Grains & Starches,g,,1.0,86,1.6,0.1,20.0,sweet potatoes,"root vegetable,beta carotene,carbs",100.0
+Teff (Cooked),Grains & Starches,g,,1.0,101,3.9,0.6,19.9,cooked teff,"grain,gluten free",80.0
+Tortilla Chips,Grains & Starches,g,,1.0,499,7.0,27.0,57.0,corn chips,"snack,grain",80.0
+White Rice,Grains & Starches,g,,1.0,130,2.7,0.3,28.0,"cooked white rice,jasmine rice","grain,carbs",100.0
+Whole Wheat Bread,Grains & Starches,unit,28.0,1.0,247,13.0,4.2,41.0,"whole grain bread,bread slice","grain,fiber,carbs",100.0
+Whole Wheat Pasta (Cooked),Grains & Starches,g,,1.0,124,5.5,1.0,27.0,"ww pasta,boiled whole wheat pasta","grain,fiber,carbs",100.0
+Yuca (Cassava),Grains & Starches,g,,1.0,160,1.4,0.3,38.1,"cassava,mandioca,yuca","root,carbs,latin",80.0
+Almonds,Nuts & Seeds,g,,1.0,579,21.0,50.0,22.0,raw almonds,"nut,healthy fat,protein",75.0
 Cashews,Nuts & Seeds,g,,1.0,553,18.2,43.9,30.2,cashew nuts,"nut,healthy fat",45.0
+Chia Seeds,Nuts & Seeds,g,,1.0,486,17.0,31.0,42.0,chia,"seed,omega3,fiber",45.0
+Flaxseed,Nuts & Seeds,g,,1.0,534,18.3,42.2,28.9,linseed,"seed,omega3,fiber",45.0
+Hemp Seeds,Nuts & Seeds,g,,1.0,553,31.6,48.8,8.7,hemp hearts,"seed,protein,omega3",45.0
+Peanut Butter,Nuts & Seeds,g,,1.0,588,25.0,50.0,20.0,natural peanut butter,"nut butter,protein,fat",100.0
 Pistachios,Nuts & Seeds,g,,1.0,562,20.3,45.4,27.5,pistachio nuts,"nut,healthy fat",45.0
 Pumpkin Seeds,Nuts & Seeds,g,,1.0,559,30.2,49.0,10.7,pepitas,"seed,magnesium",45.0
 Sunflower Seeds,Nuts & Seeds,g,,1.0,584,20.8,51.5,20.0,shelled sunflower seeds,"seed,vitamin e",45.0
-Flaxseed,Nuts & Seeds,g,,1.0,534,18.3,42.2,28.9,linseed,"seed,omega3,fiber",45.0
-Hemp Seeds,Nuts & Seeds,g,,1.0,553,31.6,48.8,8.7,hemp hearts,"seed,protein,omega3",45.0
 Tahini,Nuts & Seeds,g,,1.0,595,17.0,53.0,21.0,sesame paste,"seed,butter,sauce",45.0
-Egg Whites (Liquid),Proteins,ml,,1.03,52,10.9,0.2,1.1,"liquid egg whites,carton egg whites","protein,lean",85.0
-Mahi-Mahi,Proteins,g,,1.0,96,20.0,1.0,0.0,mahi mahi,"fish,lean,protein",85.0
-Scallops,Proteins,g,,1.0,88,16.8,0.8,3.2,sea scallops,"seafood,lean,protein",85.0
+Walnuts,Nuts & Seeds,g,,1.0,654,15.0,65.0,14.0,walnut halves,"nut,omega3,healthy fat",45.0
+Avocado Oil,Oils & Fats,ml,,0.91,884,0.0,100.0,0.0,"avocado oil,extra virgin avocado oil","oil,healthy fat,monounsaturated",89.3
+Coconut Oil,Oils & Fats,ml,,0.92,862,0.0,99.0,0.0,virgin coconut oil,"oil,saturated fat",45.0
+Ghee,Oils & Fats,ml,,0.91,876,0.0,99.8,0.0,clarified butter,"fat,cooking",45.0
+Olive Oil,Oils & Fats,ml,,0.91,884,0.0,100.0,0.0,extra virgin olive oil,"oil,healthy fat,monounsaturated",95.0
+Sesame Oil,Oils & Fats,ml,,0.92,884,0.0,100.0,0.0,"toasted sesame oil,light sesame oil","oil,flavor",45.0
+Black Beans (Cooked),Proteins,g,,1.0,132,8.9,0.5,23.7,"black beans,frijoles negros","legume,fiber,protein",85.0
+Chicken Breast,Proteins,g,,1.0,165,31.0,3.6,0.0,"chicken breast,chicken fillet","lean,protein,poultry",95.0
+Chicken Thigh (Skinless),Proteins,g,,1.0,209,26.0,10.9,0.0,"chicken thigh,skinless thigh","protein,poultry",85.0
+Chickpeas (Cooked),Proteins,g,,1.0,164,8.9,2.6,27.4,"garbanzo,channa","legume,fiber,protein",85.0
+Cod,Proteins,g,,1.0,105,23.0,0.9,0.0,atlantic cod,"fish,lean,protein",85.0
+Cottage Cheese,Proteins,g,,1.0,98,11.0,4.3,3.4,low fat cottage cheese,"dairy,protein",85.0
 Crab,Proteins,g,,1.0,97,19.4,1.5,0.0,blue crab,"seafood,lean,protein",85.0
-Octopus,Proteins,g,,1.0,82,14.9,1.0,2.2,pulpo,"seafood,protein",85.0
-Mackerel,Proteins,g,,1.0,205,19.0,13.9,0.0,atlantic mackerel,"fish,omega3,protein",85.0
+Edamame (Boiled),Proteins,g,,1.0,122,11.9,5.2,9.9,soybeans,"vegetarian,protein,legume",85.0
+Egg Whites (Liquid),Proteins,ml,,1.03,52,10.9,0.2,1.1,"liquid egg whites,carton egg whites","protein,lean",85.0
+Eggs,Proteins,unit,50.0,1.0,155,13.0,11.0,1.1,"egg,chicken eggs","protein,breakfast",95.0
+Greek Yogurt,Proteins,g,,1.03,59,10.0,0.4,3.6,plain greek yogurt,"dairy,protein,probiotic",85.0
+Ground Beef,Proteins,g,,1.0,250,26.1,15.0,0.0,"minced beef,hamburger meat","protein,meat",95.0
+Ground Turkey (93% Lean),Proteins,g,,1.0,169,22.0,9.0,0.0,"minced turkey,lean turkey","protein,poultry,lean",85.0
 Kidney Beans (Cooked),Proteins,g,,1.0,127,8.7,0.5,22.8,"red kidney beans,cooked kidney beans","legume,fiber,protein",85.0
+Lentils (Cooked),Proteins,g,,1.0,116,9.0,0.4,20.1,"brown lentils,red lentils","legume,fiber,protein",85.0
+Mackerel,Proteins,g,,1.0,205,19.0,13.9,0.0,atlantic mackerel,"fish,omega3,protein",85.0
+Mahi-Mahi,Proteins,g,,1.0,96,20.0,1.0,0.0,mahi mahi,"fish,lean,protein",85.0
+Octopus,Proteins,g,,1.0,82,14.9,1.0,2.2,pulpo,"seafood,protein",85.0
 Pinto Beans (Cooked),Proteins,g,,1.0,143,9.0,0.6,26.2,"pinto beans,frijoles pintos","legume,fiber,protein",85.0
+Pork Loin (Lean),Proteins,g,,1.0,242,27.0,14.0,0.0,"pork loin,lean pork","protein,meat,lean",85.0
 Refried Beans (Canned),Proteins,g,,1.0,106,5.0,3.0,15.0,"frijoles refritos,canned refried beans","legume,latin",85.0
-Eggplant,Vegetables,g,,1.0,25,1.0,0.2,6.0,aubergine,"vegetable,low calorie",75.0
-Cabbage,Vegetables,g,,1.0,25,1.3,0.1,6.0,green cabbage,"vegetable,cruciferous",75.0
-Celery,Vegetables,g,,1.0,16,0.7,0.2,3.0,celery stalks,"vegetable,hydrating",75.0
-Beets (Boiled),Vegetables,g,,1.0,43,1.6,0.2,10.0,beetroot,"vegetable,root",75.0
-Okra,Vegetables,g,,1.0,33,2.0,0.2,7.5,lady's finger,"vegetable,fiber",75.0
-Jalapeño,Vegetables,g,,1.0,29,0.9,0.4,6.5,jalapeno pepper,"vegetable,chili",75.0
-Cilantro,Vegetables,g,,1.0,23,2.1,0.5,3.7,coriander leaves,"herb,vegetable",75.0
-Parsley,Vegetables,g,,1.0,36,3.0,0.8,6.3,flat-leaf parsley,"herb,vegetable",75.0
-Papaya,Fruits,g,,1.0,43,0.5,0.3,11.0,lechoza,"fruit,tropical",75.0
-Guava,Fruits,g,,1.0,68,2.6,1.0,14.0,guayaba,"fruit,tropical,vitamin c",75.0
-Passion Fruit,Fruits,g,,1.0,97,2.2,0.4,23.0,maracuyá,"fruit,tropical",75.0
-Coconut Meat,Fruits,g,,1.0,354,3.3,33.5,15.2,fresh coconut,"fruit,healthy fat",75.0
-Lime,Fruits,unit,67.0,1.0,30,0.7,0.2,10.5,limes,"citrus,vitamin c,fruit",75.0
-Lemon,Fruits,unit,58.0,1.0,29,1.1,0.3,9.3,lemons,"citrus,vitamin c,fruit",75.0
-Dates (Medjool),Fruits,unit,24.0,1.0,277,1.8,0.2,75.0,medjool dates,"fruit,energy",75.0
-Raisins,Fruits,g,,1.0,299,3.1,0.5,79.0,dried grapes,"fruit,dried",75.0
-Ricotta (Whole),Dairy,g,,1.0,174,11.0,13.0,3.5,ricotta cheese,"dairy,cheese,soft",80.0
-Queso Fresco,Dairy,g,,1.0,299,18.0,23.0,3.0,queso blanco,"dairy,cheese,latin",80.0
-Almond Milk (Unsweetened),Dairy Alternatives,ml,,1.01,15,0.6,1.2,0.3,unsweetened almond milk,"plant milk,low calorie",100.0
-Oat Milk (Unsweetened),Dairy Alternatives,ml,,1.03,43,1.0,1.5,6.7,unsweetened oat milk,plant milk,100.0
-Soy Milk (Unsweetened),Dairy Alternatives,ml,,1.03,33,3.3,1.8,2.0,unsweetened soy milk,"plant milk,protein",100.0
-Coconut Milk (Canned),Dairy Alternatives,g,,1.0,230,2.3,24.0,6.0,"canned coconut milk,full-fat coconut milk","plant milk,cooking",100.0
-Coconut Water,Beverages,ml,,1.00,18,0.7,0.2,4.2,"agua de coco,coconut juice","hydration,electrolytes",45.0
-Harina P.A.N. (Precooked Corn Flour),Grains & Starches,g,,1.0,370,8.0,1.5,79.0,"precooked corn flour,masarepa","grain,venezuelan,arepa",80.0
-Masa Harina,Grains & Starches,g,,1.0,365,8.0,3.7,75.0,"masa harina,nixtamalized corn flour","grain,tortilla",80.0
-Cornmeal,Grains & Starches,g,,1.0,370,8.1,4.6,79.0,polenta,"grain,baking",80.0
-Whole Wheat Flour,Baking & Flours,g,,1.0,340,13.2,2.5,72.0,"wholemeal flour,atta","baking,grain",88.6
-Almond Flour,Baking & Flours,g,,1.0,571,21.0,50.0,21.0,blanched almond flour,"baking,gluten free",45.0
-Coconut Flour,Baking & Flours,g,,1.0,443,18.0,14.0,64.0,coconut powder,"baking,gluten free,fiber",45.0
-Rice Noodles (Cooked),Grains & Starches,g,,1.0,109,1.8,0.2,25.0,"rice vermicelli,cooked rice noodles","grain,gluten free",100.0
-Millet (Cooked),Grains & Starches,g,,1.0,119,3.5,1.0,23.7,cooked millet,"grain,gluten free",80.0
-Teff (Cooked),Grains & Starches,g,,1.0,101,3.9,0.6,19.9,cooked teff,"grain,gluten free",80.0
-Tortilla Chips,Grains & Starches,g,,1.0,499,7.0,27.0,57.0,corn chips,"snack,grain",80.0
-Ketchup,Condiments & Sauces,ml,,1.20,112,1.3,0.2,26.0,tomato ketchup,"condiment,sauce",25.0
-Yellow Mustard,Condiments & Sauces,ml,,1.00,66,3.7,3.3,5.8,prepared mustard,"condiment,sauce",25.0
-Mayonnaise,Condiments & Sauces,ml,,0.90,680,1.0,75.0,1.0,real mayo,"condiment,sauce",25.0
-Soy Sauce,Condiments & Sauces,ml,,1.20,53,8.0,0.6,4.9,shoyu,"condiment,umami",25.0
-Sriracha,Condiments & Sauces,ml,,1.10,93,1.3,0.7,20.6,hot chili sauce,"condiment,spicy",25.0
-BBQ Sauce,Condiments & Sauces,ml,,1.20,175,1.3,0.3,41.0,barbecue sauce,"condiment,sauce,sweet",25.0
-Salsa (Tomato),Condiments & Sauces,ml,,1.05,29,1.5,0.2,6.4,"salsa roja,table salsa","condiment,low calorie",25.0
-Pico de Gallo,Condiments & Sauces,ml,,1.05,27,1.0,0.2,6.0,"fresh salsa,salsa fresca","condiment,low calorie",25.0
-Pesto,Condiments & Sauces,g,,1.0,460,8.0,47.0,5.0,basil pesto,"sauce,italian",25.0
-Hummus,Condiments & Sauces,g,,1.0,166,8.0,9.6,14.3,chickpea dip,"dip,mediterranean",25.0
-Vinegar (Apple Cider),Condiments & Sauces,ml,,1.01,22,0.0,0.0,0.9,acv,"acid,condiment",100.0
-Honey,Sweeteners,ml,,1.42,304,0.3,0.0,82.4,bee honey,"sweetener,natural",45.0
-Maple Syrup,Sweeteners,ml,,1.33,260,0.0,0.0,67.0,pure maple syrup,"sweetener,natural",45.0
-Agave Syrup,Sweeteners,ml,,1.37,310,0.0,0.0,76.0,agave nectar,sweetener,45.0
-White Sugar,Sweeteners,g,,1.0,387,0.0,0.0,100.0,granulated sugar,sweetener,100.0
-Brown Sugar,Sweeteners,g,,1.0,380,0.0,0.0,98.0,"light brown sugar,dark brown sugar","sweetener,moist",100.0
-Panela (Papelón),Sweeteners,g,,1.0,383,0.7,0.1,95.0,"piloncillo,papelón","sweetener,latin",45.0
-Cumin (Ground),Spices,g,,1.0,375,18.0,22.3,44.2,ground cumin,"spice,latin",25.0
-Paprika (Sweet),Spices,g,,1.0,282,14.1,12.9,54.0,sweet paprika,spice,25.0
+Salmon,Proteins,g,,1.0,208,22.1,12.4,0.0,atlantic salmon,"fish,omega3,protein",85.0
+"Sardines (Water, Drained)",Proteins,g,,1.0,208,24.6,11.5,0.0,"sardines,canned sardines","fish,omega3,protein",85.0
+Scallops,Proteins,g,,1.0,88,16.8,0.8,3.2,sea scallops,"seafood,lean,protein",85.0
+Seitan,Proteins,g,,1.0,143,25.0,2.0,7.0,wheat gluten,"vegetarian,protein",85.0
+Shrimp,Proteins,g,,1.0,85,18.0,1.0,1.0,prawns,"seafood,lean,protein",85.0
+Tempeh,Proteins,g,,1.0,193,20.3,10.8,7.6,fermented soybean cake,"vegetarian,protein,soy",85.0
+Tilapia,Proteins,g,,1.0,96,20.1,1.7,0.0,tilapia fillet,"fish,lean,protein",85.0
+Tofu,Proteins,g,,1.0,70,8.0,4.0,2.0,bean curd,"vegetarian,protein,soy",85.0
+Tuna,Proteins,g,,1.0,130,30.0,1.0,0.0,"canned tuna,tuna fish","fish,lean,protein",85.0
+Turkey Breast,Proteins,g,,1.0,135,30.0,1.0,0.0,turkey meat,"lean,protein,poultry",85.0
+Achiote Seeds,Spices,g,,,350.0,12.0,18.0,55.0,annatto seeds,"coloring agent,Latin American spice,earthy",45.0
+Ajwain Seeds,Spices,g,,,310.0,17.0,14.0,46.0,"ajwain,carom seeds","Indian spice,pungent,digestive",60.0
+Allspice Berries,Spices,g,,,255.0,6.0,8.0,51.0,"pimento,Jamaica pepper","warm spice,sweet,savory",75.0
+Anise Seeds,Spices,g,,,375.0,18.0,15.0,65.0,aniseed,"licorice flavor,sweet,baking",65.0
+Asafoetida,Spices,g,,,300.0,15.0,10.0,50.0,"hing,asafoetida resin","pungent,Indian spice,digestive",50.0
 Black Pepper (Ground),Spices,g,,1.0,251,10.4,3.3,64.8,ground black pepper,spice,100.0
-Oregano (Dried),Spices,g,,1.0,306,11.0,10.3,64.4,dried oregano,"spice,herb",25.0
 Cinnamon (Ground),Spices,g,,1.0,247,4.0,1.2,81.0,ground cinnamon,"spice,sweet",25.0
+Cumin (Ground),Spices,g,,1.0,375,18.0,22.3,44.2,ground cumin,"spice,latin",25.0
+Echinacea Root,Spices,g,,,260.0,6.2,2.1,58.0,"purple coneflower root,echinacea powder","herbal remedy,immune support,bitter",45.0
+Elecampane Root,Spices,g,,,310.0,7.5,1.8,65.0,"yellow coneflower root,inula helenium","herbal medicine,digestive aid,bitter",30.0
+Epazote,Spices,g,,,280.0,8.0,1.5,60.0,"Mexican tea,wormseed","Mexican cuisine,digestive,pungent",55.0
+Erythroxylum coca,Spices,g,,,300.0,7.0,1.7,63.0,"coca leaf,mate de coca","South American,traditional remedy,stimulating",25.0
+Ethiopian Cardamom,Spices,g,,,310.0,6.5,2.0,62.0,"korarima,wild cardamom","Ethiopian cuisine,aromatic,spicy",40.0
+Iberian Saffron,Spices,g,,,265.0,6.0,0.5,65.0,"Spanish Saffron,Red Gold","saffron,expensive spice,coloring agent",40.0
+Icelandic Moss,Spices,g,,,150.0,3.0,0.2,30.0,"Icelandic Carageen,Sea Moss","seaweed,thickening agent,coastal spice",30.0
+Indian Long Pepper,Spices,g,,,255.0,6.0,1.0,60.0,"Pippali,Long Pepper","peppery,warming spice,Ayurvedic",50.0
+Italian Angelica Root,Spices,g,,,200.0,4.0,0.3,45.0,"Angelica Archangelica,Wild Celery","bitter,digestive aid,herb",45.0
+Ivorian Allspice,Spices,g,,,270.0,5.0,1.5,68.0,"West African Allspice,Melegueta Pepper","peppery,cinnamon-like,complex spice",35.0
+Old Bay Seasoning,Spices,g,,,260.0,9.0,2.0,50.0,Old Bay,"blend,seafood,savory",80.0
+Onion Powder,Spices,g,,,300.0,8.0,0.5,70.0,dehydrated onion,"onion,savory,powder",95.0
+Orange Peel,Spices,g,,,300.0,3.0,1.0,65.0,dried orange zest,"citrus,zest,baking",65.0
+Oregano,Spices,g,,,26.0,2.2,0.6,6.5,fresh oregano leaves,"herb,Italian,Mediterranean",70.0
+Oregano (Dried),Spices,g,,1.0,306,11.0,10.3,64.4,dried oregano,"spice,herb",25.0
+Osha Root,Spices,g,,,350.0,10.0,2.0,70.0,bear root,"root,aromatic,medicinal",30.0
+Paprika (Sweet),Spices,g,,1.0,282,14.1,12.9,54.0,sweet paprika,spice,25.0
 Turmeric (Ground),Spices,g,,1.0,312,9.7,3.3,67.1,ground turmeric,spice,25.0
-Whey Protein (Isolate),Supplements,g,,1.0,370,85.0,3.0,5.0,"whey isolate,protein powder","supplement,protein",25.0
 Creatine Monohydrate,Supplements,g,,1.0,0,0.0,0.0,0.0,creatine,"supplement,strength",25.0
 Electrolyte Powder (Unsweetened),Supplements,g,,1.0,10,0.0,0.0,2.5,"electrolyte mix,hydration powder","supplement,hydration",25.0
-Black Coffee (Brewed),Beverages,ml,,1.00,1,0.1,0.0,0.0,coffee,"beverage,zero calorie",45.0
-Green Tea (Brewed),Beverages,ml,,1.00,1,0.0,0.0,0.0,"green tea,brewed tea","beverage,zero calorie",45.0
+Whey Protein (Isolate),Supplements,g,,1.0,370,85.0,3.0,5.0,"whey isolate,protein powder","supplement,protein",25.0
+Agave Syrup,Sweeteners,ml,,1.37,310,0.0,0.0,76.0,agave nectar,sweetener,45.0
+Brown Sugar,Sweeteners,g,,1.0,380,0.0,0.0,98.0,"light brown sugar,dark brown sugar","sweetener,moist",100.0
+Honey,Sweeteners,ml,,1.42,304,0.3,0.0,82.4,bee honey,"sweetener,natural",45.0
+Maple Syrup,Sweeteners,ml,,1.33,260,0.0,0.0,67.0,pure maple syrup,"sweetener,natural",45.0
+Panela (Papelón),Sweeteners,g,,1.0,383,0.7,0.1,95.0,"piloncillo,papelón","sweetener,latin",45.0
+White Sugar,Sweeteners,g,,1.0,387,0.0,0.0,100.0,granulated sugar,sweetener,100.0
+Adzuki Bean Sprouts,Vegetables,g,,,33.0,2.8,0.2,6.5,adzuki sprouts,"sprout,bean sprout,Asian cuisine",30.0
+African Horned Cucumber,Vegetables,g,,,21.0,1.4,0.3,4.7,"Kiwano,Horned Melon","exotic fruit,tropical,refreshing",30.0
+Alexanders,Vegetables,g,,,35.0,2.5,0.5,6.0,smirr,"leafy green,herb,spring vegetable",20.0
+Alfalfa Sprouts,Vegetables,g,,,23.0,3.6,0.2,4.2,"alfalfa,lucerne sprouts","sprout,raw food,salad",45.0
+Alpine Cress,Vegetables,g,,,20.0,2.0,0.1,4.0,mountain cress,"peppery,salad,garnish",35.0
+Amaranth Leaves,Vegetables,g,,,35.0,5.5,1.4,6.2,Chinese spinach,"leafy green,Asian cuisine,nutrient-rich",45.0
+Artichoke,Vegetables,g,,,64.0,3.3,0.2,13.4,globe artichoke,"leafy vegetable,Mediterranean cuisine",60.0
+Arugula,Vegetables,g,,,25.0,3.7,0.7,3.7,"rocket,rucola","leafy green,peppery,salad ingredient",70.0
+Asparagus,Vegetables,g,,1.0,20,2.2,0.1,3.9,asparagus spears,"vegetable,fiber",75.0
+Autumn Squash,Vegetables,g,,,45.0,1.0,0.3,10.0,"butternut squash,acorn squash","winter squash,sweet,versatile",65.0
+Beets (Boiled),Vegetables,g,,1.0,43,1.6,0.2,10.0,beetroot,"vegetable,root",75.0
+Bell Pepper,Vegetables,g,,1.0,31,1.0,0.3,7.0,"bell peppers,sweet pepper","vegetable,vitamin c",100.0
+Broccoli,Vegetables,g,,1.0,34,2.8,0.4,7.0,broccoli florets,"vegetable,fiber,vitamin",75.0
+Brussels Sprouts,Vegetables,g,,1.0,43,3.4,0.3,9.0,brussels,"vegetable,fiber",75.0
+Cabbage,Vegetables,g,,1.0,25,1.3,0.1,6.0,green cabbage,"vegetable,cruciferous",75.0
+Carrots,Vegetables,g,,1.0,41,0.9,0.2,10.0,carrot,"root vegetable,beta carotene",97.5
+Cauliflower,Vegetables,g,,1.0,25,1.9,0.3,5.0,cauli,"vegetable,low carb",75.0
+Celery,Vegetables,g,,1.0,16,0.7,0.2,3.0,celery stalks,"vegetable,hydrating",75.0
+Cilantro,Vegetables,g,,1.0,23,2.1,0.5,3.7,coriander leaves,"herb,vegetable",75.0
+"Corn (Sweet, Boiled)",Vegetables,g,,1.0,96,3.4,1.5,21.0,"sweet corn,kernels","vegetable,carbs",75.0
+Cucumber,Vegetables,g,,1.0,16,0.7,0.1,4.0,cucumbers,"vegetable,hydrating",75.0
+Early Purple Sprouting Broccoli,Vegetables,g,,,34.0,3.7,0.6,6.8,"purple broccoli,spring broccoli","cruciferous,purple vegetable,spring vegetable",65.0
+Eggplant,Vegetables,g,,1.0,25,1.0,0.2,6.0,aubergine,"vegetable,low calorie",75.0
+Egyptian Spinach,Vegetables,g,,,30.0,2.8,0.5,5.0,"Molokhia,Jew's mallow","leafy green,Middle Eastern cuisine,African cuisine",55.0
+Elephant Foot Yam,Vegetables,g,,,114.0,1.2,0.2,26.6,"suran,jimikand","root vegetable,starchy,Indian cuisine",40.0
+Endive,Vegetables,g,,,17.0,1.3,0.2,3.9,endive leaves,"leafy green,bitter vegetable,salad ingredient",60.0
+English Pea,Vegetables,g,,,81.0,5.4,0.4,14.5,"garden pea,green pea","legume,spring vegetable,sweet",85.0
+Enoki Mushroom,Vegetables,g,,,37.0,2.7,0.3,7.8,"enoki take,ice cap mushroom","mushroom,Asian cuisine,mild flavor",70.0
+Escarole,Vegetables,g,,,23.0,1.8,0.2,4.4,broadleaf endive,"leafy green,bitter vegetable,Italian cuisine",55.0
+Ethiopian Kale,Vegetables,g,,,49.0,3.3,1.5,7.8,"Abyssinian kale,Cymbalaria","leafy green,African cuisine,nutrient-rich",60.0
+Garlic,Vegetables,unit,3.0,1.0,149,6.4,0.5,33.0,"garlic clove,fresh garlic","vegetable,flavor,antibacterial",95.0
+Green Beans,Vegetables,g,,1.0,31,1.8,0.1,7.0,string beans,"vegetable,fiber",75.0
+Iberian Chard,Vegetables,g,,,19.0,1.7,0.2,3.8,Portuguese chard,"chard,leafy green,Mediterranean vegetable",35.0
+Iberville Onion,Vegetables,g,,,40.0,1.2,0.1,9.0,Iberville yellow onion,"onion,allium,yellow onion",40.0
+Iceberg Lettuce,Vegetables,g,,,14.0,1.4,0.2,2.8,head lettuce,"leafy green,salad vegetable,crisphead",65.0
+Icicle Radish,Vegetables,g,,,16.0,0.7,0.1,3.4,white radish,"radish,root vegetable,crisp",50.0
+Indian Cucumber,Vegetables,g,,,25.0,1.0,0.2,5.0,"Scandalous Orache,Cucamelon","vine vegetable,small cucumber,Mexican cuisine",45.0
+Indian Pea Eggplant,Vegetables,g,,,25.0,1.3,0.1,5.0,pea eggplant,"eggplant,Asian vegetable,green vegetable",40.0
+Indigo Rose Tomato,Vegetables,g,,,18.0,0.9,0.2,3.9,dark purple tomato,"tomato,heirloom tomato,purple vegetable",50.0
+Jalapeño,Vegetables,g,,1.0,29,0.9,0.4,6.5,jalapeno pepper,"vegetable,chili",75.0
+Kale,Vegetables,g,,1.0,49,4.3,0.9,9.0,curly kale,"leafy green,vitamin k,vegetable",75.0
+Mushrooms,Vegetables,g,,1.0,22,3.1,0.3,3.3,"white mushrooms,button mushrooms","vegetable,umami",75.0
+Oca,Vegetables,g,,,78.0,1.8,0.1,17.0,New Zealand yam,"root vegetable,South American vegetable",25.0
+Okra,Vegetables,g,,1.0,33,2.0,0.2,7.5,lady's finger,"vegetable,fiber",75.0
+Olo,Vegetables,g,,,112.0,1.5,0.3,26.5,Olo Taro,"root vegetable,tropical vegetable",30.0
+Onions,Vegetables,g,,1.0,40,1.1,0.1,9.0,"onion,yellow onion","vegetable,flavor",95.0
+Opuntia,Vegetables,g,,,29.0,1.4,0.3,7.5,"prickly pear cactus,nopal","cactus vegetable,Mexican cuisine",60.0
+Orach,Vegetables,g,,,26.0,2.0,0.2,5.0,mountain spinach,"leafy green,spinach substitute",45.0
+Oregon Grape,Vegetables,g,,,35.0,2.5,0.5,7.0,Mahonia aquifolium,"leafy green,wild vegetable",15.0
+Oriental Radish,Vegetables,g,,,18.0,1.0,0.1,4.0,Daikon,"root vegetable,radish",60.0
+Oroblanco,Vegetables,g,,,30.0,1.0,0.2,7.5,Oroblanco citrus,"citrus vegetable,hybrid vegetable",40.0
+Osaka cabbage,Vegetables,g,,,23.0,1.2,0.2,4.8,Japanese cabbage,"Chinese cabbage,Asian cuisine",40.0
+Oxalis,Vegetables,g,,,23.0,1.5,0.3,4.0,Wood Sorrel,"leafy green,sour vegetable",35.0
+Oyster Plant,Vegetables,g,,,25.0,2.0,0.4,5.0,Blue Oyster,"leafy green,mild vegetable",20.0
+Parsley,Vegetables,g,,1.0,36,3.0,0.8,6.3,flat-leaf parsley,"herb,vegetable",75.0
+Romaine Lettuce,Vegetables,g,,1.0,17,1.2,0.3,3.3,cos lettuce,"leafy green,hydrating,vegetable",75.0
+Spinach,Vegetables,g,,1.0,23,2.9,0.4,3.6,"fresh spinach,baby spinach","leafy green,iron,vegetable",75.0
+Tomatoes,Vegetables,g,,1.0,18,0.9,0.2,3.9,"tomato,fresh tomatoes","vegetable,lycopene",95.0
+Ube,Vegetables,g,,,118.0,1.5,0.2,26.8,"purple yam,ube yam","root vegetable,purple,sweet",60.0
+Uchhi Bhaji,Vegetables,g,,,33.0,3.0,0.5,6.0,"amaranth leaves,chaulai","leafy green,Indian cuisine,vitamin-rich",30.0
+Udo,Vegetables,g,,,25.0,2.0,0.3,5.0,"Aralia cordata,mountain vegetable","Japanese cuisine,bitter flavor,spring vegetable",20.0
+Ulva Lactuca,Vegetables,g,,,32.0,2.0,0.3,5.0,"sea lettuce,green nori","seaweed,marine vegetable,iodine-rich",25.0
+Urad Dal,Vegetables,g,,,341.0,25.0,1.6,59.0,"black gram,black lentil","legume,Indian cuisine,protein-rich",40.0
+Zucchini,Vegetables,g,,1.0,17,1.2,0.3,3.1,courgette,"vegetable,low carb",75.0
