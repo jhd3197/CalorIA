@@ -16,6 +16,9 @@ import RecipeDetails from './components/RecipeDetails';
 import Ingredients from './components/Ingredients';
 import GroceryList from './components/GroceryList';
 import SettingsPage from './components/SettingsPage';
+import CalorieReport from './components/CalorieReport';
+import WeightTracker from './components/WeightTracker';
+import TrendsDashboard from './components/TrendsDashboard';
 import Login from './components/Login';
 import Register from './components/Register';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -169,7 +172,6 @@ function App() {
       <div className="dashboard-right">
         <QuickAdd />
         <TrendCharts />
-        <TopFoods />
       </div>
     </div>
   );
@@ -254,6 +256,21 @@ function App() {
           <Route path="/settings" element={
             <AppLayout>
               <SettingsPage userData={userData} />
+            </AppLayout>
+          } />
+          <Route path="/calorie-report" element={
+            <AppLayout>
+              <CalorieReport onBack={() => window.history.back()} />
+            </AppLayout>
+          } />
+          <Route path="/weight-tracker" element={
+            <AppLayout>
+              <WeightTracker onBack={() => window.history.back()} />
+            </AppLayout>
+          } />
+          <Route path="/trends-dashboard" element={
+            <AppLayout>
+              <TrendsDashboard onBack={() => window.history.back()} />
             </AppLayout>
           } />
         </Route>

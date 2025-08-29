@@ -3,7 +3,6 @@ import { Target, Activity, Scale, Droplet } from 'lucide-react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import { fetchDashboardData, getUserData } from '../utils/api';
-import MacroBreakdown from './MacroBreakdown';
 import MealTimeline from './MealTimeline';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -24,10 +23,6 @@ const Dashboard = ({ userData: propUserData, mealsData }) => {
     weight: 68.5,
     water: 1.8,
     macros: {
-      protein: { grams: 85, percent: 34 },
-      carbs: { grams: 120, percent: 48 },
-      fat: { grams: 45, percent: 18 },
-      other: { grams: 10, percent: 0 }
     }
   }), []); // Empty dependency array means this only runs once
 
@@ -136,14 +131,19 @@ const Dashboard = ({ userData: propUserData, mealsData }) => {
   }, [mealsData]);
 
   // Determine macros and data source in a useEffect to prevent infinite render loops
-  const [macros, setMacros] = useState(defaultUserData.macros);
-  
+  const [macros, setMacros] = useState({
+    protein: { grams: 0, percent: 0 },
+    carbs: { grams: 0, percent: 0 },
+    fat: { grams: 0, percent: 0 },
+    other: { grams: 0, percent: 0 }
+  });
+
   useEffect(() => {
     console.log("[Dashboard] Determining macro data source priority...");
     console.log("[Dashboard] API data available:", !!dashboardData?.macros?.protein?.grams);
     console.log("[Dashboard] Calculated macros available:", !!calculatedMacros);
     console.log("[Dashboard] Prop macros available:", !!propUserData?.macros?.protein?.grams);
-    
+
     // Check if we have macros from API
     if (dashboardData?.macros?.protein?.grams) {
       setDataSource('api');
@@ -162,18 +162,27 @@ const Dashboard = ({ userData: propUserData, mealsData }) => {
       console.log("[Dashboard] Using macro data from props:", propUserData.macros);
       setMacros(propUserData.macros);
     }
-    // Fall back to defaults as a last resort
+    // No data available - show zeros
     else {
-      setDataSource('default');
-      console.log("[Dashboard] Using default macro data:", defaultUserData.macros);
-      setMacros(defaultUserData.macros);
+      setDataSource('none');
+      console.log("[Dashboard] No macro data available - showing zeros");
+      setMacros({
+        protein: { grams: 0, percent: 0 },
+        carbs: { grams: 0, percent: 0 },
+        fat: { grams: 0, percent: 0 },
+        other: { grams: 0, percent: 0 }
+      });
     }
-  }, [dashboardData, calculatedMacros, propUserData]); // Removed defaultUserData from deps
+  }, [dashboardData, calculatedMacros, propUserData]);
   
   // Build final data object with the properly prioritized macros
   // Using useMemo to prevent unnecessary recalculations on every render
   const data = React.useMemo(() => ({
-    ...defaultUserData,
+    dailyGoal: defaultUserData.dailyGoal,
+    consumed: defaultUserData.consumed,
+    burned: defaultUserData.burned,
+    weight: defaultUserData.weight,
+    water: defaultUserData.water,
     ...(dashboardData || {}),
     ...propUserData,
     macros
@@ -354,7 +363,6 @@ const Dashboard = ({ userData: propUserData, mealsData }) => {
                     <span className="text-sm text-gray-500">Protein</span>
                     <span className="text-sm font-medium">
                       {data.macros?.protein?.grams || 0}g ({data.macros?.protein?.percent || 0}%)
-                      {dataSource === 'default' && <span className="text-xs text-gray-400 ml-1">(default)</span>}
                     </span>
                   </div>
                   <div className="w-full bg-gray-100 rounded-full h-2">
@@ -366,7 +374,6 @@ const Dashboard = ({ userData: propUserData, mealsData }) => {
                     <span className="text-sm text-gray-500">Carbs</span>
                     <span className="text-sm font-medium">
                       {data.macros?.carbs?.grams || 0}g ({data.macros?.carbs?.percent || 0}%)
-                      {dataSource === 'default' && <span className="text-xs text-gray-400 ml-1">(default)</span>}
                     </span>
                   </div>
                   <div className="w-full bg-gray-100 rounded-full h-2">
@@ -378,7 +385,6 @@ const Dashboard = ({ userData: propUserData, mealsData }) => {
                     <span className="text-sm text-gray-500">Fat</span>
                     <span className="text-sm font-medium">
                       {data.macros?.fat?.grams || 0}g ({data.macros?.fat?.percent || 0}%)
-                      {dataSource === 'default' && <span className="text-xs text-gray-400 ml-1">(default)</span>}
                     </span>
                   </div>
                   <div className="w-full bg-gray-100 rounded-full h-2">
@@ -389,29 +395,6 @@ const Dashboard = ({ userData: propUserData, mealsData }) => {
             </div>
           </div>
 
-          {/* Macro Breakdown - Now uses the MacroBreakdown component with proper data structure */}
-          <MacroBreakdown mealsData={
-            // Prioritize dashboard data over mealsData prop when available
-            dashboardData?.macros ?
-              // If we have macros from dashboard API, use those (highest priority)
-              { macros: dashboardData.macros }
-              : mealsData?.mealTimeline ?
-              // If we have meal timeline data, convert to the format MacroBreakdown expects
-              {
-                meals: [
-                  ...(mealsData.mealTimeline.breakfast?.items ? [{ food_items: mealsData.mealTimeline.breakfast.items }] : []),
-                  ...(mealsData.mealTimeline.lunch?.items ? [{ food_items: mealsData.mealTimeline.lunch.items }] : []),
-                  ...(mealsData.mealTimeline.dinner?.items ? [{ food_items: mealsData.mealTimeline.dinner.items }] : []),
-                  ...(mealsData.mealTimeline.snack?.items ? [{ food_items: mealsData.mealTimeline.snack.items }] : [])
-                ]
-              }
-              : mealsData?.meals ?
-                // If we have meals data from API, pass it directly
-                mealsData
-                :
-                // Last resort: use calculated macros
-                calculatedMacros ? { macros: calculatedMacros } : null
-          } />
 
           {/* Meal Timeline - Use dashboard data when available */}
           <MealTimeline mealsData={

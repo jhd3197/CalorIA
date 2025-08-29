@@ -257,10 +257,15 @@ class MealMixin:
             pipeline = [
                 # Match entries for the specific user
                 {"$match": {"user_id": str(user_id)}},
-                
+
+                # Add a date field by extracting the date part from timestamp string
+                {"$addFields": {
+                    "date_only": {"$substr": ["$timestamp", 0, 10]}  # Extract YYYY-MM-DD from ISO string
+                }},
+
                 # Group by date and calculate nutritional totals
                 {"$group": {
-                    "_id": {"$dateToString": {"format": "%Y-%m-%d", "date": "$timestamp"}},
+                    "_id": "$date_only",
                     "meal_count": {"$sum": 1},
                     # We need to calculate calories on-the-fly since they're not stored directly
                     # This is a simplified approach and may need to be adjusted based on actual data structure
@@ -269,13 +274,13 @@ class MealMixin:
                     "total_carbs": {"$sum": {"$sum": "$food_items.carbs_g"}},
                     "total_fat": {"$sum": {"$sum": "$food_items.fat_g"}}
                 }},
-                
+
                 # Sort by date (descending)
                 {"$sort": {"_id": -1}},
-                
+
                 # Limit to specified number of days
                 {"$limit": days},
-                
+
                 # Project to format the output
                 {"$project": {
                     "_id": 0,

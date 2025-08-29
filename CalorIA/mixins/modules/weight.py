@@ -159,15 +159,34 @@ class WeightMixin:
                 {"$project": {
                     "_id": 0,
                     "date": "$on_date",
-                    "weight_kg": 1,
+                    "weight": 1,
+                    "unit": 1,
                     "notes": 1
                 }}
             ]
             
             # Execute the aggregation pipeline
             results = list(collection.aggregate(pipeline))
-            
-            return results
+
+            # Convert weight to kg and format the results
+            formatted_results = []
+            for entry in results:
+                # Convert weight to kg based on unit
+                weight_value = entry.get('weight', 0)
+                unit = entry.get('unit', 'kg')
+
+                if unit == 'lbs':
+                    weight_kg = weight_value * _LB_TO_KG
+                else:  # kg
+                    weight_kg = weight_value
+
+                formatted_results.append({
+                    'date': entry.get('date'),
+                    'weight_kg': round(weight_kg, 2),
+                    'notes': entry.get('notes')
+                })
+
+            return formatted_results
             
         except Exception as e:
             print(f"Error getting user weight history: {e}")
@@ -245,28 +264,48 @@ class WeightMixin:
             pipeline = [
                 # Match entries for the specific user
                 {"$match": {"user_id": str(user_id)}},
-                
-                # Sort by date (descending)
+
+                # Sort by date (descending) - assuming on_date is stored as string
                 {"$sort": {"on_date": -1}},
-                
+
                 # Limit to specified number of days
                 {"$limit": limit},
-                
+
                 # Project to format the output
                 {"$project": {
                     "_id": 0,
                     "date": "$on_date",
-                    "weight_kg": 1
+                    "weight": "$weight",
+                    "unit": "$unit",
+                    "notes": "$notes"
                 }}
             ]
             
             # Execute the aggregation pipeline
             results = list(collection.aggregate(pipeline))
-            
+
+            # Convert weight to kg and format the results
+            formatted_results = []
+            for entry in results:
+                # Convert weight to kg based on unit
+                weight_value = entry.get('weight', 0)
+                unit = entry.get('unit', 'kg')
+
+                if unit == 'lbs':
+                    weight_kg = weight_value * _LB_TO_KG
+                else:  # kg
+                    weight_kg = weight_value
+
+                formatted_results.append({
+                    'date': entry.get('date'),
+                    'weight_kg': round(weight_kg, 2),
+                    'notes': entry.get('notes')
+                })
+
             # Reverse the results to get chronological order (oldest to newest)
-            results.reverse()
-            
-            return results
+            formatted_results.reverse()
+
+            return formatted_results
             
         except Exception as e:
             print(f"Error getting user weight trend: {e}")

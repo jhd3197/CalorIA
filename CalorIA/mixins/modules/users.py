@@ -102,13 +102,13 @@ class UserMixin:
         }
         return self.get_document("daily_logs", query, Type.DailyLog)
     
-    def get_user_weight_entries(self, user_id: UUID, limit: int = 30) -> List[Type.WeightEntry]:
+    def get_recent_user_weight_entries(self, user_id: UUID, limit: int = 30) -> List[Type.WeightEntry]:
         """Get recent weight entries for a user.
-        
+
         Args:
             user_id: UUID of the user
             limit: Maximum number of entries to return
-            
+
         Returns:
             List of WeightEntry instances, sorted by date (newest first)
         """

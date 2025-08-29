@@ -349,6 +349,13 @@ class WeightEntry(CalorIAModel):
     unit: WeightUnit = WeightUnit.KG
     body_fat_pct: Optional[float] = Field(None, ge=0, le=100)
 
+    def to_dict(self, *, exclude_none: bool = True, serialize_datetime: bool = True) -> Dict[str, Any]:
+        """Override to_dict to include computed weight_kg property."""
+        base_dict = super().to_dict(exclude_none=exclude_none, serialize_datetime=serialize_datetime)
+        # Add the computed weight_kg property
+        base_dict['weight_kg'] = self.weight_kg
+        return base_dict
+
     @property
     def weight_kg(self) -> float:
         """Return weight in kilograms regardless of stored unit."""

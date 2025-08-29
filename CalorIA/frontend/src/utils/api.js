@@ -223,6 +223,96 @@ export const deleteRecipeTag = async (tagId) => {
   });
 };
 
+// Weight API functions
+export const getWeightHistory = async (userId = null, params = {}) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required to fetch weight history');
+  }
+
+  const queryString = new URLSearchParams(params).toString();
+  const url = queryString ? `/weight/${userId}?${queryString}` : `/weight/${userId}`;
+
+  return await apiRequest(url);
+};
+
+export const addWeightEntry = async (weightData) => {
+  return await apiRequest('/weight', {
+    method: 'POST',
+    body: JSON.stringify(weightData),
+  });
+};
+
+export const updateWeightEntry = async (entryId, weightData) => {
+  return await apiRequest(`/weight/${entryId}`, {
+    method: 'PUT',
+    body: JSON.stringify(weightData),
+  });
+};
+
+export const deleteWeightEntry = async (entryId) => {
+  return await apiRequest(`/weight/${entryId}`, {
+    method: 'DELETE',
+  });
+};
+
+// Trends API functions
+export const getWeightTrends = async (userId = null, params = {}) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required to fetch weight trends');
+  }
+
+  const queryString = new URLSearchParams(params).toString();
+  const url = queryString ? `/trends/weight/${userId}?${queryString}` : `/trends/weight/${userId}`;
+
+  return await apiRequest(url);
+};
+
+export const getCalorieTrends = async (userId = null, params = {}) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required to fetch calorie trends');
+  }
+
+  const queryString = new URLSearchParams(params).toString();
+  const url = queryString ? `/trends/calories/${userId}?${queryString}` : `/trends/calories/${userId}`;
+
+  return await apiRequest(url);
+};
+
+export const getCombinedTrends = async (userId = null, params = {}) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required to fetch combined trends');
+  }
+
+  const queryString = new URLSearchParams(params).toString();
+  const url = queryString ? `/trends/combined/${userId}?${queryString}` : `/trends/combined/${userId}`;
+
+  return await apiRequest(url);
+};
+
 // Other API functions (can be extended)
 export const fetchUserProfile = async (userId) => {
   if (!userId) {
@@ -230,11 +320,11 @@ export const fetchUserProfile = async (userId) => {
     const userData = getUserData();
     userId = userData?.user_id || userData?.id;
   }
-  
+
   if (!userId) {
     throw new Error('User ID is required to fetch user profile');
   }
-  
+
   return await apiRequest(`/user/${userId}`, {
     method: 'GET',
   });
@@ -293,6 +383,13 @@ const apiUtils = {
   createRecipeTag,
   updateRecipeTag,
   deleteRecipeTag,
+  getWeightHistory,
+  addWeightEntry,
+  updateWeightEntry,
+  deleteWeightEntry,
+  getWeightTrends,
+  getCalorieTrends,
+  getCombinedTrends,
   isAuthenticated,
   logout,
 };
