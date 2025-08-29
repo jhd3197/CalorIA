@@ -198,5 +198,87 @@ def unseed(confirm):
         sys.exit(1)
 
 
+@cli.command()
+@click.option('--category', help='Specific category to research (if not provided, will show available categories)')
+@click.option('--max-ingredients', default=20, help='Maximum number of ingredients to add')
+@click.option('--letters', help='Comma-separated letters to research (e.g., "A,B,C") - if not provided, uses systematic approach')
+@click.option('--dry-run', is_flag=True, help='Show what would be added without actually adding ingredients')
+def research_ingredients(category, max_ingredients, letters, dry_run):
+    """Research and add missing ingredients using AI for a specific category, organized by letter."""
+    try:
+        # Import the research function from the CalorIA package
+        from CalorIA.research.ingredients import research_ingredients_command
+
+        # Parse letters if provided
+        letters_list = None
+        if letters:
+            letters_list = [letter.strip().upper() for letter in letters.split(',')]
+
+        # Run the research with parameters
+        research_ingredients_command(
+            category=category,
+            max_ingredients=max_ingredients,
+            letters=letters_list,
+            dry_run=dry_run
+        )
+
+    except ImportError as e:
+        click.echo(f"❌ Error importing research module: {e}", err=True)
+        click.echo("💡 Make sure the research dependencies are installed:")
+        click.echo("   pip install openai requests")
+        click.echo("   Set environment variables:")
+        click.echo("   - For OpenAI: OPENAI_API_KEY and OPENAI_MODEL")
+        click.echo("   - For Ollama: OLLAMA_BASE_URL and OLLAMA_MODEL")
+        click.echo("   - Set AI_PROVIDER to 'openai' or 'ollama'")
+        sys.exit(1)
+    except KeyboardInterrupt:
+        click.echo("\n Research interrupted.")
+        sys.exit(1)
+    except Exception as e:
+        click.echo(f"❌ Unexpected error during research: {e}", err=True)
+        sys.exit(1)
+
+
+@cli.command()
+@click.option('--category', help='Specific category to research (if not provided, will show available categories)')
+@click.option('--max-recipes', default=10, help='Maximum number of recipes to add')
+@click.option('--letters', help='Comma-separated letters to research (e.g., "A,B,C") - if not provided, uses systematic approach')
+@click.option('--dry-run', is_flag=True, help='Show what would be added without actually adding recipes')
+def research_recipes(category, max_recipes, letters, dry_run):
+    """Research and add missing recipes using AI for a specific category, organized by letter."""
+    try:
+        # Import the research function from the CalorIA package
+        from CalorIA.research.recipes import research_recipes_command
+
+        # Parse letters if provided
+        letters_list = None
+        if letters:
+            letters_list = [letter.strip().upper() for letter in letters.split(',')]
+
+        # Run the research with parameters
+        research_recipes_command(
+            category=category,
+            max_recipes=max_recipes,
+            letters=letters_list,
+            dry_run=dry_run
+        )
+
+    except ImportError as e:
+        click.echo(f"❌ Error importing research module: {e}", err=True)
+        click.echo("💡 Make sure the research dependencies are installed:")
+        click.echo("   pip install openai requests")
+        click.echo("   Set environment variables:")
+        click.echo("   - For OpenAI: OPENAI_API_KEY and OPENAI_MODEL")
+        click.echo("   - For Ollama: OLLAMA_BASE_URL and OLLAMA_MODEL")
+        click.echo("   - Set AI_PROVIDER to 'openai' or 'ollama'")
+        sys.exit(1)
+    except KeyboardInterrupt:
+        click.echo("\n Research interrupted.")
+        sys.exit(1)
+    except Exception as e:
+        click.echo(f"❌ Unexpected error during research: {e}", err=True)
+        sys.exit(1)
+
+
 if __name__ == '__main__':
     cli()

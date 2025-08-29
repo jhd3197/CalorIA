@@ -6,3 +6,5 @@ click==8.1.7
 pydantic==2.5.0
 Werkzeug==2.3.7
 PyJWT==2.8.0
+openai==0.28.0
+requests==2.31.0
