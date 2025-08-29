@@ -196,3 +196,144 @@ class UserMixin:
         except Exception as e:
             print(f"Error getting daily water log for user {user_id}: {e}")
             return None
+
+    def add_favorite_recipe(self, user_id: UUID, recipe_id: str) -> bool:
+        """Add a recipe to user's favorites.
+
+        Args:
+            user_id: UUID of the user
+            recipe_id: String ID of the recipe to add
+
+        Returns:
+            True if recipe was added successfully, False otherwise
+        """
+        try:
+            # Get current user
+            user = self.get_user_by_id(user_id)
+            if not user:
+                return False
+
+            # Check if recipe is already in favorites
+            if recipe_id in user.favorite_recipe_ids:
+                return True  # Already favorited
+
+            # Add recipe to favorites
+            user.favorite_recipe_ids.append(recipe_id)
+            update_data = {"favorite_recipe_ids": user.favorite_recipe_ids}
+            query = {"user_id": str(user_id)}
+
+            return self.update_document("users", query, update_data)
+
+        except Exception as e:
+            print(f"Error adding favorite recipe for user {user_id}: {e}")
+            return False
+
+    def remove_favorite_recipe(self, user_id: UUID, recipe_id: str) -> bool:
+        """Remove a recipe from user's favorites.
+
+        Args:
+            user_id: UUID of the user
+            recipe_id: String ID of the recipe to remove
+
+        Returns:
+            True if recipe was removed successfully, False otherwise
+        """
+        try:
+            # Get current user
+            user = self.get_user_by_id(user_id)
+            if not user:
+                return False
+
+            # Check if recipe is in favorites
+            if recipe_id not in user.favorite_recipe_ids:
+                return True  # Already not favorited
+
+            # Remove recipe from favorites
+            user.favorite_recipe_ids.remove(recipe_id)
+            update_data = {"favorite_recipe_ids": user.favorite_recipe_ids}
+            query = {"user_id": str(user_id)}
+
+            return self.update_document("users", query, update_data)
+
+        except Exception as e:
+            print(f"Error removing favorite recipe for user {user_id}: {e}")
+            return False
+
+    def get_user_favorite_recipe_ids(self, user_id: UUID) -> List[str]:
+        """Get list of favorite recipe IDs for a user.
+
+        Args:
+            user_id: UUID of the user
+
+        Returns:
+            List of favorite recipe IDs as strings
+        """
+        try:
+            user = self.get_user_by_id(user_id)
+            if user:
+                return user.favorite_recipe_ids
+            return []
+        except Exception as e:
+            print(f"Error getting favorite recipes for user {user_id}: {e}")
+            return []
+
+    def is_recipe_favorited(self, user_id: UUID, recipe_id: str) -> bool:
+        """Check if a recipe is favorited by a user.
+
+        Args:
+            user_id: UUID of the user
+            recipe_id: String ID of the recipe
+
+        Returns:
+            True if recipe is favorited, False otherwise
+        """
+        favorite_ids = self.get_user_favorite_recipe_ids(user_id)
+        return recipe_id in favorite_ids
+
+    def clear_system_recipe_favorites(self, system_recipe_ids: List[str]) -> int:
+        """Remove system recipe favorites from all users.
+
+        Args:
+            system_recipe_ids: List of system recipe IDs to remove from favorites
+
+        Returns:
+            Number of users updated
+        """
+        try:
+            if not system_recipe_ids:
+                return 0
+
+            db = self.get_db_connection()
+            if db is None:
+                return 0
+
+            collection = db["users"]
+
+            # Convert system recipe IDs to set for faster lookup
+            system_ids_set = set(system_recipe_ids)
+
+            # Find all users who have any of the system recipes in their favorites
+            query = {"favorite_recipe_ids": {"$in": system_recipe_ids}}
+            users_to_update = list(collection.find(query))
+
+            updated_count = 0
+            for user_doc in users_to_update:
+                # Get current favorite IDs
+                current_favorites = user_doc.get("favorite_recipe_ids", [])
+
+                # Remove system recipe IDs from favorites
+                updated_favorites = [rid for rid in current_favorites if rid not in system_ids_set]
+
+                # Only update if favorites actually changed
+                if len(updated_favorites) != len(current_favorites):
+                    update_query = {"user_id": user_doc["user_id"]}
+                    update_data = {"favorite_recipe_ids": updated_favorites}
+                    result = collection.update_one(update_query, {"$set": update_data})
+                    if result.modified_count > 0:
+                        updated_count += 1
+
+            return updated_count
+
+        except Exception as e:
+            print(f"Error clearing system recipe favorites: {e}")
+            return 0

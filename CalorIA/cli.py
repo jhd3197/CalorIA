@@ -171,9 +171,9 @@ def seed():
 
 
 @cli.command()
-@click.option('--confirm', is_flag=True, help='Confirm deletion without prompting')
+@click.option('--confirm', '-y', is_flag=True, help='Confirm deletion without prompting')
 def unseed(confirm):
-    """Remove all system-generated sample data from the database."""
+    """Remove all system-generated sample data from the database and clear associated user favorites."""
     if not confirm:
         click.confirm('This will remove all system-generated ingredients and sample meals. Continue?', abort=True)
     

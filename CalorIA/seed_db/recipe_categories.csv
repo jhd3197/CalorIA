@@ -1,0 +1,16 @@
+name,slug,description,color,icon
+Breakfast,breakfast,Morning meals and breakfast dishes,#FF6B6B,sun
+Lunch,lunch,Midday meals and lunch recipes,#4ECDC4,sunset
+Dinner,dinner,Evening meals and dinner recipes,#45B7D1,moon
+Snack,snack,Light snacks and appetizers,#FFA07A,cookie
+Dessert,dessert,Sweet treats and desserts,#FF69B4,cake
+Beverage,beverage,Drinks and beverages,#87CEEB,coffee
+Appetizer,appetizer,Starters and appetizers,#98FB98,utensils
+Soup,soup,Soups and stews,#F0E68C,bowl
+Salad,salad,Fresh salads and sides,#90EE90,leaf
+Main Course,main_course,Main dishes and entrees,#DDA0DD,drumstick
+Side Dish,side_dish,Side dishes and accompaniments,#F4A460,carrot
+Healthy,healthy,Healthy and nutritious recipes,#32CD32,heart
+Seafood,seafood,Fish and seafood recipes,#20B2AA,fish
+Asian,asian,Asian cuisine recipes,#F4A460,utensils
+Italian,italian,Italian cuisine recipes,#DC143C,pizza

@@ -42,7 +42,7 @@ class RecipeMixin:
         Args:
             skip: Number of recipes to skip for pagination (default: 0)
             limit: Maximum number of recipes to return (default: None for all recipes)
-            category: Filter by recipe category
+            category: Filter by recipe category (name or slug)
             difficulty: Filter by difficulty level
 
         Returns:
@@ -57,8 +57,25 @@ class RecipeMixin:
 
             # Build query based on filters
             query = {}
+
+            # Handle category filtering - convert category name to category_id
             if category:
-                query["category"] = category
+                # Try to find the category by slug first, then by name
+                category_obj = self.get_category_by_slug(category.lower().replace(' ', '_'))
+                if not category_obj:
+                    # Try to find by name (case-insensitive)
+                    categories = self.get_all_categories()
+                    for cat in categories:
+                        if cat.name.lower() == category.lower():
+                            category_obj = cat
+                            break
+
+                if category_obj:
+                    query["category_id"] = str(category_obj.id)
+                else:
+                    # If category not found, return empty list
+                    return []
+
             if difficulty:
                 query["difficulty"] = difficulty
 
@@ -118,17 +135,17 @@ class RecipeMixin:
         return self.delete_document("recipes", query)
 
     def search_recipes(self, search_term: str, skip: int = 0, limit: Optional[int] = 20,
-                      category: Optional[str] = None, difficulty: Optional[str] = None,
-                      tags: Optional[List[str]] = None) -> List[Type.Recipe]:
+                       category: Optional[str] = None, difficulty: Optional[str] = None,
+                       tags: Optional[List[str]] = None) -> List[Type.Recipe]:
         """Search recipes by name, description, tags, or ingredients with optional filters.
 
         Args:
             search_term: Term to search for in recipe names, descriptions, tags, and ingredients
             skip: Number of recipes to skip for pagination (default: 0)
             limit: Maximum number of recipes to return (default: 20, None for no limit)
-            category: Filter by recipe category
+            category: Filter by recipe category (name or slug)
             difficulty: Filter by difficulty level
-            tags: Filter by specific tags
+            tags: Filter by specific tag names
 
         Returns:
             List of matching Recipe instances
@@ -148,22 +165,52 @@ class RecipeMixin:
                 "$or": [
                     {"name": search_pattern},
                     {"description": search_pattern},
-                    {"tags": {"$elemMatch": search_pattern}},
+                    {"legacy_tags": {"$elemMatch": search_pattern}},  # Search in legacy tags
                     {"ingredients.ingredient.name": search_pattern}
                 ]
             }
 
-            # Add category filter if provided
+            # Handle category filtering - convert category name to category_id
             if category:
-                search_query["category"] = category
+                # Try to find the category by slug first, then by name
+                category_obj = self.get_category_by_slug(category.lower().replace(' ', '_'))
+                if not category_obj:
+                    # Try to find by name (case-insensitive)
+                    categories = self.get_all_categories()
+                    for cat in categories:
+                        if cat.name.lower() == category.lower():
+                            category_obj = cat
+                            break
+
+                if category_obj:
+                    search_query["category_id"] = str(category_obj.id)
+                else:
+                    # If category not found, return empty list
+                    return []
 
             # Add difficulty filter if provided
             if difficulty:
                 search_query["difficulty"] = difficulty
 
-            # Add tags filter if provided
+            # Handle tags filtering - convert tag names to tag_ids
             if tags:
-                search_query["tags"] = {"$in": tags}
+                tag_ids = []
+                for tag_name in tags:
+                    # Try to find the tag by slug first, then by name
+                    tag_obj = self.get_tag_by_slug(tag_name.lower().replace(' ', '-'))
+                    if not tag_obj:
+                        # Try to find by name (case-insensitive)
+                        all_tags = self.get_all_tags()
+                        for tag in all_tags:
+                            if tag.name.lower() == tag_name.lower():
+                                tag_obj = tag
+                                break
+
+                    if tag_obj:
+                        tag_ids.append(str(tag_obj.id))
+
+                if tag_ids:
+                    search_query["tag_ids"] = {"$in": tag_ids}
 
             cursor = collection.find(search_query)
 
@@ -221,7 +268,7 @@ class RecipeMixin:
         """Get recipes that have any of the specified tags.
 
         Args:
-            tags: List of tags to search for
+            tags: List of tag names to search for
             skip: Number of recipes to skip for pagination
             limit: Maximum number of recipes to return
 
@@ -235,8 +282,28 @@ class RecipeMixin:
 
             collection = db["recipes"]
 
-            # Query for recipes that have any of the specified tags
-            query = {"tags": {"$in": tags}}
+            # Convert tag names to tag_ids
+            tag_ids = []
+            for tag_name in tags:
+                # Try to find the tag by slug first, then by name
+                tag_obj = self.get_tag_by_slug(tag_name.lower().replace(' ', '-'))
+                if not tag_obj:
+                    # Try to find by name (case-insensitive)
+                    all_tags = self.get_all_tags()
+                    for tag in all_tags:
+                        if tag.name.lower() == tag_name.lower():
+                            tag_obj = tag
+                            break
+
+                if tag_obj:
+                    tag_ids.append(str(tag_obj.id))
+
+            if not tag_ids:
+                # If no valid tags found, return empty list
+                return []
+
+            # Query for recipes that have any of the specified tag_ids
+            query = {"tag_ids": {"$in": tag_ids}}
 
             cursor = collection.find(query)
 
@@ -270,9 +337,9 @@ class RecipeMixin:
 
         Args:
             search_term: Term to search for in recipe names, descriptions, tags, and ingredients
-            category: Filter by recipe category
+            category: Filter by recipe category (name or slug)
             difficulty: Filter by difficulty level
-            tags: Filter by specific tags
+            tags: Filter by specific tag names
 
         Returns:
             Total count of matching recipes
@@ -295,18 +362,50 @@ class RecipeMixin:
                 query["$or"] = [
                     {"name": search_pattern},
                     {"description": search_pattern},
-                    {"tags": {"$elemMatch": search_pattern}},
+                    {"legacy_tags": {"$elemMatch": search_pattern}},  # Search in legacy tags
                     {"ingredients.ingredient.name": search_pattern}
                 ]
 
+            # Handle category filtering - convert category name to category_id
             if category:
-                query["category"] = category
+                # Try to find the category by slug first, then by name
+                category_obj = self.get_category_by_slug(category.lower().replace(' ', '_'))
+                if not category_obj:
+                    # Try to find by name (case-insensitive)
+                    categories = self.get_all_categories()
+                    for cat in categories:
+                        if cat.name.lower() == category.lower():
+                            category_obj = cat
+                            break
+
+                if category_obj:
+                    query["category_id"] = str(category_obj.id)
+                else:
+                    # If category not found, return 0
+                    return 0
 
             if difficulty:
                 query["difficulty"] = difficulty
 
+            # Handle tags filtering - convert tag names to tag_ids
             if tags:
-                query["tags"] = {"$in": tags}
+                tag_ids = []
+                for tag_name in tags:
+                    # Try to find the tag by slug first, then by name
+                    tag_obj = self.get_tag_by_slug(tag_name.lower().replace(' ', '-'))
+                    if not tag_obj:
+                        # Try to find by name (case-insensitive)
+                        all_tags = self.get_all_tags()
+                        for tag in all_tags:
+                            if tag.name.lower() == tag_name.lower():
+                                tag_obj = tag
+                                break
+
+                    if tag_obj:
+                        tag_ids.append(str(tag_obj.id))
+
+                if tag_ids:
+                    query["tag_ids"] = {"$in": tag_ids}
 
             return collection.count_documents(query)
 

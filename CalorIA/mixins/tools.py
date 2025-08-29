@@ -1,5 +1,6 @@
 
 from typing import Optional
+from slugify import slugify
 from .. import types as Type
 
 class ToolsMixin:
@@ -35,23 +36,6 @@ class ToolsMixin:
         }
         return type_map.get(type_str.lower(), Type.MealType.SNACK)
 
-    def _parse_recipe_category(self, category_str: str) -> Type.RecipeCategory:
-        """Parse recipe category string to RecipeCategory enum."""
-        category_map = {
-            'breakfast': Type.RecipeCategory.BREAKFAST,
-            'lunch': Type.RecipeCategory.LUNCH,
-            'dinner': Type.RecipeCategory.DINNER,
-            'snack': Type.RecipeCategory.SNACK,
-            'dessert': Type.RecipeCategory.DESSERT,
-            'beverage': Type.RecipeCategory.BEVERAGE,
-            'appetizer': Type.RecipeCategory.APPETIZER,
-            'soup': Type.RecipeCategory.SOUP,
-            'salad': Type.RecipeCategory.SALAD,
-            'main_course': Type.RecipeCategory.MAIN_COURSE,
-            'side_dish': Type.RecipeCategory.SIDE_DISH,
-            'healthy': Type.RecipeCategory.HEALTHY
-        }
-        return category_map.get(category_str.lower(), Type.RecipeCategory.MAIN_COURSE)
 
     def _parse_difficulty_level(self, difficulty_str: str) -> Type.DifficultyLevel:
         """Parse difficulty level string to DifficultyLevel enum."""
@@ -79,3 +63,14 @@ class ToolsMixin:
             return int(value)
         except ValueError:
             return None
+
+    def generate_slug(self, text: str) -> str:
+        """Generate a URL-friendly slug from text using python-slugify.
+
+        Args:
+            text: The text to convert to a slug
+
+        Returns:
+            A URL-friendly slug string
+        """
+        return slugify(text)

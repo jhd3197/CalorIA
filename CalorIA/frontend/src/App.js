@@ -12,6 +12,7 @@ import MealPlanner from './components/MealPlanner';
 import MealPrepForm from './components/MealPrepForm';
 import ActivityPage from './components/ActivityPage';
 import Recipes from './components/Recipes';
+import RecipeDetails from './components/RecipeDetails';
 import Ingredients from './components/Ingredients';
 import GroceryList from './components/GroceryList';
 import SettingsPage from './components/SettingsPage';
@@ -228,6 +229,16 @@ function App() {
           <Route path="/recipes" element={
             <AppLayout>
               <Recipes userData={userData} />
+            </AppLayout>
+          } />
+          <Route path="/recipes/:id" element={
+            <AppLayout>
+              <RecipeDetails />
+            </AppLayout>
+          } />
+          <Route path="/recipes/:id/edit" element={
+            <AppLayout>
+              <RecipeDetails />
             </AppLayout>
           } />
           <Route path="/ingredients" element={

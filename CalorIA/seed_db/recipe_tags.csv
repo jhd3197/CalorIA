@@ -1,0 +1,30 @@
+name,slug,description,color
+Quick,quick,Recipes that can be prepared in 30 minutes or less,#FF6B6B
+Easy,easy,Simple recipes for beginners,#4ECDC4
+Vegetarian,vegetarian,Meat-free recipes,#45B7D1
+Vegan,vegan,Plant-based recipes with no animal products,#FFA07A
+Gluten-Free,gluten-free,Recipes without gluten,#FF69B4
+Keto,keto,Low-carb, high-fat recipes,#87CEEB
+Paleo,paleo,Paleolithic diet friendly recipes,#98FB98
+Mediterranean,mediterranean,Mediterranean-style recipes,#F0E68C
+Italian,italian,Italian cuisine recipes,#90EE90
+Mexican,mexican,Mexican cuisine recipes,#DDA0DD
+Asian,asian,Asian cuisine recipes,#F4A460
+Grilled,grilled,Recipes that involve grilling,#FF6347
+Baked,baked,Recipes that involve baking,#DEB887
+Fried,fried,Recipes that involve frying,#FFD700
+Slow Cooker,slow-cooker,Recipes for slow cookers,#CD853F
+Instant Pot,instant-pot,Recipes for Instant Pot,#708090
+One-Pot,one-pot,Recipes made in a single pot,#8FBC8F
+Sheet Pan,sheet-pan,Recipes made on a sheet pan,#D2691E
+Meal Prep,meal-prep,Recipes suitable for meal preparation,#9370DB
+Comfort Food,comfort-food,Comforting and hearty recipes,#FF7F50
+Spicy,spicy,Recipes with heat and spice,#DC143C
+Low-Calorie,low-calorie,Light and low-calorie recipes,#00CED1
+High-Protein,high-protein,Protein-rich recipes,#228B22
+Dairy-Free,dairy-free,Recipes without dairy,#FFE4B5
+Nut-Free,nut-free,Recipes without nuts,#8B4513
+Budget-Friendly,budget-friendly,Affordable recipes,#FFDAB9
+Holiday,holiday,Special occasion recipes,#FF1493
+Summer,summer,Light summer recipes,#00BFFF
+Winter,winter,Hearty winter recipes,#4682B4

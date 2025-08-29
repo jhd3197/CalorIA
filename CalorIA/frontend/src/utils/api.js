@@ -132,6 +132,97 @@ export const logout = async () => {
   }
 };
 
+// Recipe API functions
+export const fetchRecipeById = async (recipeId) => {
+  return await apiRequest(`/recipes/${recipeId}`);
+};
+
+// Favorites API functions
+export const getUserFavorites = async (userId) => {
+  return await apiRequest(`/user/${userId}/favorites`);
+};
+
+export const addToFavorites = async (userId, recipeId) => {
+  return await apiRequest(`/user/${userId}/favorites/${recipeId}`, {
+    method: 'POST'
+  });
+};
+
+export const removeFromFavorites = async (userId, recipeId) => {
+  return await apiRequest(`/user/${userId}/favorites/${recipeId}`, {
+    method: 'DELETE'
+  });
+};
+
+export const checkFavoriteStatus = async (userId, recipeId) => {
+  return await apiRequest(`/user/${userId}/favorites/${recipeId}`);
+};
+
+// Ingredients API functions
+export const getIngredients = async (params = {}) => {
+  const queryString = new URLSearchParams(params).toString();
+  const url = queryString ? `/ingredients?${queryString}` : '/ingredients';
+  return await apiRequest(url);
+};
+
+export const getIngredientById = async (ingredientId) => {
+  return await apiRequest(`/ingredients/${ingredientId}`);
+};
+
+// Recipe Categories API functions
+export const getRecipeCategories = async (params = {}) => {
+  const queryString = new URLSearchParams(params).toString();
+  const url = queryString ? `/recipe-categories?${queryString}` : '/recipe-categories';
+  return await apiRequest(url);
+};
+
+export const createRecipeCategory = async (categoryData) => {
+  return await apiRequest('/recipe-categories', {
+    method: 'POST',
+    body: JSON.stringify(categoryData),
+  });
+};
+
+export const updateRecipeCategory = async (categoryId, categoryData) => {
+  return await apiRequest(`/recipe-categories/${categoryId}`, {
+    method: 'PUT',
+    body: JSON.stringify(categoryData),
+  });
+};
+
+export const deleteRecipeCategory = async (categoryId) => {
+  return await apiRequest(`/recipe-categories/${categoryId}`, {
+    method: 'DELETE',
+  });
+};
+
+// Recipe Tags API functions
+export const getRecipeTags = async (params = {}) => {
+  const queryString = new URLSearchParams(params).toString();
+  const url = queryString ? `/recipe-tags?${queryString}` : '/recipe-tags';
+  return await apiRequest(url);
+};
+
+export const createRecipeTag = async (tagData) => {
+  return await apiRequest('/recipe-tags', {
+    method: 'POST',
+    body: JSON.stringify(tagData),
+  });
+};
+
+export const updateRecipeTag = async (tagId, tagData) => {
+  return await apiRequest(`/recipe-tags/${tagId}`, {
+    method: 'PUT',
+    body: JSON.stringify(tagData),
+  });
+};
+
+export const deleteRecipeTag = async (tagId) => {
+  return await apiRequest(`/recipe-tags/${tagId}`, {
+    method: 'DELETE',
+  });
+};
+
 // Other API functions (can be extended)
 export const fetchUserProfile = async (userId) => {
   if (!userId) {
@@ -187,6 +278,21 @@ const apiUtils = {
   checkAuthHealth,
   fetchUserProfile,
   fetchDashboardData,
+  fetchRecipeById,
+  getUserFavorites,
+  addToFavorites,
+  removeFromFavorites,
+  checkFavoriteStatus,
+  getIngredients,
+  getIngredientById,
+  getRecipeCategories,
+  createRecipeCategory,
+  updateRecipeCategory,
+  deleteRecipeCategory,
+  getRecipeTags,
+  createRecipeTag,
+  updateRecipeTag,
+  deleteRecipeTag,
   isAuthenticated,
   logout,
 };

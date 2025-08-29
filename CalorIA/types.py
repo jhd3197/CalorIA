@@ -1,7 +1,7 @@
 # types.py
 from __future__ import annotations
 from enum import Enum
-from typing import Any, Dict, Type, TypeVar, Iterable, List, Optional, Literal
+from typing import Any, Dict, Type, TypeVar, Iterable, List, Optional, Literal, Union
 from decimal import Decimal
 from uuid import UUID, uuid4
 from datetime import datetime, date, time, timezone
@@ -48,19 +48,6 @@ class DifficultyLevel(str, Enum):
     HARD = "hard"
 
 
-class RecipeCategory(str, Enum):
-    BREAKFAST = "breakfast"
-    LUNCH = "lunch"
-    DINNER = "dinner"
-    SNACK = "snack"
-    DESSERT = "dessert"
-    BEVERAGE = "beverage"
-    APPETIZER = "appetizer"
-    SOUP = "soup"
-    SALAD = "salad"
-    MAIN_COURSE = "main_course"
-    SIDE_DISH = "side_dish"
-    HEALTHY = "healthy"
 
 
 class ActivityLevel(str, Enum):
@@ -166,6 +153,48 @@ class CalorIAModel(BaseModel):
             # re-raise with a helpful message (caller can catch)
             raise
 
+
+class RecipeCategoryModel(CalorIAModel):
+    """Dynamic recipe category that can be created by users."""
+    id: UUID = Field(default_factory=uuid4)
+    name: str = Field(..., description="Display name of the category")
+    slug: str = Field(..., description="URL-friendly identifier")
+    description: Optional[str] = None
+    color: Optional[str] = Field(None, description="Hex color code for UI display")
+    icon: Optional[str] = None
+    usage_count: int = Field(0, description="Number of recipes using this category")
+    is_system: bool = Field(False, description="Whether this category was created by the system")
+    created_by: Optional[UUID] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = None
+
+    def generate_slug(self) -> str:
+        """Generate a URL-friendly slug from the category name."""
+        # Use the centralized slug generation from ToolsMixin
+        # This will be called via the client instance
+        return self.name  # Placeholder - will be overridden by mixin method
+
+
+class RecipeTagModel(CalorIAModel):
+    """Dynamic recipe tag that can be created by users."""
+    id: UUID = Field(default_factory=uuid4)
+    name: str = Field(..., description="Display name of the tag")
+    slug: str = Field(..., description="URL-friendly identifier")
+    description: Optional[str] = None
+    color: Optional[str] = Field(None, description="Hex color code for UI display")
+    usage_count: int = Field(0, description="Number of recipes using this tag")
+    is_system: bool = Field(False, description="Whether this tag was created by the system")
+    created_by: Optional[UUID] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = None
+
+    def generate_slug(self) -> str:
+        """Generate a URL-friendly slug from the tag name."""
+        # Use the centralized slug generation from ToolsMixin
+        # This will be called via the client instance
+        return self.name  # Placeholder - will be overridden by mixin method
+
+
 # -------------------------
 # Profile / Preferences
 # -------------------------
@@ -204,6 +233,7 @@ class User(CalorIAModel):
     password_hash: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     preferences: UserPreferences
+    favorite_recipe_ids: List[str] = Field(default_factory=list, description="List of favorite recipe IDs as strings")
 
 
 # -------------------------
@@ -263,14 +293,16 @@ class Recipe(CalorIAModel):
     id: UUID = Field(default_factory=uuid4)
     name: str
     description: Optional[str] = None
-    category: RecipeCategory
+    category_id: UUID = Field(..., description="Reference to dynamic category")
+    category: Optional[RecipeCategoryModel] = Field(None, description="Populated category object")
     prep_time_minutes: int = Field(..., gt=0, description="Preparation time in minutes")
     cook_time_minutes: Optional[int] = Field(None, ge=0, description="Cooking time in minutes")
     servings: int = Field(..., gt=0, description="Number of servings this recipe makes")
     difficulty: DifficultyLevel = DifficultyLevel.MEDIUM
     ingredients: List["RecipeIngredient"] = Field(default_factory=list)
     instructions: Optional[List[str]] = Field(default_factory=list, description="Step-by-step cooking instructions")
-    tags: List[str] = Field(default_factory=list, description="Tags for filtering and searching")
+    tag_ids: List[UUID] = Field(default_factory=list, description="References to dynamic tags")
+    tags: List[RecipeTagModel] = Field(default_factory=list, description="Populated tag objects")
     image_url: Optional[str] = None
     source_url: Optional[str] = None
     notes: Optional[str] = None
@@ -278,6 +310,15 @@ class Recipe(CalorIAModel):
     created_by: Optional[UUID] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = None
+    # Nutrition fields (calculated and stored for performance)
+    calories_per_serving_stored: Optional[float] = Field(None, ge=0, description="Calculated calories per serving")
+    protein_per_serving_stored: Optional[float] = Field(None, ge=0, description="Calculated protein per serving (g)")
+    fat_per_serving_stored: Optional[float] = Field(None, ge=0, description="Calculated fat per serving (g)")
+    carbs_per_serving_stored: Optional[float] = Field(None, ge=0, description="Calculated carbs per serving (g)")
+    total_calories_stored: Optional[float] = Field(None, ge=0, description="Total calories for entire recipe")
+    total_protein_stored: Optional[float] = Field(None, ge=0, description="Total protein for entire recipe (g)")
+    total_fat_stored: Optional[float] = Field(None, ge=0, description="Total fat for entire recipe (g)")
+    total_carbs_stored: Optional[float] = Field(None, ge=0, description="Total carbs for entire recipe (g)")
 
     def total_calories(self) -> int:
         """Calculate total calories for the entire recipe (all servings)."""
@@ -400,6 +441,7 @@ class Ingredient(CalorIAModel):
     """
     id: Optional[UUID] = None
     name: str
+    slug: Optional[str] = None  # URL-friendly identifier for stable referencing
     aliases: Optional[List[str]] = Field(default_factory=list)
     category: Optional[str] = None
     default_unit: IngredientUnit = IngredientUnit.G
@@ -423,6 +465,12 @@ class Ingredient(CalorIAModel):
         if v is not None and v < 0:
             raise ValueError("nutrition values must be >= 0")
         return v
+
+    def generate_slug(self) -> str:
+        """Generate a URL-friendly slug from the ingredient name."""
+        # Use the centralized slug generation from ToolsMixin
+        # This will be called via the client instance
+        return self.name  # Placeholder - will be overridden by mixin method
 
     def amount_to_grams(self, amount: float, unit: IngredientUnit) -> float:
         """

@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from .tools import BaseResearcher, ResearchResult
-from ..types import Recipe, RecipeCategory, DifficultyLevel, RecipeIngredient
+from ..types import Recipe, DifficultyLevel, RecipeIngredient
 from .. import Client
 
 
@@ -20,12 +20,20 @@ class RecipeResearcher(BaseResearcher):
     def get_existing_recipes_by_category(self, category: str) -> List[str]:
         """Get list of existing recipe names for a category."""
         try:
+            # First, find the category by slug to get its ID
+            category_slug = category.lower().replace(' ', '_')
+            category_obj = self.client.get_category_by_slug(category_slug)
+
+            if not category_obj:
+                click.echo(f"⚠️  Category '{category}' not found in database")
+                return []
+
             db = self.client.get_db_connection()
             if db is None:
                 return []
 
             collection = db["recipes"]
-            cursor = collection.find({"category": category}, {"name": 1})
+            cursor = collection.find({"category_id": str(category_obj.id)}, {"name": 1})
 
             return [doc["name"] for doc in cursor]
         except Exception as e:
@@ -138,13 +146,20 @@ After your thinking, end with the JSON array:"""
                     click.echo(f"❌ Missing required field: {field}")
                     return None
 
-            # Parse category
+            # Parse category - need to look up the category_id from the category name
             category_str = recipe_data.get('category', 'main_course')
+            category_id = None
+
+            # Try to find the category by slug
             try:
-                category = RecipeCategory(category_str)
-            except ValueError:
-                click.echo(f"❌ Invalid category: {category_str}, defaulting to 'main_course'")
-                category = RecipeCategory.MAIN_COURSE
+                category_slug = category_str.lower().replace(' ', '_')
+                category_obj = self.client.get_category_by_slug(category_slug)
+                if category_obj:
+                    category_id = category_obj.id
+                else:
+                    click.echo(f"⚠️  Category '{category_str}' not found, will be set to None")
+            except Exception as e:
+                click.echo(f"⚠️  Error looking up category '{category_str}': {e}")
 
             # Parse difficulty
             difficulty_str = recipe_data.get('difficulty', 'medium')
@@ -176,14 +191,14 @@ After your thinking, end with the JSON array:"""
                 id=uuid4(),
                 name=recipe_data['name'],
                 description=recipe_data.get('description', ''),
-                category=category,
+                category_id=category_id,
                 prep_time_minutes=int(recipe_data['prep_time_minutes']),
                 cook_time_minutes=recipe_data.get('cook_time_minutes'),
                 servings=int(recipe_data['servings']),
                 difficulty=difficulty,
                 ingredients=recipe_ingredients,
                 instructions=recipe_data.get('instructions', []),
-                tags=recipe_data.get('tags', []),
+                tag_ids=[],  # Will be populated if we can match tags
                 is_system=True,
                 created_at=datetime.now(timezone.utc)
             )
@@ -267,16 +282,11 @@ After your thinking, end with the JSON array:"""
         return results
 
     def get_available_categories(self) -> List[str]:
-        """Get list of available recipe categories from existing data."""
+        """Get list of available recipe categories from the categories collection."""
 
         try:
-            db = self.client.get_db_connection()
-            if db is None:
-                return []
-
-            collection = db["recipes"]
-            categories = collection.distinct("category")
-            return sorted(categories)
+            categories = self.client.get_all_categories(include_system=True)
+            return [category.name for category in categories]
 
         except Exception as e:
             click.echo(f"❌ Error getting categories: {e}")
