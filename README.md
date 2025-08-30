@@ -1,6 +1,7 @@
 # CalorIA 🍎
 
 A comprehensive full-stack calorie tracking application built with Flask backend, React frontend, MongoDB database, and a custom CLI for easy management. The application is fully containerized with Docker for seamless deployment.
+
 <img width="902" height="476" alt="image" src="https://github.com/user-attachments/assets/cb519f18-3b48-4117-8ea6-9e4c7fadd9f6" />
 
 ## ✨ Features

@@ -28,14 +28,14 @@ if requirements_path.exists():
         ]
 
 setup(
-    name="caloria-cli",
+    name="caloria",
     version="1.0.0",
-    author="CalorIA Team",
-    author_email="team@caloria.app",
-    description="Command Line Interface for the CalorIA application",
+    author="Juan Denis",
+    author_email="juan@vene.co",
+    description="A comprehensive full-stack calorie tracking application with Flask backend, React frontend, and AI-powered features",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/CalorIA",
+    url="https://github.com/jhd3197/CalorIA",
     packages=find_packages(),
     include_package_data=True,
     install_requires=install_requires,
@@ -47,7 +47,9 @@ setup(
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
-        "Topic :: Software Development :: Build Tools",
+        "Intended Audience :: End Users/Desktop",
+        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+        "Topic :: Scientific/Engineering :: Information Analysis",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
@@ -56,11 +58,13 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Operating System :: OS Independent",
+        "Framework :: Flask",
     ],
     python_requires=">=3.7",
-    keywords="caloria cli flask react nutrition calories",
+    keywords="caloria nutrition calories tracking flask react mongodb ai",
     project_urls={
         "Bug Reports": "https://github.com/yourusername/CalorIA/issues",
         "Source": "https://github.com/yourusername/CalorIA",
+        "Documentation": "https://github.com/yourusername/CalorIA#readme",
     },
 )
