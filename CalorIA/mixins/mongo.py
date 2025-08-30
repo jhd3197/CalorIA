@@ -12,8 +12,9 @@ T = TypeVar('T', bound=Type.CalorIAModel)
 class MongoMixin:
     """Mixin class that provides MongoDB operations and connection management."""
     
-    def __init__(self):
+    def __init__(self, **kwargs):
         self._db = None
+        super().__init__(**kwargs)
     
     def get_db_connection(self):
         """Get MongoDB connection using environment variable"""

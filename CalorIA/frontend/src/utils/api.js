@@ -451,6 +451,142 @@ export const getMealPrepProfileCount = async (userId = null) => {
   return await apiRequest(`/meal-prep-profiles/count?${params.toString()}`);
 };
 
+// AI Assistant API functions
+export const getAIMealRecommendations = async (profileId, userId = null, numMeals = 3) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required for AI meal recommendations');
+  }
+
+  const params = new URLSearchParams({
+    user_id: userId,
+    num_meals: numMeals
+  });
+
+  return await apiRequest(`/ai-assistant/meal-recommendations/${profileId}?${params.toString()}`);
+};
+
+export const getAIShoppingList = async (profileId, userId = null, mealsData = null) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required for AI shopping list');
+  }
+
+  const params = new URLSearchParams({ user_id: userId });
+
+  const requestBody = mealsData ? { meals: mealsData } : {};
+
+  return await apiRequest(`/ai-assistant/shopping-list/${profileId}?${params.toString()}`, {
+    method: 'POST',
+    body: Object.keys(requestBody).length > 0 ? JSON.stringify(requestBody) : undefined
+  });
+};
+
+export const getAIMealPlanOverview = async (profileId, userId = null) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required for AI meal plan overview');
+  }
+
+  const params = new URLSearchParams({ user_id: userId });
+  return await apiRequest(`/ai-assistant/meal-plan/${profileId}?${params.toString()}`);
+};
+
+export const getAIInsights = async (profileId, userId = null) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required for AI insights');
+  }
+
+  const params = new URLSearchParams({ user_id: userId });
+  return await apiRequest(`/ai-assistant/insights/${profileId}?${params.toString()}`);
+};
+
+export const regenerateAIMealRecommendations = async (profileId, previousRecommendations, feedback = null, userId = null) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required for regenerating AI recommendations');
+  }
+
+  const params = new URLSearchParams({ user_id: userId });
+
+  const requestBody = {
+    previous_recommendations: previousRecommendations
+  };
+
+  if (feedback) {
+    requestBody.feedback = feedback;
+  }
+
+  return await apiRequest(`/ai-assistant/regenerate/${profileId}?${params.toString()}`, {
+    method: 'POST',
+    body: JSON.stringify(requestBody)
+  });
+};
+
+export const getAIResponseHistory = async (profileId, userId = null, limit = 10) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required for AI response history');
+  }
+
+  const params = new URLSearchParams({
+    user_id: userId,
+    limit: limit
+  });
+
+  return await apiRequest(`/ai-assistant/history/${profileId}?${params.toString()}`);
+};
+
+export const checkAIAssistantHealth = async () => {
+  return await apiRequest('/ai-assistant/health');
+};
+
+export const getLatestAIResponses = async (profileId, userId = null) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required for getting latest AI responses');
+  }
+
+  const params = new URLSearchParams({ user_id: userId });
+  return await apiRequest(`/ai-assistant/latest/${profileId}?${params.toString()}`);
+};
+
 // Utility function to check if user is authenticated
 export const isAuthenticated = () => {
   const token = getAuthToken();

@@ -16,19 +16,31 @@ import {
   Lightbulb,
   TrendingUp
 } from 'lucide-react';
-import { getMealPrepProfileById } from '../utils/api';
+import { getMealPrepProfileById, getAIMealRecommendations, getAIShoppingList, getAIMealPlanOverview, getAIInsights, regenerateAIMealRecommendations, getLatestAIResponses } from '../utils/api';
 
-const AIAssistant = () => {
+const MealPrepAIAssistant = () => {
   const { profileId } = useParams();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [mealRecommendations, setMealRecommendations] = useState([]);
+  const [shoppingList, setShoppingList] = useState([]);
+  const [aiInsights, setAiInsights] = useState([]);
+  const [generatingRecommendations, setGeneratingRecommendations] = useState(false);
+  const [generatingShoppingList, setGeneratingShoppingList] = useState(false);
+  const [generatingInsights, setGeneratingInsights] = useState(false);
 
   useEffect(() => {
     fetchProfile();
   }, [profileId]);
+
+  useEffect(() => {
+    if (profile) {
+      loadLatestAIResponses();
+    }
+  }, [profile]);
 
   const fetchProfile = async () => {
     try {
@@ -48,49 +60,98 @@ const AIAssistant = () => {
     navigate('/meal-prep');
   };
 
-  // Mock AI recommendations - in a real app, these would come from an AI service
-  const mockMealRecommendations = [
-    {
-      id: 1,
-      name: 'High-Protein Chicken Stir Fry',
-      calories: 450,
-      protein: 35,
-      carbs: 25,
-      fat: 15,
-      prepTime: 20,
-      difficulty: 'Easy',
-      tags: ['High Protein', 'Quick', 'Asian']
-    },
-    {
-      id: 2,
-      name: 'Quinoa Buddha Bowl',
-      calories: 380,
-      protein: 18,
-      carbs: 45,
-      fat: 12,
-      prepTime: 15,
-      difficulty: 'Easy',
-      tags: ['Vegetarian', 'Healthy', 'Quick']
-    },
-    {
-      id: 3,
-      name: 'Salmon with Roasted Vegetables',
-      calories: 520,
-      protein: 42,
-      carbs: 20,
-      fat: 28,
-      prepTime: 30,
-      difficulty: 'Medium',
-      tags: ['Omega-3', 'Healthy', 'Mediterranean']
+  const fetchMealRecommendations = async () => {
+    try {
+      setGeneratingRecommendations(true);
+      const response = await getAIMealRecommendations(profileId);
+      setMealRecommendations(response.recommendations || []);
+    } catch (err) {
+      console.error('Error fetching meal recommendations:', err);
+      // Keep existing recommendations or show error
+    } finally {
+      setGeneratingRecommendations(false);
     }
-  ];
+  };
 
-  const mockShoppingList = [
-    { category: 'Proteins', items: ['Chicken breast (1.5 lbs)', 'Salmon fillets (0.75 lbs)', 'Greek yogurt (32 oz)', 'Eggs (12 count)'] },
-    { category: 'Vegetables', items: ['Broccoli (2 heads)', 'Bell peppers (4)', 'Spinach (10 oz)', 'Carrots (1 lb)', 'Sweet potatoes (3)'] },
-    { category: 'Grains', items: ['Quinoa (1 lb)', 'Brown rice (2 lbs)', 'Whole grain bread (1 loaf)'] },
-    { category: 'Pantry', items: ['Olive oil', 'Soy sauce', 'Garlic', 'Herbs and spices'] }
-  ];
+  const fetchShoppingList = async () => {
+    try {
+      setGeneratingShoppingList(true);
+      const response = await getAIShoppingList(profileId, null, mealRecommendations.length > 0 ? mealRecommendations : null);
+      setShoppingList(response.shopping_list || []);
+    } catch (err) {
+      console.error('Error fetching shopping list:', err);
+      // Keep existing shopping list or show error
+    } finally {
+      setGeneratingShoppingList(false);
+    }
+  };
+
+  const fetchAIInsights = async () => {
+    try {
+      setGeneratingInsights(true);
+      const response = await getAIInsights(profileId);
+      setAiInsights(response.insights || []);
+    } catch (err) {
+      console.error('Error fetching AI insights:', err);
+      // Keep existing insights or show error
+    } finally {
+      setGeneratingInsights(false);
+    }
+  };
+
+  const loadLatestAIResponses = async () => {
+    try {
+      const response = await getLatestAIResponses(profileId);
+      const latestResponses = response.latest_responses || {};
+
+      // Restore meal recommendations if available
+      if (latestResponses.meal_recommendations) {
+        try {
+          const recommendations = JSON.parse(latestResponses.meal_recommendations.ai_response);
+          setMealRecommendations(recommendations);
+        } catch (e) {
+          console.error('Error parsing saved meal recommendations:', e);
+        }
+      }
+
+      // Restore shopping list if available
+      if (latestResponses.shopping_list) {
+        try {
+          const shoppingList = JSON.parse(latestResponses.shopping_list.ai_response);
+          setShoppingList(shoppingList);
+        } catch (e) {
+          console.error('Error parsing saved shopping list:', e);
+        }
+      }
+
+      // Restore AI insights if available
+      if (latestResponses.ai_insights) {
+        try {
+          const insights = JSON.parse(latestResponses.ai_insights.ai_response);
+          setAiInsights(insights);
+        } catch (e) {
+          console.error('Error parsing saved AI insights:', e);
+        }
+      }
+
+    } catch (err) {
+      console.error('Error loading latest AI responses:', err);
+      // Don't show error to user, just continue with empty state
+    }
+  };
+
+  const handleGenerateRecommendations = async () => {
+    await fetchMealRecommendations();
+  };
+
+  const handleGenerateShoppingList = async () => {
+    await fetchShoppingList();
+  };
+
+  const handleGenerateInsights = async () => {
+    await fetchAIInsights();
+  };
+
 
   if (loading) {
     return (
@@ -315,21 +376,29 @@ const AIAssistant = () => {
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                   AI Meal Recommendations
                 </h3>
-                <button className="flex items-center px-4 py-2 bg-emerald-600 dark:bg-emerald-700 text-white rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600">
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Generate New
+                <button
+                  onClick={handleGenerateRecommendations}
+                  disabled={generatingRecommendations}
+                  className="flex items-center px-4 py-2 bg-emerald-600 dark:bg-emerald-700 text-white rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {generatingRecommendations ? (
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                  )}
+                  {generatingRecommendations ? 'Generating...' : 'Generate New'}
                 </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {mockMealRecommendations.map((meal) => (
-                  <div key={meal.id} className="bg-gray-50 dark:bg-slate-700 rounded-lg p-6 hover:shadow-md transition-shadow">
+                {mealRecommendations.length > 0 ? mealRecommendations.map((meal, index) => (
+                  <div key={index} className="bg-gray-50 dark:bg-slate-700 rounded-lg p-6 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{meal.name}</h4>
                         <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
                           <Clock className="w-4 h-4 mr-1" />
-                          {meal.prepTime} min
+                          {meal.prepTime || meal.prep_time} min
                         </div>
                         <span className={`inline-block px-2 py-1 text-xs rounded-full ${
                           meal.difficulty === 'Easy' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
@@ -364,14 +433,25 @@ const AIAssistant = () => {
                     </div>
 
                     <div className="flex flex-wrap gap-1">
-                      {meal.tags.map((tag, index) => (
-                        <span key={index} className="px-2 py-1 text-xs bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 rounded">
+                      {meal.tags && meal.tags.map((tag, tagIndex) => (
+                        <span key={tagIndex} className="px-2 py-1 text-xs bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 rounded">
                           {tag}
                         </span>
                       ))}
                     </div>
                   </div>
-                ))}
+                )) : (
+                  <div className="col-span-full text-center py-8">
+                    <p className="text-gray-500 dark:text-gray-400 mb-4">No meal recommendations yet</p>
+                    <button
+                      onClick={handleGenerateRecommendations}
+                      disabled={generatingRecommendations}
+                      className="px-6 py-3 bg-emerald-600 dark:bg-emerald-700 text-white rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {generatingRecommendations ? 'Generating...' : 'Generate Recommendations'}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -382,21 +462,29 @@ const AIAssistant = () => {
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                   Smart Shopping List
                 </h3>
-                <button className="flex items-center px-4 py-2 bg-emerald-600 dark:bg-emerald-700 text-white rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600">
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Regenerate
+                <button
+                  onClick={handleGenerateShoppingList}
+                  disabled={generatingShoppingList}
+                  className="flex items-center px-4 py-2 bg-emerald-600 dark:bg-emerald-700 text-white rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {generatingShoppingList ? (
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                  )}
+                  {generatingShoppingList ? 'Generating...' : 'Regenerate'}
                 </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {mockShoppingList.map((category, index) => (
+                {shoppingList.length > 0 ? shoppingList.map((category, index) => (
                   <div key={index} className="bg-gray-50 dark:bg-slate-700 rounded-lg p-6">
                     <h4 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                       <ShoppingCart className="w-5 h-5 mr-2 text-emerald-600 dark:text-emerald-400" />
                       {category.category}
                     </h4>
                     <ul className="space-y-2">
-                      {category.items.map((item, itemIndex) => (
+                      {category.items && category.items.map((item, itemIndex) => (
                         <li key={itemIndex} className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                           <input
                             type="checkbox"
@@ -407,21 +495,34 @@ const AIAssistant = () => {
                       ))}
                     </ul>
                   </div>
-                ))}
+                )) : (
+                  <div className="col-span-full text-center py-8">
+                    <p className="text-gray-500 dark:text-gray-400 mb-4">No shopping list generated yet</p>
+                    <button
+                      onClick={handleGenerateShoppingList}
+                      disabled={generatingShoppingList}
+                      className="px-6 py-3 bg-emerald-600 dark:bg-emerald-700 text-white rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {generatingShoppingList ? 'Generating...' : 'Generate Shopping List'}
+                    </button>
+                  </div>
+                )}
               </div>
 
-              <div className="bg-emerald-50 dark:bg-emerald-900/20 p-6 rounded-lg">
-                <div className="flex items-center">
-                  <CheckCircle className="w-6 h-6 text-emerald-600 dark:text-emerald-400 mr-3" />
-                  <div>
-                    <h4 className="font-semibold text-emerald-800 dark:text-emerald-200">Budget Optimized</h4>
-                    <p className="text-sm text-emerald-700 dark:text-emerald-300">
-                      This shopping list is optimized for your ${profile.weekly_budget} weekly budget,
-                      prioritizing cost-effective ingredients while maintaining nutritional value.
-                    </p>
+              {profile?.weekly_budget && (
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 p-6 rounded-lg">
+                  <div className="flex items-center">
+                    <CheckCircle className="w-6 h-6 text-emerald-600 dark:text-emerald-400 mr-3" />
+                    <div>
+                      <h4 className="font-semibold text-emerald-800 dark:text-emerald-200">Budget Optimized</h4>
+                      <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                        This shopping list is optimized for your ${profile.weekly_budget} weekly budget,
+                        prioritizing cost-effective ingredients while maintaining nutritional value.
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>
@@ -430,4 +531,4 @@ const AIAssistant = () => {
   );
 };
 
-export default AIAssistant;
+export default MealPrepAIAssistant;

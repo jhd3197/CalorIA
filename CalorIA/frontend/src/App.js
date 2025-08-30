@@ -8,7 +8,7 @@ import TrendCharts from './components/TrendCharts';
 import MealPlanner from './components/MealPlanner';
 import MealPrepForm from './components/MealPrepForm';
 import MealPrepProfiles from './components/MealPrepProfiles';
-import AIAssistant from './components/AIAssistant';
+import MealPrepAIAssistant from './components/MealPrepAIAssistant';
 import ActivityPage from './components/ActivityPage';
 import Recipes from './components/Recipes';
 import RecipeDetails from './components/RecipeDetails';
@@ -243,7 +243,7 @@ function App() {
           } />
           <Route path="/meal-prep/ai-assistant/:profileId" element={
             <AppLayout>
-              <AIAssistant />
+              <MealPrepAIAssistant />
             </AppLayout>
           } />
           <Route path="/activity" element={

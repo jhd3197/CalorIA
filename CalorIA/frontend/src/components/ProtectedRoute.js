@@ -34,10 +34,10 @@ function ProtectedRoute() {
   // Show loading spinner while checking authentication
   if (authStatus === 'checking') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Verifying authentication...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 dark:border-emerald-400 mx-auto"></div>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">Verifying authentication...</p>
         </div>
       </div>
     );

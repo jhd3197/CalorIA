@@ -622,3 +622,28 @@ class MealPrepProfile(CalorIAModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = None
     is_active: bool = Field(True, description="Whether this profile is currently active")
+
+
+# -------------------------------
+# AI Response Models
+# -------------------------------
+class AIResponseType(str, Enum):
+    """Types of AI responses that can be stored."""
+    MEAL_RECOMMENDATIONS = "meal_recommendations"
+    SHOPPING_LIST = "shopping_list"
+    MEAL_PLAN_OVERVIEW = "meal_plan_overview"
+    AI_INSIGHTS = "ai_insights"
+    REGENERATE_RECOMMENDATIONS = "regenerate_recommendations"
+
+
+class AIResponse(CalorIAModel):
+    """Model for storing AI-generated responses for persistence and review."""
+    id: UUID = Field(default_factory=uuid4)
+    user_id: UUID
+    profile_id: UUID
+    response_type: AIResponseType
+    request_data: Dict[str, Any] = Field(default_factory=dict, description="Original request parameters")
+    ai_response: str = Field(..., description="Raw AI response as JSON string")
+    ai_provider: str = Field(..., description="AI provider used (openai, ollama)")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    is_active: bool = Field(True, description="Whether this response is still valid/active")
