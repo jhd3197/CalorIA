@@ -144,13 +144,25 @@ class AIAssistantMixin:
             return None
 
     def generate_meal_recommendations(self, profile: Type.MealPrepProfile, num_meals: int = 3) -> Optional[List[Dict[str, Any]]]:
-        """Generate personalized meal recommendations based on user profile."""
+        """Generate personalized meal recommendations using multi-step AI approach."""
         try:
+            # Determine if we should generate multi-day plan
+            meals_per_day_str = profile.meals_per_day or '3'
+            # Handle the case where meals_per_day is stored as "5+"
+            if meals_per_day_str == '5+':
+                meals_per_day = 5
+            else:
+                try:
+                    meals_per_day = int(meals_per_day_str)
+                except (ValueError, TypeError):
+                    meals_per_day = 3
+            is_multi_day_plan = meals_per_day >= 5
+
             # Build profile context
             profile_context = f"""
             User Profile:
             - Goal: {profile.goal or 'General health'}
-            - Meals per day: {profile.meals_per_day or '3'}
+            - Meals per day: {meals_per_day}
             - Dietary preference: {profile.dietary_preference or 'Balanced'}
             - Allergies: {', '.join(profile.allergies) if profile.allergies else 'None'}
             - Intolerances: {', '.join(profile.intolerances) if profile.intolerances else 'None'}
@@ -164,22 +176,252 @@ class AIAssistantMixin:
             - Macro preferences: {profile.macro_preference.protein}g protein, {profile.macro_preference.fat}g fat, {profile.macro_preference.carbs}g carbs
             """
 
-            prompt = f"""
-            Based on this user's meal prep profile, generate {num_meals} personalized meal recommendations.
-            Each meal should be practical, nutritious, and aligned with their preferences and constraints.
+            # Step 1: Generate basic meal structure
+            print("🍽️ Step 1: Generating basic meal structure...")
+            basic_meals = self._generate_basic_meal_structure(profile, profile_context, meals_per_day, is_multi_day_plan)
+            if not basic_meals:
+                print("❌ Failed to generate basic meal structure")
+                return None
+            print(f"✅ Step 1 complete: Generated {len(basic_meals)} basic meals")
 
+            # Step 2: Get detailed recipes for each meal
+            print("🍳 Step 2: Generating detailed recipes...")
+            detailed_meals = self._generate_detailed_recipes(profile, profile_context, basic_meals)
+            if not detailed_meals:
+                print("❌ Failed to generate detailed recipes")
+                return None
+            print(f"✅ Step 2 complete: Generated {len(detailed_meals)} meals with recipes")
+
+            print("🎉 Meal generation process complete!")
+            return detailed_meals
+
+        except Exception as e:
+            print(f"❌ Error generating meal recommendations: {e}")
+            return None
+
+    def _generate_basic_meal_structure(self, profile: Type.MealPrepProfile, profile_context: str,
+                                     meals_per_day: int, is_multi_day_plan: bool) -> Optional[List[Dict[str, Any]]]:
+        """Step 1: Generate basic meal structure using batched approach."""
+        try:
+            if is_multi_day_plan:
+                # For multi-day plans, generate in smaller batches
+                return self._generate_multi_day_meals_batched(profile, profile_context, meals_per_day)
+            else:
+                # For single day, generate all at once (usually small number)
+                return self._generate_single_day_meals(profile, profile_context, meals_per_day)
+
+        except Exception as e:
+            print(f"❌ Error generating basic meal structure: {e}")
+            return None
+
+    def _generate_multi_day_meals_batched(self, profile: Type.MealPrepProfile, profile_context: str,
+                                        meals_per_day: int) -> Optional[List[Dict[str, Any]]]:
+        """Generate multi-day meal plan in small batches to avoid overwhelming the AI."""
+        try:
+            all_meals = []
+            batch_size = 3  # Generate 3 meals at a time
+            total_days = 7
+
+            # Track meals per day and type
+            meals_by_day = {day: {'Breakfast': 0, 'Lunch': 0, 'Dinner': 0, 'Snack': 0}
+                          for day in range(1, total_days + 1)}
+
+            meal_names_used = set()
+
+            # Generate meals day by day
+            for current_day in range(1, total_days + 1):
+                print(f"📅 Generating meals for Day {current_day}")
+
+                # Calculate how many meals we need for this day
+                meals_needed_for_day = meals_per_day
+                meals_generated_for_day = sum(meals_by_day[current_day].values())
+
+                while meals_generated_for_day < meals_needed_for_day and len(all_meals) < (meals_per_day * total_days):
+                    # Determine what types we still need for this day
+                    needed_types = []
+                    if meals_by_day[current_day]['Breakfast'] == 0:
+                        needed_types.append('Breakfast')
+                    if meals_by_day[current_day]['Lunch'] == 0:
+                        needed_types.append('Lunch')
+                    if meals_by_day[current_day]['Dinner'] == 0:
+                        needed_types.append('Dinner')
+                    if meals_by_day[current_day]['Snack'] < (meals_per_day - 3) and meals_per_day > 3:
+                        needed_types.append('Snack')
+
+                    if not needed_types:
+                        break
+
+                    # Limit batch size to what's actually needed
+                    actual_batch_size = min(len(needed_types), batch_size, meals_needed_for_day - meals_generated_for_day)
+
+                    print(f"🤖 Day {current_day}: Need {needed_types}, generating {actual_batch_size} meals")
+
+                    # Generate batch for this specific day
+                    batch = self._generate_meal_batch(
+                        profile, profile_context, actual_batch_size,
+                        needed_types, meal_names_used, current_day
+                    )
+
+                    if batch:
+                        all_meals.extend(batch)
+                        # Update tracking for this day
+                        for meal in batch:
+                            meal_type = meal.get('meal_type', 'General')
+                            if meal_type in meals_by_day[current_day]:
+                                meals_by_day[current_day][meal_type] += 1
+                            meal_names_used.add(meal['name'].lower())
+
+                        meals_generated_for_day = sum(meals_by_day[current_day].values())
+                        print(f"✅ Day {current_day}: Generated {len(batch)} meals, total for day: {meals_generated_for_day}")
+                    else:
+                        print(f"⚠️ Failed to generate batch for day {current_day}, skipping...")
+                        break
+
+            print(f"🎉 Completed meal generation: {len(all_meals)} total meals across {total_days} days")
+            return all_meals
+
+        except Exception as e:
+            print(f"❌ Error generating multi-day meals in batches: {e}")
+            return None
+
+    def _generate_meal_batch(self, profile: Type.MealPrepProfile, profile_context: str,
+                           batch_size: int, needed_types: List[str], used_names: set,
+                           current_day: int) -> Optional[List[Dict[str, Any]]]:
+        """Generate a small batch of meals."""
+        try:
+            types_str = ", ".join(needed_types)
+            used_names_str = ", ".join(list(used_names)[:10]) if used_names else "None"
+
+            # Simplified prompt for better compatibility with different AI models
+            prompt = f"""Generate {batch_size} meal recommendations for Day {current_day}.
+Focus on these meal types: {types_str}
+Do NOT use these meal names: {used_names_str}
+
+Return ONLY a JSON array in this exact format:
+[
+  {{
+    "name": "Meal Name",
+    "meal_type": "Breakfast",
+    "day": {current_day},
+    "calories": 300,
+    "protein": 20,
+    "carbs": 30,
+    "fat": 10,
+    "prepTime": 15,
+    "difficulty": "Easy",
+    "servings": 1,
+    "tags": ["Healthy", "Quick"]
+  }}
+]
+
+IMPORTANT: Return ONLY the JSON array, no other text or explanation."""
+
+            print(f"🤖 Generating batch for day {current_day}, types: {types_str}")
+            response = self.query_ai(prompt)
+            if not response:
+                print(f"❌ No response from AI for day {current_day}")
+                return None
+
+            print(f"📄 AI Response length: {len(response)} chars")
+            print(f"📄 AI Response preview: {response[:200]}...")
+
+            batch = self._parse_simple_json_response(response, f"meal batch for day {current_day}")
+            if isinstance(batch, list) and len(batch) > 0:
+                print(f"✅ Successfully parsed {len(batch)} meals for day {current_day}")
+                # Ensure all meals have the correct day
+                for meal in batch:
+                    if 'day' not in meal:
+                        meal['day'] = current_day
+                return batch
+            else:
+                print(f"❌ Failed to parse valid meal batch for day {current_day}, trying fallback...")
+
+                # Try fallback with simpler prompt
+                fallback_batch = self._generate_meal_batch_fallback(profile, profile_context, batch_size, needed_types, current_day)
+                if fallback_batch:
+                    print(f"✅ Fallback successful for day {current_day}")
+                    return fallback_batch
+
+                print(f"❌ All parsing attempts failed for day {current_day}")
+                return None
+
+        except Exception as e:
+            print(f"❌ Error generating meal batch for day {current_day}: {e}")
+            return None
+
+    def _generate_meal_batch_fallback(self, profile: Type.MealPrepProfile, profile_context: str,
+                                    batch_size: int, needed_types: List[str],
+                                    current_day: int) -> Optional[List[Dict[str, Any]]]:
+        """Fallback method for generating meal batches with simpler prompts."""
+        try:
+            # Use the first needed type for simplicity
+            primary_type = needed_types[0] if needed_types else "General"
+
+            # Ultra-simple prompt for better compatibility
+            prompt = f"""Create {batch_size} {primary_type} meal for day {current_day}.
+
+Format: name|calories|protein|carbs|fat|prepTime|difficulty|tags
+
+Example: Chicken Salad|350|35|15|18|20|Easy|High Protein,Quick,Healthy
+
+Return only the meals, one per line."""
+
+            print(f"🔄 Trying fallback prompt for day {current_day}")
+            response = self.query_ai(prompt)
+            if not response:
+                return None
+
+            print(f"📄 Fallback response: {response[:200]}...")
+
+            # Parse the simple format
+            meals = []
+            lines = response.strip().split('\n')
+
+            for line in lines[:batch_size]:  # Limit to requested batch size
+                line = line.strip()
+                if '|' in line and len(line.split('|')) >= 8:
+                    parts = line.split('|')
+                    if len(parts) >= 8:
+                        try:
+                            meal = {
+                                "name": parts[0].strip(),
+                                "meal_type": primary_type,
+                                "day": current_day,
+                                "calories": int(parts[1].strip()),
+                                "protein": int(parts[2].strip()),
+                                "carbs": int(parts[3].strip()),
+                                "fat": int(parts[4].strip()),
+                                "prepTime": int(parts[5].strip()),
+                                "difficulty": parts[6].strip(),
+                                "servings": 1,
+                                "tags": [tag.strip() for tag in parts[7].split(',') if tag.strip()]
+                            }
+                            meals.append(meal)
+                        except (ValueError, IndexError) as e:
+                            print(f"⚠️ Failed to parse fallback meal line: {line} - {e}")
+                            continue
+
+            if meals:
+                print(f"✅ Fallback generated {len(meals)} meals for day {current_day}")
+                return meals
+            else:
+                print(f"❌ Fallback failed to generate valid meals for day {current_day}")
+                return None
+
+        except Exception as e:
+            print(f"❌ Error in fallback meal generation for day {current_day}: {e}")
+            return None
+
+    def _generate_single_day_meals(self, profile: Type.MealPrepProfile, profile_context: str,
+                                 meals_per_day: int) -> Optional[List[Dict[str, Any]]]:
+        """Generate meals for a single day."""
+        try:
+            prompt = f"""
             {profile_context}
 
-            For each meal recommendation, provide:
-            1. Meal name
-            2. Estimated calories
-            3. Macronutrient breakdown (protein, carbs, fat in grams)
-            4. Preparation time in minutes
-            5. Difficulty level (Easy, Medium, Hard)
-            6. 2-3 relevant tags (e.g., "High Protein", "Quick", "Vegetarian")
+            Generate {meals_per_day} meal recommendations for a single day.
 
-            Format the response as a JSON array of meal objects.
-            Example format:
+            Return ONLY a JSON array:
             [
                 {{
                     "name": "Grilled Chicken Salad",
@@ -189,40 +431,415 @@ class AIAssistantMixin:
                     "fat": 18,
                     "prepTime": 20,
                     "difficulty": "Easy",
+                    "servings": 1,
                     "tags": ["High Protein", "Quick", "Healthy"]
                 }}
             ]
 
-            Ensure meals are varied, nutritionally balanced, and respect all dietary restrictions.
+            IMPORTANT: Return ONLY the JSON array, no additional text or formatting.
             """
 
             response = self.query_ai(prompt)
             if not response:
                 return None
 
-            # Try to parse JSON response
-            try:
-                # Clean the response to extract JSON
-                json_match = re.search(r'\[.*\]', response, re.DOTALL)
-                if json_match:
-                    json_str = json_match.group()
-                    meals = json.loads(json_str)
-                    return meals
+            return self._parse_simple_json_response(response, "single day meals")
+
+        except Exception as e:
+            print(f"❌ Error generating single day meals: {e}")
+            return None
+
+    def _generate_detailed_recipes(self, profile: Type.MealPrepProfile, profile_context: str,
+                                 basic_meals: List[Dict[str, Any]]) -> Optional[List[Dict[str, Any]]]:
+        """Step 2: Generate detailed recipes for each basic meal."""
+        try:
+            print(f"🍳 Starting detailed recipe generation for {len(basic_meals)} meals")
+            detailed_meals = []
+
+            for i, meal in enumerate(basic_meals):
+                meal_name = meal.get('name', 'Unknown')
+                print(f"📝 Generating recipe {i+1}/{len(basic_meals)}: {meal_name}")
+
+                # Generate detailed recipe for this specific meal
+                recipe_details = self._generate_single_recipe(profile, profile_context, meal)
+                if recipe_details:
+                    # Merge basic meal info with detailed recipe
+                    detailed_meal = {**meal, **recipe_details}
+                    detailed_meals.append(detailed_meal)
+                    print(f"✅ Recipe generated for: {meal_name}")
                 else:
-                    print("❌ Could not find JSON array in AI response")
-                    return None
-            except json.JSONDecodeError as e:
-                print(f"❌ Failed to parse AI response as JSON: {e}")
+                    # If detailed recipe fails, use basic meal with empty recipe fields
+                    detailed_meal = {
+                        **meal,
+                        "ingredients": [],
+                        "instructions": []
+                    }
+                    detailed_meals.append(detailed_meal)
+                    print(f"⚠️ Recipe generation failed for: {meal_name}, using basic info only")
+
+            print(f"🎉 Completed recipe generation: {len(detailed_meals)} meals with recipes")
+            return detailed_meals
+
+        except Exception as e:
+            print(f"❌ Error generating detailed recipes: {e}")
+            import traceback
+            print(f"❌ Full traceback: {traceback.format_exc()}")
+            return None
+
+    def _generate_single_recipe(self, profile: Type.MealPrepProfile, profile_context: str,
+                              meal: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Generate detailed recipe for a single meal."""
+        try:
+            prompt = f"""
+            {profile_context}
+
+            Generate detailed recipe information for this specific meal:
+            Meal: {meal['name']}
+            Type: {meal.get('meal_type', 'General')}
+            Target calories: {meal.get('calories', 'Not specified')}
+
+            Return ONLY a JSON object with recipe details:
+            {{
+                "ingredients": [
+                    {{"name": "Chicken breast", "quantity": "6 oz"}},
+                    {{"name": "Mixed greens", "quantity": "2 cups"}}
+                ],
+                "instructions": [
+                    "Grill chicken for 10 minutes",
+                    "Toss with greens and tomatoes"
+                ]
+            }}
+
+            IMPORTANT: Return ONLY the JSON object, no additional text or formatting.
+            """
+
+            response = self.query_ai(prompt)
+            if not response:
+                return None
+
+            recipe_data = self._parse_simple_json_response(response, f"recipe for {meal['name']}")
+            return recipe_data if isinstance(recipe_data, dict) else None
+
+        except Exception as e:
+            print(f"❌ Error generating recipe for {meal['name']}: {e}")
+            return None
+
+    def _parse_simple_json_response(self, response: str, context: str = "response") -> Optional[Any]:
+        """Parse a simple JSON response with improved error handling."""
+        try:
+            # Clean the response
+            response = response.strip()
+
+            # Remove markdown formatting
+            if response.startswith('```json'):
+                response = response[7:]
+            if response.startswith('```'):
+                response = response[3:]
+            if response.endswith('```'):
+                response = response[:-3]
+
+            response = response.strip()
+
+            # Try to parse as JSON
+            try:
+                return json.loads(response)
+            except json.JSONDecodeError:
+                # Try to extract JSON from the response
+                json_patterns = [
+                    r'\[.*\]',  # Array pattern first (more common for our use case)
+                    r'\{.*\}',  # Object pattern
+                ]
+
+                for pattern in json_patterns:
+                    json_match = re.search(pattern, response, re.DOTALL)
+                    if json_match:
+                        json_str = json_match.group()
+                        # Clean up common issues
+                        json_str = re.sub(r',(\s*[}\]])', r'\1', json_str)  # Remove trailing commas
+                        json_str = re.sub(r',\s*}', '}', json_str)  # Remove trailing commas before closing brace
+                        json_str = re.sub(r',\s*]', ']', json_str)  # Remove trailing commas before closing bracket
+
+                        try:
+                            return json.loads(json_str)
+                        except json.JSONDecodeError as e:
+                            print(f"⚠️ JSON parsing attempt failed for {context}: {e}")
+                            print(f"Attempted to parse: {json_str[:200]}...")
+                            continue
+
+                print(f"❌ Could not parse JSON for {context}")
+                print(f"Response: {response[:500]}...")
+
+                # Try AI-assisted JSON repair as last resort
+                print(f"🔧 Attempting AI-assisted JSON repair for {context}...")
+                repaired_json = self._repair_json_with_ai(response, context)
+                if repaired_json:
+                    print(f"✅ AI-assisted JSON repair successful for {context}")
+                    return repaired_json
+
                 return None
 
         except Exception as e:
-            print(f"❌ Error generating meal recommendations: {e}")
+            print(f"❌ Error parsing {context}: {e}")
+            return None
+
+    def _repair_json_with_ai(self, malformed_response: str, context: str = "response") -> Optional[Any]:
+        """Use AI to repair malformed JSON responses."""
+        try:
+            # Limit the response length to avoid token limits
+            truncated_response = malformed_response[:2000] if len(malformed_response) > 2000 else malformed_response
+
+            prompt = f"""
+            I have a malformed JSON response that needs to be fixed. Please parse and correct this JSON:
+
+            Malformed Response:
+            {truncated_response}
+
+            Instructions:
+            1. Extract the valid JSON structure from the response
+            2. Fix any syntax errors (missing commas, quotes, brackets, etc.)
+            3. Ensure the JSON is valid and complete
+            4. Return ONLY the corrected JSON, no additional text or explanation
+
+            The response should be either:
+            - A valid JSON array [...] if it's a list of items
+            - A valid JSON object {{...}} if it's a single object
+
+            IMPORTANT: Return ONLY the JSON, nothing else.
+            """
+
+            repair_response = self.query_ai(prompt)
+            if not repair_response:
+                print(f"❌ AI repair failed for {context} - no response from AI")
+                return None
+
+            # Clean the repair response
+            repair_response = repair_response.strip()
+            if repair_response.startswith('```json'):
+                repair_response = repair_response[7:]
+            if repair_response.startswith('```'):
+                repair_response = repair_response[3:]
+            if repair_response.endswith('```'):
+                repair_response = repair_response[:-3]
+            repair_response = repair_response.strip()
+
+            # Try to parse the repaired JSON
+            try:
+                return json.loads(repair_response)
+            except json.JSONDecodeError as e:
+                print(f"❌ AI repair failed for {context} - repaired JSON still invalid: {e}")
+                print(f"Repaired response: {repair_response[:300]}...")
+                return None
+
+        except Exception as e:
+            print(f"❌ Error during AI JSON repair for {context}: {e}")
+            return None
+
+    def generate_basic_meals(self, profile_id: UUID, user_id: UUID) -> Optional[Dict[str, Any]]:
+        """Generate only the basic meal structure (no recipes)."""
+        try:
+            print("🍽️ Generating basic meal structure...")
+
+            # Get the meal prep profile
+            profile = self.get_meal_prep_profile_by_id(profile_id)
+            if not profile:
+                return None
+
+            # Determine if we should generate multi-day plan
+            meals_per_day_str = profile.meals_per_day or '3'
+            if meals_per_day_str == '5+':
+                meals_per_day = 5
+            else:
+                try:
+                    meals_per_day = int(meals_per_day_str)
+                except (ValueError, TypeError):
+                    meals_per_day = 3
+            is_multi_day_plan = meals_per_day >= 5
+
+            # Build profile context
+            profile_context = f"""
+            User Profile:
+            - Goal: {profile.goal or 'General health'}
+            - Meals per day: {meals_per_day}
+            - Dietary preference: {profile.dietary_preference or 'Balanced'}
+            - Allergies: {', '.join(profile.allergies) if profile.allergies else 'None'}
+            - Intolerances: {', '.join(profile.intolerances) if profile.intolerances else 'None'}
+            - Excluded ingredients: {', '.join(profile.excluded_ingredients) if profile.excluded_ingredients else 'None'}
+            - Loved meals: {', '.join(profile.loved_meals) if profile.loved_meals else 'Not specified'}
+            - Hated meals: {', '.join(profile.hated_meals) if profile.hated_meals else 'Not specified'}
+            - Cooking time preference: {profile.cooking_time or 'Moderate'}
+            - Skill level: {profile.skill_level or 'Intermediate'}
+            - Weekly budget: ${profile.weekly_budget or 'Not specified'}
+            - Target calories: {profile.target_calories or 'Not specified'}
+            - Macro preferences: {profile.macro_preference.protein}g protein, {profile.macro_preference.fat}g fat, {profile.macro_preference.carbs}g carbs
+            """
+
+            # Generate basic meal structure
+            basic_meals = self._generate_basic_meal_structure(profile, profile_context, meals_per_day, is_multi_day_plan)
+            if not basic_meals:
+                return None
+
+            print(f"✅ Basic meal generation complete: {len(basic_meals)} meals")
+
+            # Create response record
+            request_data = {
+                "profile_id": str(profile_id),
+                "basic_meals_only": True,
+                "meals_count": len(basic_meals)
+            }
+
+            ai_response = json.dumps(basic_meals)
+            record = self.create_ai_response_record(
+                user_id=user_id,
+                profile_id=profile_id,
+                request_type="basic_meals",
+                request_data=request_data,
+                ai_response=ai_response
+            )
+
+            return {
+                "meals": basic_meals,
+                "record_id": str(record.id) if record else None,
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "step": "basic_meals",
+                "total_meals": len(basic_meals)
+            }
+
+        except Exception as e:
+            print(f"❌ Error generating basic meals: {e}")
+            return None
+
+    def generate_recipes_for_meals(self, profile_id: UUID, user_id: UUID, meals_data: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+        """Generate detailed recipes for existing meals."""
+        try:
+            print(f"🍳 Generating recipes for {len(meals_data)} meals...")
+
+            # Get the meal prep profile
+            profile = self.get_meal_prep_profile_by_id(profile_id)
+            if not profile:
+                return None
+
+            # Build profile context
+            profile_context = f"""
+            User Profile:
+            - Goal: {profile.goal or 'General health'}
+            - Dietary preference: {profile.dietary_preference or 'Balanced'}
+            - Allergies: {', '.join(profile.allergies) if profile.allergies else 'None'}
+            - Intolerances: {', '.join(profile.intolerances) if profile.intolerances else 'None'}
+            - Excluded ingredients: {', '.join(profile.excluded_ingredients) if profile.excluded_ingredients else 'None'}
+            - Cooking time preference: {profile.cooking_time or 'Moderate'}
+            - Skill level: {profile.skill_level or 'Intermediate'}
+            """
+
+            # Generate detailed recipes
+            detailed_meals = self._generate_detailed_recipes(profile, profile_context, meals_data)
+            if not detailed_meals:
+                return None
+
+            print(f"✅ Recipe generation complete: {len(detailed_meals)} meals with recipes")
+
+            # Create response record
+            request_data = {
+                "profile_id": str(profile_id),
+                "recipes_only": True,
+                "meals_count": len(detailed_meals)
+            }
+
+            ai_response = json.dumps(detailed_meals)
+            record = self.create_ai_response_record(
+                user_id=user_id,
+                profile_id=profile_id,
+                request_type="meal_recipes",
+                request_data=request_data,
+                ai_response=ai_response
+            )
+
+            return {
+                "meals": detailed_meals,
+                "record_id": str(record.id) if record else None,
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "step": "recipes",
+                "total_meals": len(detailed_meals)
+            }
+
+        except Exception as e:
+            print(f"❌ Error generating recipes for meals: {e}")
+            return None
+
+    def generate_shopping_list_for_meals(self, profile_id: UUID, user_id: UUID, meals_data: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+        """Generate shopping list for existing meals."""
+        try:
+            print(f"🛒 Generating shopping list for {len(meals_data)} meals...")
+
+            # Get the meal prep profile
+            profile = self.get_meal_prep_profile_by_id(profile_id)
+            if not profile:
+                return None
+
+            # Generate shopping list
+            shopping_list = self.generate_shopping_list(profile, meals_data)
+            if not shopping_list:
+                return None
+
+            print(f"✅ Shopping list generation complete: {len(shopping_list)} categories")
+
+            # Create response record
+            request_data = {
+                "profile_id": str(profile_id),
+                "shopping_list_only": True,
+                "meals_count": len(meals_data),
+                "budget": profile.weekly_budget
+            }
+
+            ai_response = json.dumps(shopping_list)
+            record = self.create_ai_response_record(
+                user_id=user_id,
+                profile_id=profile_id,
+                request_type="shopping_list",
+                request_data=request_data,
+                ai_response=ai_response
+            )
+
+            return {
+                "shopping_list": shopping_list,
+                "record_id": str(record.id) if record else None,
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "step": "shopping_list",
+                "total_categories": len(shopping_list),
+                "budget_optimized": profile.weekly_budget is not None
+            }
+
+        except Exception as e:
+            print(f"❌ Error generating shopping list for meals: {e}")
             return None
 
     def generate_shopping_list(self, profile: Type.MealPrepProfile, meals: List[Dict[str, Any]]) -> Optional[List[Dict[str, Any]]]:
         """Generate a shopping list based on recommended meals and user profile."""
         try:
-            meals_context = "\n".join([f"- {meal['name']}" for meal in meals])
+            # Check if this is a multi-day plan
+            is_multi_day_plan = any('day' in meal for meal in meals)
+
+            if is_multi_day_plan:
+                # Group meals by day and type for multi-day plan
+                days_meals = {}
+                for meal in meals:
+                    day = meal.get('day', 1)
+                    meal_type = meal.get('meal_type', 'General')
+                    if day not in days_meals:
+                        days_meals[day] = {}
+                    if meal_type not in days_meals[day]:
+                        days_meals[day][meal_type] = []
+                    days_meals[day][meal_type].append(meal['name'])
+
+                meals_context = "7-Day Meal Plan:\n"
+                for day in range(1, 8):
+                    if day in days_meals:
+                        meals_context += f"Day {day}:\n"
+                        for meal_type, meal_names in days_meals[day].items():
+                            meals_context += f"  {meal_type}: {', '.join(meal_names)}\n"
+                        meals_context += "\n"
+            else:
+                # Single day meal list (existing logic)
+                meals_context = "\n".join([f"- {meal['name']}" for meal in meals])
 
             prompt = f"""
             Based on these recommended meals and the user's profile, generate a comprehensive shopping list.
@@ -236,7 +853,7 @@ class AIAssistantMixin:
             - Excluded ingredients: {', '.join(profile.excluded_ingredients) if profile.excluded_ingredients else 'None'}
 
             Organize the shopping list by categories (Proteins, Vegetables, Grains, Dairy, Pantry, etc.).
-            For each category, list specific items with quantities that would be needed for 3-4 days of meal prep.
+            For each category, list specific items with quantities that would be needed for {'7 days' if is_multi_day_plan else '3-4 days'} of meal prep.
 
             Consider the user's budget and suggest cost-effective options where appropriate.
             Respect all dietary restrictions and preferences.
@@ -259,19 +876,9 @@ class AIAssistantMixin:
             if not response:
                 return None
 
-            # Try to parse JSON response
-            try:
-                json_match = re.search(r'\[.*\]', response, re.DOTALL)
-                if json_match:
-                    json_str = json_match.group()
-                    shopping_list = json.loads(json_str)
-                    return shopping_list
-                else:
-                    print("❌ Could not find JSON array in shopping list response")
-                    return None
-            except json.JSONDecodeError as e:
-                print(f"❌ Failed to parse shopping list response as JSON: {e}")
-                return None
+            # Use the improved JSON parsing method
+            shopping_list = self._parse_simple_json_response(response, "shopping list")
+            return shopping_list if isinstance(shopping_list, list) else None
 
         except Exception as e:
             print(f"❌ Error generating shopping list: {e}")

@@ -587,6 +587,60 @@ export const getLatestAIResponses = async (profileId, userId = null) => {
   return await apiRequest(`/ai-assistant/latest/${profileId}?${params.toString()}`);
 };
 
+// Separate step API functions for modular meal generation
+export const generateBasicMeals = async (profileId, userId = null) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required for generating basic meals');
+  }
+
+  const params = new URLSearchParams({ user_id: userId });
+  return await apiRequest(`/ai-assistant/generate-meals/${profileId}?${params.toString()}`, {
+    method: 'POST'
+  });
+};
+
+export const generateMealRecipes = async (profileId, mealsData, userId = null) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required for generating meal recipes');
+  }
+
+  const params = new URLSearchParams({ user_id: userId });
+  return await apiRequest(`/ai-assistant/generate-recipes/${profileId}?${params.toString()}`, {
+    method: 'POST',
+    body: JSON.stringify({ meals: mealsData })
+  });
+};
+
+export const generateMealShoppingList = async (profileId, mealsData, userId = null) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required for generating shopping list');
+  }
+
+  const params = new URLSearchParams({ user_id: userId });
+  return await apiRequest(`/ai-assistant/generate-shopping-list/${profileId}?${params.toString()}`, {
+    method: 'POST',
+    body: JSON.stringify({ meals: mealsData })
+  });
+};
+
 // Utility function to check if user is authenticated
 export const isAuthenticated = () => {
   const token = getAuthToken();

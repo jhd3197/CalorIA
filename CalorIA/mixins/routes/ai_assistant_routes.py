@@ -53,6 +53,113 @@ def get_meal_recommendations(profile_id):
     except Exception as e:
         return jsonify({"error": f"Failed to get meal recommendations: {str(e)}"}), 500
 
+@ai_assistant_bp.route('/api/ai-assistant/generate-meals/<profile_id>', methods=['POST'])
+def generate_meals(profile_id):
+    """Generate basic meal structure for a profile."""
+    try:
+        # Parse UUID from string
+        try:
+            profile_id = UUID(profile_id)
+        except ValueError:
+            return jsonify({"error": "Invalid profile ID format"}), 400
+
+        # Get user_id from query parameters
+        user_id_str = request.args.get('user_id')
+        if not user_id_str:
+            return jsonify({"error": "Missing required parameter: user_id"}), 400
+
+        try:
+            user_id = UUID(user_id_str)
+        except ValueError:
+            return jsonify({"error": "Invalid user ID format"}), 400
+
+        # Get meal recommendations (basic structure only)
+        result = client.generate_basic_meals(profile_id, user_id)
+
+        if result is None:
+            return jsonify({"error": "Failed to generate basic meals"}), 500
+
+        return jsonify(result), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to generate basic meals: {str(e)}"}), 500
+
+@ai_assistant_bp.route('/api/ai-assistant/generate-recipes/<profile_id>', methods=['POST'])
+def generate_recipes(profile_id):
+    """Generate detailed recipes for existing meals."""
+    try:
+        # Parse UUID from string
+        try:
+            profile_id = UUID(profile_id)
+        except ValueError:
+            return jsonify({"error": "Invalid profile ID format"}), 400
+
+        # Get user_id from query parameters
+        user_id_str = request.args.get('user_id')
+        if not user_id_str:
+            return jsonify({"error": "Missing required parameter: user_id"}), 400
+
+        try:
+            user_id = UUID(user_id_str)
+        except ValueError:
+            return jsonify({"error": "Invalid user ID format"}), 400
+
+        # Get meals data from request body
+        data = request.get_json()
+        if not data or 'meals' not in data:
+            return jsonify({"error": "Missing meals data in request body"}), 400
+
+        meals_data = data['meals']
+
+        # Generate recipes for meals
+        result = client.generate_recipes_for_meals(profile_id, user_id, meals_data)
+
+        if result is None:
+            return jsonify({"error": "Failed to generate recipes"}), 500
+
+        return jsonify(result), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to generate recipes: {str(e)}"}), 500
+
+@ai_assistant_bp.route('/api/ai-assistant/generate-shopping-list/<profile_id>', methods=['POST'])
+def generate_shopping_list(profile_id):
+    """Generate shopping list for existing meals."""
+    try:
+        # Parse UUID from string
+        try:
+            profile_id = UUID(profile_id)
+        except ValueError:
+            return jsonify({"error": "Invalid profile ID format"}), 400
+
+        # Get user_id from query parameters
+        user_id_str = request.args.get('user_id')
+        if not user_id_str:
+            return jsonify({"error": "Missing required parameter: user_id"}), 400
+
+        try:
+            user_id = UUID(user_id_str)
+        except ValueError:
+            return jsonify({"error": "Invalid user ID format"}), 400
+
+        # Get meals data from request body
+        data = request.get_json()
+        if not data or 'meals' not in data:
+            return jsonify({"error": "Missing meals data in request body"}), 400
+
+        meals_data = data['meals']
+
+        # Generate shopping list
+        result = client.generate_shopping_list_for_meals(profile_id, user_id, meals_data)
+
+        if result is None:
+            return jsonify({"error": "Failed to generate shopping list"}), 500
+
+        return jsonify(result), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to generate shopping list: {str(e)}"}), 500
+
 @ai_assistant_bp.route('/api/ai-assistant/shopping-list/<profile_id>', methods=['POST'])
 def get_shopping_list(profile_id):
     """Get AI-generated shopping list for a specific profile."""
