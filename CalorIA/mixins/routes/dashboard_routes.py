@@ -4,6 +4,7 @@ from datetime import date
 from werkzeug.local import LocalProxy
 import sys
 import os
+import math
 
 # Add the parent directory to the Python path to import CalorIA modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -55,7 +56,10 @@ def get_dashboard_data(user_id):
             "consumed": 0,
             "burned": 0,
             "weight": 0,
+            "weightKg": 0,  # Store original kg value for BMI calculation
+            "bmi": 0,
             "water": 0,
+            "measurementSystem": "metric",  # Default to metric
             "macros": {
                 "protein": {"grams": 0, "percent": 0},
                 "carbs": {"grams": 0, "percent": 0},
@@ -86,10 +90,15 @@ def get_dashboard_data(user_id):
             }
         }
         
-        # 1. Get user data for daily goal
+        # 1. Get user data for daily goal and preferences
         user = client.get_user_by_id(user_id)
-        if user and hasattr(user, 'daily_calorie_goal'):
-            dashboard_data["dailyGoal"] = user.daily_calorie_goal
+        if user:
+            if hasattr(user, 'daily_calorie_goal'):
+                dashboard_data["dailyGoal"] = user.daily_calorie_goal
+
+            # Get measurement system preference
+            if hasattr(user, 'preferences') and user.preferences:
+                dashboard_data["measurementSystem"] = getattr(user.preferences, 'measurement_system', 'metric')
         
         # 2. Get nutritional summary for consumed calories and macros
         nutritional_summary = client.get_user_nutritional_summary(user_id, query_date)
@@ -136,10 +145,25 @@ def get_dashboard_data(user_id):
         burned_calories = client.get_user_daily_activity(user_id, query_date)
         dashboard_data["burned"] = burned_calories
         
-        # 4. Get latest weight entry
+        # 4. Get latest weight entry and calculate BMI
         weight_entry = client.get_latest_weight_entry(user_id)
         if weight_entry:
-            dashboard_data["weight"] = weight_entry.weight_kg
+            weight_kg = weight_entry.weight_kg
+            dashboard_data["weightKg"] = weight_kg
+
+            # Convert weight based on measurement system preference
+            if dashboard_data["measurementSystem"] == "imperial":
+                # Convert kg to lbs (1 kg = 2.20462 lbs)
+                dashboard_data["weight"] = round(weight_kg * 2.20462, 1)
+            else:
+                dashboard_data["weight"] = round(weight_kg, 1)
+
+            # Calculate BMI if we have height
+            if user and hasattr(user, 'preferences') and user.preferences and hasattr(user.preferences, 'height') and user.preferences.height:
+                height_m = user.preferences.height / 100  # Convert cm to meters
+                if height_m > 0:
+                    bmi = weight_kg / (height_m ** 2)
+                    dashboard_data["bmi"] = round(bmi, 1)
         
         # 5. Get water intake
         water_log = client.get_user_daily_water_log(user_id, query_date)

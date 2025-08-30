@@ -9,6 +9,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Dark mode styles */
+.dark body {
+  color: #F1F5F9;
+  background-color: #0F172A;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
@@ -36,6 +42,10 @@ code {
   background-color: #f8fafc;
 }
 
+.dark .app-container {
+  background-color: #0F172A;
+}
+
 .main-layout {
   display: flex;
   height: 100vh;
@@ -53,6 +63,11 @@ code {
   transition: width 0.3s ease;
 }
 
+.dark .sidebar {
+  background-color: #1E293B;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
 .sidebar.collapsed {
   width: 4rem; /* 64px */
 }
@@ -60,6 +75,10 @@ code {
 .sidebar-header {
   padding: 1rem;
   border-bottom: 1px solid #f3f4f6;
+}
+
+.dark .sidebar-header {
+  border-bottom: 1px solid #334155;
 }
 
 .sidebar-logo {
@@ -85,6 +104,10 @@ code {
   color: #059669;
 }
 
+.dark .logo-text {
+  color: #10b981;
+}
+
 .sidebar.collapsed .logo-text {
   display: none;
 }
@@ -107,9 +130,18 @@ code {
   background-color: #f9fafb;
 }
 
+.dark .nav-item:hover {
+  background-color: #334155;
+}
+
 .nav-item.active {
   background-color: #ecfdf5;
   color: #059669;
+}
+
+.dark .nav-item.active {
+  background-color: #0f5132;
+  color: #10b981;
 }
 
 .nav-link {
@@ -122,8 +154,16 @@ code {
   transition: color 0.2s;
 }
 
+.dark .nav-link {
+  color: #cbd5e1;
+}
+
 .nav-item.active .nav-link {
   color: #059669;
+}
+
+.dark .nav-item.active .nav-link {
+  color: #10b981;
 }
 
 .nav-icon {
@@ -149,6 +189,10 @@ code {
   border-top: 1px solid #f3f4f6;
 }
 
+.dark .sidebar-toggle {
+  border-top: 1px solid #334155;
+}
+
 .toggle-button {
   width: 100%;
   display: flex;
@@ -160,8 +204,16 @@ code {
   cursor: pointer;
 }
 
+.dark .toggle-button {
+  color: #cbd5e1;
+}
+
 .toggle-button:hover {
   color: #374151;
+}
+
+.dark .toggle-button:hover {
+  color: #f1f5f9;
 }
 
 /* Main Content */
@@ -180,6 +232,11 @@ code {
 .header {
   background-color: white;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.dark .header {
+  background-color: #1E293B;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
 }
 
 .header-content {
@@ -213,6 +270,17 @@ code {
 .date-input:focus {
   border-color: #10b981;
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Date input calendar icon styling */
+.date-input::-webkit-calendar-picker-indicator {
+  filter: invert(0);
+  opacity: 0.8;
+}
+
+.dark .date-input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.8;
 }
 
 .header-right {
@@ -297,6 +365,11 @@ code {
   padding: 1.5rem;
 }
 
+.dark .card {
+  background-color: #1E293B;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+}
+
 .card-header {
   display: flex;
   align-items: center;
@@ -329,6 +402,11 @@ code {
   border-radius: 0.5rem;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   padding: 1rem;
+}
+
+.dark .stat-card {
+  background-color: #1E293B;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
 }
 
 .stat-content {

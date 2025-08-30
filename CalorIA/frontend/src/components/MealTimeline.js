@@ -97,14 +97,14 @@ useEffect(() => {
             {safeItems.length > 0 ? safeItems.map((item) => {
               const ItemIcon = item.icon || Sandwich;
               return (
-                <div key={item.id} className="food-item flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={item.id} className="food-item flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700 rounded-lg">
                   <div className="flex items-center">
                     <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center mr-3">
                       <ItemIcon className="w-4 h-4 text-emerald-600" />
                     </div>
                     <div>
-                      <p className="font-medium">{item.name}</p>
-                      <p className="text-sm text-gray-500">{item.portion}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{item.name}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{item.portion}</p>
                     </div>
                   </div>
                   <div className="flex items-center">
@@ -121,7 +121,7 @@ useEffect(() => {
                 </div>
               );
             }) : (
-              <div className="text-center text-gray-500 py-4">
+              <div className="text-center text-gray-500 dark:text-gray-400 py-4">
                 <p>No items added yet</p>
               </div>
             )}
@@ -132,11 +132,11 @@ useEffect(() => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow">
       <div className="p-6 pb-4">
-        <h2 className="heading text-lg font-semibold mb-4">Meal Timeline</h2>
+        <h2 className="heading text-lg font-semibold mb-4 text-gray-900 dark:text-white">Meal Timeline</h2>
       </div>
-      <div className="divide-y divide-gray-100">
+      <div className="divide-y divide-gray-100 dark:divide-slate-600">
         <MealSection mealType="breakfast" mealData={meals?.breakfast || {}} title="Breakfast" />
         <MealSection mealType="lunch" mealData={meals?.lunch || {}} title="Lunch" />
         <MealSection mealType="dinner" mealData={meals?.dinner || {}} title="Dinner" />

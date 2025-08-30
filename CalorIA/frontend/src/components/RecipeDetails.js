@@ -658,14 +658,14 @@ const RecipeDetails = () => {
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={() => navigate('/recipes')}
-          className="flex items-center text-gray-600 hover:text-gray-800"
+          className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white"
         >
           <ArrowLeft className="w-5 h-5 mr-2" />
           Back to Recipes
         </button>
         <button
           onClick={handleEditToggle}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+          className="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 flex items-center"
         >
           <Edit className="w-4 h-4 mr-2" />
           {isEditing ? 'Cancel Edit' : 'Edit Recipe'}
@@ -673,12 +673,12 @@ const RecipeDetails = () => {
       </div>
 
       {/* Recipe Header */}
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 mb-6">
         <div className="flex flex-col md:flex-row gap-6">
           {/* Recipe Image */}
           <div className="w-full md:w-1/3">
-            <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-              <ChefHat className="w-16 h-16 text-gray-400" />
+            <div className="w-full h-64 bg-gray-100 dark:bg-slate-700 rounded-lg flex items-center justify-center">
+              <ChefHat className="w-16 h-16 text-gray-400 dark:text-slate-500" />
             </div>
           </div>
 
@@ -689,31 +689,31 @@ const RecipeDetails = () => {
                 type="text"
                 value={editedRecipe.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
-                className="text-3xl font-bold mb-2 w-full border border-gray-300 rounded px-3 py-2"
+                className="text-3xl font-bold mb-2 w-full border border-gray-300 dark:border-slate-600 rounded px-3 py-2 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
               />
             ) : (
-              <h1 className="text-3xl font-bold mb-2">{recipe.name}</h1>
+              <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">{recipe.name}</h1>
             )}
 
             <div className="flex items-center gap-4 mb-4">
               <span className={`px-3 py-1 text-sm rounded-full ${getDifficultyColor(recipe.difficulty)}`}>
                 {recipe.difficulty}
               </span>
-              <div className="flex items-center text-gray-600">
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <Clock className="w-4 h-4 mr-1" />
                 <span>{recipe.prep_time_minutes + (recipe.cook_time_minutes || 0)} min</span>
               </div>
-              <div className="flex items-center text-gray-600">
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <Users className="w-4 h-4 mr-1" />
                 <span>{recipe.servings} servings</span>
               </div>
-              <div className="flex items-center text-gray-600">
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <Star className="w-4 h-4 mr-1 text-yellow-500" />
                 <span>4.5</span>
               </div>
             </div>
 
-            <div className="text-2xl font-bold text-emerald-600 mb-4">
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-4">
               {recipe.calories_per_serving_stored && recipe.calories_per_serving_stored > 0
                 ? `${Math.round(recipe.calories_per_serving_stored || 0)} kcal/serving`
                 : 'Nutrition info pending'
@@ -728,13 +728,13 @@ const RecipeDetails = () => {
                   const tagId = typeof tag === 'object' && tag.id ? tag.id : tag;
                   const tagDisplay = availableTags.find(t => (t.id || t.slug) === tagId)?.name || tagId;
                   return (
-                    <span key={index} className="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-full">
+                    <span key={index} className="px-3 py-1 text-sm bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded-full">
                       {tagDisplay}
                     </span>
                   );
                 })
               ) : (
-                <span className="text-sm text-gray-500">No tags</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">No tags</span>
               )}
             </div>
           </div>
@@ -746,28 +746,28 @@ const RecipeDetails = () => {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Description */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Description</h2>
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Description</h2>
             {isEditing ? (
               <textarea
                 value={editedRecipe.description || ''}
                 onChange={(e) => handleInputChange('description', e.target.value)}
-                className="w-full border border-gray-300 rounded px-3 py-2 min-h-24"
+                className="w-full border border-gray-300 dark:border-slate-600 rounded px-3 py-2 min-h-24 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                 placeholder="Enter recipe description..."
               />
             ) : (
-              <p className="text-gray-700">{recipe.description || 'No description available.'}</p>
+              <p className="text-gray-700 dark:text-gray-300">{recipe.description || 'No description available.'}</p>
             )}
           </div>
 
           {/* Ingredients */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Ingredients</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Ingredients</h2>
               {isEditing && (
                 <button
                   onClick={() => setShowIngredientSearch(true)}
-                  className="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center text-sm"
+                  className="px-3 py-1 bg-green-600 dark:bg-green-700 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 flex items-center text-sm"
                 >
                   <Plus className="w-4 h-4 mr-1" />
                   Add Ingredient
@@ -778,25 +778,25 @@ const RecipeDetails = () => {
             {/* Ingredient Search Modal */}
             {showIngredientSearch && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg p-6 max-w-md mx-4 w-full">
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-md mx-4 w-full">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold">Add Ingredient</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add Ingredient</h3>
                     <button
                       onClick={() => setShowIngredientSearch(false)}
-                      className="text-gray-500 hover:text-gray-700"
+                      className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"
                     >
                       <X className="w-5 h-5" />
                     </button>
                   </div>
 
                   <div className="relative mb-4">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
                     <input
                       type="text"
                       placeholder="Search ingredients..."
                       value={ingredientSearch}
                       onChange={(e) => setIngredientSearch(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                     />
                   </div>
 
@@ -807,10 +807,10 @@ const RecipeDetails = () => {
                         <button
                           key={ingredient.id}
                           onClick={() => addNewIngredient(ingredient)}
-                          className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                          className="w-full text-left p-3 border border-gray-200 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors bg-white dark:bg-slate-800"
                         >
-                          <div className="font-medium">{ingredient.name}</div>
-                          <div className="text-sm text-gray-600">
+                          <div className="font-medium text-gray-900 dark:text-white">{ingredient.name}</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
                             {ingredient.kcal_per_100g} kcal, {ingredient.protein_per_100g}g protein per 100g
                           </div>
                         </button>
@@ -880,12 +880,12 @@ const RecipeDetails = () => {
             <div className="space-y-3">
               {isEditing ? (
                 editedRecipe.ingredients.map((ingredient, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded">
+                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded">
                     <input
                       type="number"
                       value={ingredient.amount || ''}
                       onChange={(e) => handleIngredientChange(index, 'amount', e.target.value)}
-                      className="w-20 border border-gray-300 rounded px-2 py-1"
+                      className="w-20 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 bg-white dark:bg-slate-600 text-gray-900 dark:text-white"
                       step="0.1"
                       placeholder="amount"
                     />
@@ -893,24 +893,24 @@ const RecipeDetails = () => {
                       type="text"
                       value={ingredient.unit || ''}
                       onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
-                      className="w-16 border border-gray-300 rounded px-2 py-1"
+                      className="w-16 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 bg-white dark:bg-slate-600 text-gray-900 dark:text-white"
                       placeholder="unit"
                     />
-                    <span className="text-gray-600">of</span>
+                    <span className="text-gray-600 dark:text-gray-400">of</span>
                     {getIngredientName(ingredient.ingredient_id) === null ? (
-                      <div className="flex-1 h-8 bg-gray-300 rounded animate-pulse"></div>
+                      <div className="flex-1 h-8 bg-gray-300 dark:bg-slate-600 rounded animate-pulse"></div>
                     ) : (
                       <input
                         type="text"
                         value={getIngredientName(ingredient.ingredient_id)}
                         onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
-                        className="flex-1 border border-gray-300 rounded px-2 py-1"
+                        className="flex-1 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 bg-white dark:bg-slate-600 text-gray-900 dark:text-white"
                         placeholder="ingredient name"
                       />
                     )}
                     <button
                       onClick={() => removeIngredient(index)}
-                      className="p-1 text-red-600 hover:text-red-800"
+                      className="p-1 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
                       title="Remove ingredient"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -923,9 +923,9 @@ const RecipeDetails = () => {
                   return ingredientName === null ? (
                     <IngredientSkeleton key={index} />
                   ) : (
-                    <div key={index} className="flex items-center p-3 bg-gray-50 rounded">
-                      <span className="font-medium mr-3">{ingredient.amount || 'N/A'} {ingredient.unit || 'unit'}</span>
-                      <span>{ingredientName}</span>
+                    <div key={index} className="flex items-center p-3 bg-gray-50 dark:bg-slate-700 rounded">
+                      <span className="font-medium mr-3 text-gray-900 dark:text-white">{ingredient.amount || 'N/A'} {ingredient.unit || 'unit'}</span>
+                      <span className="text-gray-900 dark:text-white">{ingredientName}</span>
                     </div>
                   );
                 })
@@ -934,13 +934,13 @@ const RecipeDetails = () => {
           </div>
 
           {/* Instructions */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Instructions</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Instructions</h2>
               {isEditing && (
                 <button
                   onClick={addNewInstruction}
-                  className="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center text-sm"
+                  className="px-3 py-1 bg-green-600 dark:bg-green-700 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 flex items-center text-sm"
                 >
                   <Plus className="w-4 h-4 mr-1" />
                   Add Step
@@ -953,16 +953,16 @@ const RecipeDetails = () => {
                   .filter(instruction => instruction.trim() !== '') // Remove empty instructions
                   .map((instruction, index) => (
                     <div key={index} className="flex gap-3">
-                      <span className="font-medium text-gray-600 min-w-8">{index + 1}.</span>
+                      <span className="font-medium text-gray-600 dark:text-gray-400 min-w-8">{index + 1}.</span>
                       <textarea
                         value={instruction}
                         onChange={(e) => handleInstructionChange(index, e.target.value)}
-                        className="flex-1 border border-gray-300 rounded px-3 py-2 min-h-20"
+                        className="flex-1 border border-gray-300 dark:border-slate-600 rounded px-3 py-2 min-h-20 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                         placeholder="Enter instruction..."
                       />
                       <button
                         onClick={() => removeInstruction(index)}
-                        className="p-1 text-red-600 hover:text-red-800 self-start mt-2"
+                        className="p-1 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 self-start mt-2"
                         title="Remove step"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -974,8 +974,8 @@ const RecipeDetails = () => {
                   .filter(instruction => instruction.trim() !== '') // Remove empty instructions
                   .map((instruction, index) => (
                     <div key={index} className="flex gap-3">
-                      <span className="font-medium text-gray-600 min-w-8">{index + 1}.</span>
-                      <p className="text-gray-700">{instruction}</p>
+                      <span className="font-medium text-gray-600 dark:text-gray-400 min-w-8">{index + 1}.</span>
+                      <p className="text-gray-700 dark:text-gray-300">{instruction}</p>
                     </div>
                   ))
               )}
@@ -986,52 +986,52 @@ const RecipeDetails = () => {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Quick Info */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold mb-4">Recipe Info</h3>
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Recipe Info</h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Prep Time:</span>
+                <span className="text-gray-600 dark:text-gray-400">Prep Time:</span>
                 {isEditing ? (
                   <div className="flex items-center">
                     <input
                       type="number"
                       value={editedRecipe.prep_time_minutes || 0}
                       onChange={(e) => handleInputChange('prep_time_minutes', parseInt(e.target.value) || 0)}
-                      className="w-16 px-2 py-1 border border-gray-300 rounded text-sm text-right"
+                      className="w-16 px-2 py-1 border border-gray-300 dark:border-slate-600 rounded text-sm text-right bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                       min="0"
                     />
-                    <span className="ml-1 text-sm text-gray-600">min</span>
+                    <span className="ml-1 text-sm text-gray-600 dark:text-gray-400">min</span>
                   </div>
                 ) : (
-                  <span className="font-medium">{recipe.prep_time_minutes} min</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{recipe.prep_time_minutes} min</span>
                 )}
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Cook Time:</span>
+                <span className="text-gray-600 dark:text-gray-400">Cook Time:</span>
                 {isEditing ? (
                   <div className="flex items-center">
                     <input
                       type="number"
                       value={editedRecipe.cook_time_minutes || 0}
                       onChange={(e) => handleInputChange('cook_time_minutes', parseInt(e.target.value) || 0)}
-                      className="w-16 px-2 py-1 border border-gray-300 rounded text-sm text-right"
+                      className="w-16 px-2 py-1 border border-gray-300 dark:border-slate-600 rounded text-sm text-right bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                       min="0"
                     />
-                    <span className="ml-1 text-sm text-gray-600">min</span>
+                    <span className="ml-1 text-sm text-gray-600 dark:text-gray-400">min</span>
                   </div>
                 ) : (
-                  <span className="font-medium">{recipe.cook_time_minutes || 0} min</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{recipe.cook_time_minutes || 0} min</span>
                 )}
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Total Time:</span>
-                <span className="font-medium">
+                <span className="text-gray-600 dark:text-gray-400">Total Time:</span>
+                <span className="font-medium text-gray-900 dark:text-white">
                   {(editedRecipe?.prep_time_minutes || recipe.prep_time_minutes) +
                    (editedRecipe?.cook_time_minutes || recipe.cook_time_minutes || 0)} min
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Servings:</span>
+                <span className="text-gray-600 dark:text-gray-400">Servings:</span>
                 {isEditing ? (
                   <div className="flex items-center">
                     <input
@@ -1049,62 +1049,62 @@ const RecipeDetails = () => {
                           ...nutrition
                         }));
                       }}
-                      className="w-16 px-2 py-1 border border-gray-300 rounded text-sm text-right"
+                      className="w-16 px-2 py-1 border border-gray-300 dark:border-slate-600 rounded text-sm text-right bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                       min="1"
                     />
-                    <span className="ml-1 text-sm text-gray-600">servings</span>
+                    <span className="ml-1 text-sm text-gray-600 dark:text-gray-400">servings</span>
                   </div>
                 ) : (
-                  <span className="font-medium">{recipe.servings}</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{recipe.servings}</span>
                 )}
               </div>
               <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Category:</span>
-                  {isEditing ? (
-                    <select
-                      value={editedRecipe.category_id || editedRecipe.category || ''}
-                      onChange={(e) => handleInputChange('category_id', e.target.value)}
-                      className="px-2 py-1 border border-gray-300 rounded text-sm"
-                      disabled={loadingCategories}
-                    >
-                      <option value="">
-                        {loadingCategories ? 'Loading categories...' : 'Select category'}
+                <span className="text-gray-600 dark:text-gray-400">Category:</span>
+                {isEditing ? (
+                  <select
+                    value={editedRecipe.category_id || editedRecipe.category || ''}
+                    onChange={(e) => handleInputChange('category_id', e.target.value)}
+                    className="px-2 py-1 border border-gray-300 dark:border-slate-600 rounded text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
+                    disabled={loadingCategories}
+                  >
+                    <option value="">
+                      {loadingCategories ? 'Loading categories...' : 'Select category'}
+                    </option>
+                    {availableCategories.map((category) => (
+                      <option key={category.id || category.slug} value={category.id || category.slug}>
+                        {category.name}
                       </option>
-                      {availableCategories.map((category) => (
-                        <option key={category.id || category.slug} value={category.id || category.slug}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <span className="font-medium capitalize">
-                      {recipe.category_id || recipe.category ? (
-                        availableCategories.find(cat => (cat.id || cat.slug) === (recipe.category_id || recipe.category))?.name ||
-                        (recipe.category_id || recipe.category)
-                      ) : (
-                        'No category'
-                      )}
-                    </span>
-                  )}
-                </div>
+                    ))}
+                  </select>
+                ) : (
+                  <span className="font-medium capitalize text-gray-900 dark:text-white">
+                    {recipe.category_id || recipe.category ? (
+                      availableCategories.find(cat => (cat.id || cat.slug) === (recipe.category_id || recipe.category))?.name ||
+                      (recipe.category_id || recipe.category)
+                    ) : (
+                      'No category'
+                    )}
+                  </span>
+                )}
+              </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Difficulty:</span>
+                <span className="text-gray-600 dark:text-gray-400">Difficulty:</span>
                 {isEditing ? (
                   <select
                     value={editedRecipe.difficulty || 'medium'}
                     onChange={(e) => handleInputChange('difficulty', e.target.value)}
-                    className="px-2 py-1 border border-gray-300 rounded text-sm"
+                    className="px-2 py-1 border border-gray-300 dark:border-slate-600 rounded text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                   >
                     <option value="easy">Easy</option>
                     <option value="medium">Medium</option>
                     <option value="hard">Hard</option>
                   </select>
                 ) : (
-                  <span className="font-medium capitalize">{recipe.difficulty}</span>
+                  <span className="font-medium capitalize text-gray-900 dark:text-white">{recipe.difficulty}</span>
                 )}
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Rating:</span>
+                <span className="text-gray-600 dark:text-gray-400">Rating:</span>
                 {isEditing ? (
                   <div className="flex items-center">
                     <input
@@ -1114,14 +1114,14 @@ const RecipeDetails = () => {
                       step="0.1"
                       value={editedRecipe.rating || 4.5}
                       onChange={(e) => handleInputChange('rating', parseFloat(e.target.value) || 0)}
-                      className="w-16 px-2 py-1 border border-gray-300 rounded text-sm text-right"
+                      className="w-16 px-2 py-1 border border-gray-300 dark:border-slate-600 rounded text-sm text-right bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                     />
-                    <span className="ml-1 text-sm text-gray-600">/5</span>
+                    <span className="ml-1 text-sm text-gray-600 dark:text-gray-400">/5</span>
                   </div>
                 ) : (
                   <div className="flex items-center">
                     <Star className="w-4 h-4 mr-1 text-yellow-500" />
-                    <span className="font-medium">{recipe.rating || 4.5}</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{recipe.rating || 4.5}</span>
                   </div>
                 )}
               </div>
@@ -1129,13 +1129,13 @@ const RecipeDetails = () => {
           </div>
 
           {/* Tags Section */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Tags</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Tags</h3>
               {isEditing && (
                 <button
                   onClick={addNewTag}
-                  className="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center text-sm"
+                  className="px-3 py-1 bg-green-600 dark:bg-green-700 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 flex items-center text-sm"
                 >
                   <Plus className="w-4 h-4 mr-1" />
                   Add Tag
@@ -1150,18 +1150,18 @@ const RecipeDetails = () => {
                     const tagId = typeof tag === 'object' && tag.id ? tag.id : tag;
                     const tagDisplay = availableTags.find(t => (t.id || t.slug) === tagId)?.name || tagId;
                     return (
-                      <div key={index} className="flex items-center bg-gray-100 rounded-lg px-3 py-1">
+                      <div key={index} className="flex items-center bg-gray-100 dark:bg-slate-700 rounded-lg px-3 py-1">
                         <button
                           type="button"
                           onClick={() => editTag(index)}
-                          className="bg-transparent border-none outline-none text-sm flex-1 min-w-20 text-left cursor-pointer hover:bg-gray-200 rounded px-1"
+                          className="bg-transparent border-none outline-none text-sm flex-1 min-w-20 text-left cursor-pointer hover:bg-gray-200 dark:hover:bg-slate-600 rounded px-1 text-gray-900 dark:text-white"
                           title="Click to edit tag"
                         >
                           {tagDisplay}
                         </button>
                         <button
                           onClick={() => removeTag(index)}
-                          className="ml-2 text-red-600 hover:text-red-800"
+                          className="ml-2 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
                           title="Remove tag"
                         >
                           <X className="w-3 h-3" />
@@ -1186,7 +1186,7 @@ const RecipeDetails = () => {
                       }
                       e.target.value = ''; // Reset dropdown
                     }}
-                    className="px-2 py-1 border border-gray-300 rounded text-sm bg-white"
+                    className="px-2 py-1 border border-gray-300 dark:border-slate-600 rounded text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                     disabled={loadingTags}
                   >
                     <option value="">
@@ -1210,80 +1210,80 @@ const RecipeDetails = () => {
                     const tagId = typeof tag === 'object' && tag.id ? tag.id : tag;
                     const tagDisplay = availableTags.find(t => (t.id || t.slug) === tagId)?.name || tagId;
                     return (
-                      <span key={index} className="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-full">
+                      <span key={index} className="px-3 py-1 text-sm bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded-full">
                         {tagDisplay}
                       </span>
                     );
                   })
                 ) : (
-                  <span className="text-sm text-gray-500">No tags</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">No tags</span>
                 )
               )}
             </div>
 
             {((!recipe.tag_ids || recipe.tag_ids.length === 0) && (!recipe.tags || recipe.tags.length === 0)) && !isEditing && (
-              <p className="text-sm text-gray-500 mt-2">No tags added yet.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">No tags added yet.</p>
             )}
           </div>
 
           {/* Nutrition Info */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold mb-4">Nutrition (per serving)</h3>
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Nutrition (per serving)</h3>
 
             {/* Check if we have stored nutrition data */}
             {(recipe?.calories_per_serving_stored || editedRecipe?.calories_per_serving_stored || calculatedNutrition?.calories_per_serving) ? (
               <>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Calories:</span>
-                    <span className="font-medium">
+                    <span className="text-gray-600 dark:text-gray-400">Calories:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">
                       {Math.round(calculatedNutrition?.calories_per_serving ||
-                       editedRecipe?.calories_per_serving_stored ||
-                       recipe?.calories_per_serving_stored || 0)} kcal
+                        editedRecipe?.calories_per_serving_stored ||
+                        recipe?.calories_per_serving_stored || 0)} kcal
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Protein:</span>
-                    <span className="font-medium">
+                    <span className="text-gray-600 dark:text-gray-400">Protein:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">
                       {calculatedNutrition?.protein_per_serving ||
-                       editedRecipe?.protein_per_serving_stored ||
-                       recipe?.protein_per_serving_stored}g
+                        editedRecipe?.protein_per_serving_stored ||
+                        recipe?.protein_per_serving_stored}g
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Carbs:</span>
-                    <span className="font-medium">
+                    <span className="text-gray-600 dark:text-gray-400">Carbs:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">
                       {calculatedNutrition?.carbs_per_serving ||
-                       editedRecipe?.carbs_per_serving_stored ||
-                       recipe?.carbs_per_serving_stored}g
+                        editedRecipe?.carbs_per_serving_stored ||
+                        recipe?.carbs_per_serving_stored}g
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Fat:</span>
-                    <span className="font-medium">
+                    <span className="text-gray-600 dark:text-gray-400">Fat:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">
                       {calculatedNutrition?.fat_per_serving ||
-                       editedRecipe?.fat_per_serving_stored ||
-                       recipe?.fat_per_serving_stored}g
+                        editedRecipe?.fat_per_serving_stored ||
+                        recipe?.fat_per_serving_stored}g
                     </span>
                   </div>
                 </div>
 
                 {/* Total nutrition for entire recipe */}
                 {(calculatedNutrition?.total_calories || editedRecipe?.total_calories_stored || recipe?.total_calories_stored) && (
-                  <div className="mt-4 pt-4 border-t border-gray-200">
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Total for entire recipe:</h4>
-                    <div className="text-sm text-gray-600">
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-600">
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Total for entire recipe:</h4>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
                       {Math.round(calculatedNutrition?.total_calories ||
-                       editedRecipe?.total_calories_stored ||
-                       recipe?.total_calories_stored || 0)} kcal total
+                        editedRecipe?.total_calories_stored ||
+                        recipe?.total_calories_stored || 0)} kcal total
                     </div>
                   </div>
                 )}
 
                 {/* Show loading note only if we're actively calculating and have no stored data */}
                 {loadingNutrition && !recipe?.calories_per_serving_stored && (
-                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-blue-600">
+                  <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <p className="text-sm text-blue-600 dark:text-blue-400">
                       <strong>Loading:</strong> Calculating nutrition based on ingredient data...
                     </p>
                   </div>
@@ -1292,8 +1292,8 @@ const RecipeDetails = () => {
             ) : loadingNutrition ? (
               <NutritionSkeleton />
             ) : (
-              <div className="mt-4 p-3 bg-yellow-50 rounded-lg">
-                <p className="text-sm text-yellow-600">
+              <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                <p className="text-sm text-yellow-600 dark:text-yellow-400">
                   <strong>Note:</strong> Nutrition information will be calculated automatically once ingredient details are loaded.
                 </p>
               </div>
@@ -1307,21 +1307,21 @@ const RecipeDetails = () => {
         <div className="fixed bottom-6 right-6 flex gap-3">
           <button
             onClick={() => setDeleteConfirm(true)}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center"
+            className="px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-lg hover:bg-red-700 dark:hover:bg-red-600 flex items-center"
           >
             <Trash2 className="w-4 h-4 mr-2" />
             Delete Recipe
           </button>
           <button
             onClick={handleCancelEdit}
-            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center"
+            className="px-4 py-2 bg-gray-600 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-700 dark:hover:bg-gray-600 flex items-center"
           >
             <X className="w-4 h-4 mr-2" />
             Cancel
           </button>
           <button
             onClick={handleSaveChanges}
-            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center"
+            className="px-4 py-2 bg-emerald-600 dark:bg-emerald-700 text-white rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 flex items-center"
           >
             <Save className="w-4 h-4 mr-2" />
             Save Changes
@@ -1332,24 +1332,24 @@ const RecipeDetails = () => {
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-sm mx-4">
             <div className="flex items-center mb-4">
-              <Trash2 className="w-6 h-6 text-red-600 mr-2" />
-              <h3 className="text-lg font-semibold">Delete Recipe</h3>
+              <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Delete Recipe</h3>
             </div>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               Are you sure you want to delete "{recipe?.name}"? This action cannot be undone.
             </p>
             <div className="flex justify-end space-x-2">
               <button
                 onClick={() => setDeleteConfirm(false)}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteRecipe}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-lg hover:bg-red-700 dark:hover:bg-red-600"
               >
                 Delete Recipe
               </button>

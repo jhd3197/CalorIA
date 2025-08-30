@@ -34,7 +34,7 @@ const Sidebar = ({ collapsed, onToggle, currentPath }) => {
       <div className="sidebar-header">
         <div className="sidebar-logo">
           <div className="logo-icon">C</div>
-          <span className="logo-text">CalorieTracker</span>
+          <span className="logo-text">CalorIA</span>
         </div>
       </div>
       

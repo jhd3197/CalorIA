@@ -454,8 +454,8 @@ const Ingredients = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading ingredients...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 dark:border-emerald-400 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">Loading ingredients...</p>
         </div>
       </div>
     );
@@ -465,47 +465,47 @@ const Ingredients = () => {
     <>
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4">
           <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center mr-3">
-              <Package className="w-5 h-5 text-emerald-600" />
+            <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center mr-3">
+              <Package className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Total Ingredients</p>
-              <p className="font-semibold">{totalIngredients > 0 ? totalIngredients : ingredients.length} items</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Ingredients</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{totalIngredients > 0 ? totalIngredients : ingredients.length} items</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4">
           <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-              <Lock className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mr-3">
+              <Lock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">System Ingredients</p>
-              <p className="font-semibold">{systemIngredients.length} items</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">System Ingredients</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{systemIngredients.length} items</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4">
           <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mr-3">
-              <User className="w-5 h-5 text-amber-600" />
+            <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900 flex items-center justify-center mr-3">
+              <User className="w-5 h-5 text-amber-600 dark:text-amber-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">User Ingredients</p>
-              <p className="font-semibold">{userIngredients.length} items</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">User Ingredients</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{userIngredients.length} items</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4">
           <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
-              <Package className="w-5 h-5 text-purple-600" />
+            <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center mr-3">
+              <Package className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Categories</p>
-              <p className="font-semibold">{new Set(ingredients.map(i => i.category)).size} types</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Categories</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{new Set(ingredients.map(i => i.category)).size} types</p>
             </div>
           </div>
         </div>
@@ -513,13 +513,13 @@ const Ingredients = () => {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
           <div className="flex items-center">
-            <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
-            <span className="text-red-700">{error}</span>
-            <button 
+            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" />
+            <span className="text-red-700 dark:text-red-300">{error}</span>
+            <button
               onClick={() => setError(null)}
-              className="ml-auto text-red-600 hover:text-red-800"
+              className="ml-auto text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
             >
               <X className="w-4 h-4" />
             </button>
@@ -528,26 +528,26 @@ const Ingredients = () => {
       )}
 
       {/* Search and Add Section */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 mb-6">
         <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
           <div className="flex flex-col md:flex-row gap-4 flex-1">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
               <input
                 ref={searchInputRef}
                 type="text"
                 placeholder="Search ingredients by name or category..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="pl-9 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white min-w-[180px]"
+                className="pl-9 pr-8 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white min-w-[180px]"
               >
                 <option value="all">All Categories</option>
                 {availableCategories.map(category => (
@@ -556,11 +556,11 @@ const Ingredients = () => {
               </select>
             </div>
             <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                className="pl-9 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white min-w-[180px]"
+                className="pl-9 pr-8 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white min-w-[180px]"
               >
                 <option value="all">All Ingredients</option>
                 <option value="system">System Only</option>
@@ -570,7 +570,7 @@ const Ingredients = () => {
           </div>
           <button
             onClick={() => setShowAddForm(true)}
-            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center whitespace-nowrap"
+            className="px-4 py-2 bg-emerald-600 dark:bg-emerald-700 text-white rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 flex items-center whitespace-nowrap"
           >
             <Plus className="w-4 h-4 mr-1" />
             Add New Ingredient
@@ -580,14 +580,14 @@ const Ingredients = () => {
 
       {/* Add/Edit Form */}
       {showAddForm && (
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               {editingId ? 'Edit Ingredient' : 'Add New Ingredient'}
             </h2>
-            <button 
+            <button
               onClick={resetForm}
-              className="text-gray-500 hover:text-gray-700"
+              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"
             >
               <X className="w-5 h-5" />
             </button>
@@ -595,30 +595,30 @@ const Ingredients = () => {
           
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Name *
               </label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  formErrors.name ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white ${
+                  formErrors.name ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-slate-600'
                 }`}
                 placeholder="Enter ingredient name"
               />
-              {formErrors.name && <p className="text-red-600 text-xs mt-1">{formErrors.name}</p>}
+              {formErrors.name && <p className="text-red-600 dark:text-red-400 text-xs mt-1">{formErrors.name}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Category *
               </label>
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({...formData, category: e.target.value})}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  formErrors.category ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white ${
+                  formErrors.category ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-slate-600'
                 }`}
               >
                 <option value="">Select category</option>
@@ -626,11 +626,11 @@ const Ingredients = () => {
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
-              {formErrors.category && <p className="text-red-600 text-xs mt-1">{formErrors.category}</p>}
+              {formErrors.category && <p className="text-red-600 dark:text-red-400 text-xs mt-1">{formErrors.category}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Calories per 100g *
               </label>
               <input
@@ -639,16 +639,16 @@ const Ingredients = () => {
                 min="0"
                 value={formData.kcal_per_100g}
                 onChange={(e) => setFormData({...formData, kcal_per_100g: e.target.value})}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  formErrors.kcal_per_100g ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white ${
+                  formErrors.kcal_per_100g ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-slate-600'
                 }`}
                 placeholder="0.0"
               />
-              {formErrors.kcal_per_100g && <p className="text-red-600 text-xs mt-1">{formErrors.kcal_per_100g}</p>}
+              {formErrors.kcal_per_100g && <p className="text-red-600 dark:text-red-400 text-xs mt-1">{formErrors.kcal_per_100g}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Protein per 100g *
               </label>
               <input
@@ -657,16 +657,16 @@ const Ingredients = () => {
                 min="0"
                 value={formData.protein_per_100g}
                 onChange={(e) => setFormData({...formData, protein_per_100g: e.target.value})}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  formErrors.protein_per_100g ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white ${
+                  formErrors.protein_per_100g ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-slate-600'
                 }`}
                 placeholder="0.0"
               />
-              {formErrors.protein_per_100g && <p className="text-red-600 text-xs mt-1">{formErrors.protein_per_100g}</p>}
+              {formErrors.protein_per_100g && <p className="text-red-600 dark:text-red-400 text-xs mt-1">{formErrors.protein_per_100g}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Fat per 100g *
               </label>
               <input
@@ -675,16 +675,16 @@ const Ingredients = () => {
                 min="0"
                 value={formData.fat_per_100g}
                 onChange={(e) => setFormData({...formData, fat_per_100g: e.target.value})}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  formErrors.fat_per_100g ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white ${
+                  formErrors.fat_per_100g ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-slate-600'
                 }`}
                 placeholder="0.0"
               />
-              {formErrors.fat_per_100g && <p className="text-red-600 text-xs mt-1">{formErrors.fat_per_100g}</p>}
+              {formErrors.fat_per_100g && <p className="text-red-600 dark:text-red-400 text-xs mt-1">{formErrors.fat_per_100g}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Carbs per 100g *
               </label>
               <input
@@ -693,26 +693,26 @@ const Ingredients = () => {
                 min="0"
                 value={formData.carbs_per_100g}
                 onChange={(e) => setFormData({...formData, carbs_per_100g: e.target.value})}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  formErrors.carbs_per_100g ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white ${
+                  formErrors.carbs_per_100g ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-slate-600'
                 }`}
                 placeholder="0.0"
               />
-              {formErrors.carbs_per_100g && <p className="text-red-600 text-xs mt-1">{formErrors.carbs_per_100g}</p>}
+              {formErrors.carbs_per_100g && <p className="text-red-600 dark:text-red-400 text-xs mt-1">{formErrors.carbs_per_100g}</p>}
             </div>
 
             <div className="md:col-span-2 flex justify-end space-x-2 pt-4">
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 flex items-center"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 flex items-center"
               >
                 <X className="w-4 h-4 mr-1" />
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center"
+                className="px-4 py-2 bg-emerald-600 dark:bg-emerald-700 text-white rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 flex items-center"
               >
                 <Save className="w-4 h-4 mr-1" />
                 {editingId ? 'Update' : 'Create'} Ingredient
@@ -723,28 +723,28 @@ const Ingredients = () => {
       )}
 
       {/* Ingredients Table */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
         <div className="overflow-x-auto">
           <table className="w-full table-auto">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-semibold">Name</th>
-                <th className="text-left py-3 px-4 font-semibold">Type</th>
-                <th className="text-left py-3 px-4 font-semibold">
+              <tr className="border-b border-gray-200 dark:border-slate-600">
+                <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Name</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Type</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">
                   <div className="flex items-center space-x-2">
                     <span>Category</span>
                     <div className="relative group">
-                      <Filter className="w-4 h-4 text-gray-400 hover:text-blue-600 cursor-pointer" />
-                      <div className="absolute top-full left-0 pt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 hidden group-hover:block min-w-[200px]">
+                      <Filter className="w-4 h-4 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer" />
+                      <div className="absolute top-full left-0 pt-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg shadow-lg z-10 hidden group-hover:block min-w-[200px]">
                         <div className="absolute inset-x-0 top-0 h-1 bg-transparent"></div>
-                        <div className="p-2 bg-white rounded-lg">
+                        <div className="p-2 bg-white dark:bg-slate-700 rounded-lg">
                           <button
                             onClick={() => {
                               setSelectedCategory('all');
                               setCurrentPage(1);
                             }}
-                            className={`block w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100 ${
-                              selectedCategory === 'all' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
+                            className={`block w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100 dark:hover:bg-slate-600 ${
+                              selectedCategory === 'all' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 font-semibold' : 'text-gray-700 dark:text-gray-300'
                             }`}
                           >
                             All Categories
@@ -756,8 +756,8 @@ const Ingredients = () => {
                                 setSelectedCategory(category);
                                 setCurrentPage(1);
                               }}
-                              className={`block w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100 ${
-                                selectedCategory === category ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
+                              className={`block w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100 dark:hover:bg-slate-600 ${
+                                selectedCategory === category ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 font-semibold' : 'text-gray-700 dark:text-gray-300'
                               }`}
                             >
                               {category}
@@ -768,29 +768,29 @@ const Ingredients = () => {
                     </div>
                   </div>
                 </th>
-                <th className="text-left py-3 px-4 font-semibold">Calories</th>
-                <th className="text-left py-3 px-4 font-semibold">Protein</th>
-                <th className="text-left py-3 px-4 font-semibold">Fat</th>
-                <th className="text-left py-3 px-4 font-semibold">Carbs</th>
-                <th className="text-left py-3 px-4 font-semibold">Actions</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Calories</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Protein</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Fat</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Carbs</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredIngredients.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="text-center py-8 text-gray-500">
+                  <td colSpan="8" className="text-center py-8 text-gray-500 dark:text-gray-400">
                     {searchTerm ? 'No ingredients found matching your search.' : 'No ingredients added yet.'}
                   </td>
                 </tr>
               ) : (
                 filteredIngredients.map((ingredient) => (
-                  <tr key={ingredient.id} className={`border-b border-gray-100 hover:bg-gray-50 ${
-                    ingredient.is_system ? 'bg-blue-50/30' : ''
+                  <tr key={ingredient.id} className={`border-b border-gray-100 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700 ${
+                    ingredient.is_system ? 'bg-blue-50/30 dark:bg-blue-900/20' : ''
                   }`}>
-                    <td className="py-3 px-4 font-medium">
+                    <td className="py-3 px-4 font-medium text-gray-900 dark:text-white">
                       <div className="flex items-center">
                         {ingredient.is_system && (
-                          <Lock className="w-4 h-4 text-blue-500 mr-2" title="System ingredient - cannot be modified" />
+                          <Lock className="w-4 h-4 text-blue-500 dark:text-blue-400 mr-2" title="System ingredient - cannot be modified" />
                         )}
                         {ingredient.name}
                       </div>
@@ -798,8 +798,8 @@ const Ingredients = () => {
                     <td className="py-3 px-4">
                       <span className={`px-2 py-1 text-xs rounded flex items-center w-fit ${
                         ingredient.is_system
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'bg-green-100 text-green-700'
+                          ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                          : 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
                       }`}>
                         {ingredient.is_system ? (
                           <>
@@ -820,16 +820,16 @@ const Ingredients = () => {
                           setSelectedCategory(ingredient.category);
                           setCurrentPage(1);
                         }}
-                        className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-blue-100 hover:text-blue-700 transition-colors cursor-pointer"
+                        className="px-2 py-1 text-xs bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer"
                         title={`Filter by ${ingredient.category}`}
                       >
                         {ingredient.category}
                       </button>
                     </td>
-                    <td className="py-3 px-4">{ingredient.kcal_per_100g}g</td>
-                    <td className="py-3 px-4">{ingredient.protein_per_100g}g</td>
-                    <td className="py-3 px-4">{ingredient.fat_per_100g}g</td>
-                    <td className="py-3 px-4">{ingredient.carbs_per_100g}g</td>
+                    <td className="py-3 px-4 text-gray-900 dark:text-white">{ingredient.kcal_per_100g}g</td>
+                    <td className="py-3 px-4 text-gray-900 dark:text-white">{ingredient.protein_per_100g}g</td>
+                    <td className="py-3 px-4 text-gray-900 dark:text-white">{ingredient.fat_per_100g}g</td>
+                    <td className="py-3 px-4 text-gray-900 dark:text-white">{ingredient.carbs_per_100g}g</td>
                     <td className="py-3 px-4">
                       <div className="flex space-x-2">
                         <button
@@ -837,8 +837,8 @@ const Ingredients = () => {
                           disabled={ingredient.is_system}
                           className={`p-1 rounded ${
                             ingredient.is_system
-                              ? 'text-gray-400 cursor-not-allowed'
-                              : 'text-blue-600 hover:text-blue-800 hover:bg-blue-100'
+                              ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                              : 'text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900'
                           }`}
                           title={ingredient.is_system ? 'System ingredients cannot be edited' : 'Edit ingredient'}
                         >
@@ -849,8 +849,8 @@ const Ingredients = () => {
                           disabled={ingredient.is_system}
                           className={`p-1 rounded ${
                             ingredient.is_system
-                              ? 'text-gray-400 cursor-not-allowed'
-                              : 'text-red-600 hover:text-red-800 hover:bg-red-100'
+                              ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                              : 'text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:bg-red-100 dark:hover:bg-red-900'
                           }`}
                           title={ingredient.is_system ? 'System ingredients cannot be deleted' : 'Delete ingredient'}
                         >
@@ -867,7 +867,7 @@ const Ingredients = () => {
 
         {/* Pagination Controls */}
         <div className="mt-6 flex items-center justify-between">
-          <div className="flex items-center text-sm text-gray-500">
+          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
             <span>Showing {itemsPerPage} items per page</span>
             {filteredIngredients.length > 0 && (
               <span className="ml-2">
@@ -876,32 +876,32 @@ const Ingredients = () => {
               </span>
             )}
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <button
               onClick={handlePreviousPage}
               disabled={currentPage === 1 || paginationLoading}
               className={`px-3 py-1 rounded-lg border flex items-center text-sm ${
                 currentPage === 1 || paginationLoading
-                  ? 'border-gray-300 text-gray-400 cursor-not-allowed'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                  ? 'border-gray-300 dark:border-slate-600 text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                  : 'border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700'
               }`}
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
               Previous
             </button>
-            
-            <div className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg">
+
+            <div className="px-3 py-1 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 rounded-lg">
               Page {currentPage}
             </div>
-            
+
             <button
               onClick={handleNextPage}
               disabled={!hasMore || paginationLoading}
               className={`px-3 py-1 rounded-lg border flex items-center text-sm ${
                 !hasMore || paginationLoading
-                  ? 'border-gray-300 text-gray-400 cursor-not-allowed'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                  ? 'border-gray-300 dark:border-slate-600 text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                  : 'border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700'
               }`}
             >
               Next
@@ -913,8 +913,8 @@ const Ingredients = () => {
         {/* Loading indicator for pagination */}
         {paginationLoading && (
           <div className="mt-4 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600"></div>
-            <span className="ml-2 text-sm text-gray-600">Loading more ingredients...</span>
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600 dark:border-emerald-400"></div>
+            <span className="ml-2 text-sm text-gray-600 dark:text-gray-300">Loading more ingredients...</span>
           </div>
         )}
       </div>
@@ -922,24 +922,24 @@ const Ingredients = () => {
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-sm mx-4">
             <div className="flex items-center mb-4">
-              <AlertCircle className="w-6 h-6 text-red-600 mr-2" />
-              <h3 className="text-lg font-semibold">Confirm Delete</h3>
+              <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Confirm Delete</h3>
             </div>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               Are you sure you want to delete this ingredient? This action cannot be undone.
             </p>
             <div className="flex justify-end space-x-2">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleDelete(deleteConfirm)}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-lg hover:bg-red-700 dark:hover:bg-red-600"
               >
                 Delete
               </button>

@@ -516,14 +516,14 @@ const MealPrepForm = () => {
       case 1:
         return (
           <div className="text-center py-12">
-            <h2 className="text-3xl font-bold mb-4">Ready to start your meal prep journey?</h2>
-            <p className="text-gray-600 mb-8">Let's create a personalized meal plan that fits your lifestyle and goals.</p>
+            <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">Ready to start your meal prep journey?</h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-8">Let's create a personalized meal plan that fits your lifestyle and goals.</p>
             <button
               onClick={() => {
                 updateFormData('started', true);
                 handleNext();
               }}
-              className="px-8 py-3 bg-emerald-600 text-white rounded-lg text-lg font-semibold hover:bg-emerald-700"
+              className="px-8 py-3 bg-emerald-600 dark:bg-emerald-700 text-white rounded-lg text-lg font-semibold hover:bg-emerald-700 dark:hover:bg-emerald-600"
             >
               Start
             </button>
@@ -533,13 +533,13 @@ const MealPrepForm = () => {
       case 2:
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-6">Goal & Profile</h2>
+            <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Goal & Profile</h2>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2">What's your main goal? *</label>
-                <div className={`grid grid-cols-2 gap-3 ${validationErrors.goal ? 'border border-red-300 rounded-lg p-2' : ''}`}>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">What's your main goal? *</label>
+                <div className={`grid grid-cols-2 gap-3 ${validationErrors.goal ? 'border border-red-300 dark:border-red-600 rounded-lg p-2' : ''}`}>
                   {['Lose', 'Maintain', 'Gain', 'Performance'].map(goal => (
-                    <label key={goal} className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <label key={goal} className="flex items-center p-3 border border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 bg-white dark:bg-slate-800">
                       <input
                         type="radio"
                         name="goal"
@@ -548,7 +548,7 @@ const MealPrepForm = () => {
                         onChange={(e) => updateFormData('goal', e.target.value)}
                         className="mr-3"
                       />
-                      {goal}
+                      <span className="text-gray-900 dark:text-white">{goal}</span>
                     </label>
                   ))}
                 </div>
@@ -557,19 +557,19 @@ const MealPrepForm = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Current weight *</label>
-                  <div className={`flex ${validationErrors.weight ? 'border border-red-300 rounded-lg' : ''}`}>
+                  <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Current weight *</label>
+                  <div className={`flex ${validationErrors.weight ? 'border border-red-300 dark:border-red-600 rounded-lg' : ''}`}>
                     <input
                       type="number"
                       value={formData.weight}
                       onChange={(e) => updateFormData('weight', e.target.value)}
-                      className={`flex-1 p-2 border rounded-l-lg ${validationErrors.weight ? 'border-red-300' : ''}`}
+                      className={`flex-1 p-2 border border-gray-300 dark:border-slate-600 rounded-l-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${validationErrors.weight ? 'border-red-300 dark:border-red-600' : ''}`}
                       placeholder="Weight"
                     />
                     <select
                       value={formData.weightUnit}
                       onChange={(e) => updateFormData('weightUnit', e.target.value)}
-                      className={`p-2 border-t border-r border-b rounded-r-lg ${validationErrors.weight ? 'border-red-300' : ''}`}
+                      className={`p-2 border-t border-r border-b border-gray-300 dark:border-slate-600 rounded-r-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white ${validationErrors.weight ? 'border-red-300 dark:border-red-600' : ''}`}
                     >
                       <option value="kg">kg</option>
                       <option value="lbs">lbs</option>
@@ -578,34 +578,34 @@ const MealPrepForm = () => {
                   {renderError('weight')}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Height *</label>
-                  <div className={`flex ${validationErrors.height ? 'border border-red-300 rounded-lg' : ''}`}>
+                  <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Height *</label>
+                  <div className={`flex ${validationErrors.height ? 'border border-red-300 dark:border-red-600 rounded-lg' : ''}`}>
                     {formData.heightUnit === 'ft-in' ? (
                       <>
                         <input
                           type="number"
                           value={formData.heightFeet}
                           onChange={(e) => updateFormData('heightFeet', e.target.value)}
-                          className={`flex-1 p-2 border rounded-l-lg ${validationErrors.height ? 'border-red-300' : ''}`}
+                          className={`flex-1 p-2 border border-gray-300 dark:border-slate-600 rounded-l-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${validationErrors.height ? 'border-red-300 dark:border-red-600' : ''}`}
                           placeholder="Feet"
                           min="0"
                           max="8"
                         />
-                        <span className="px-2 py-2 bg-gray-100 border-t border-b text-gray-600">ft</span>
+                        <span className="px-2 py-2 bg-gray-100 dark:bg-slate-600 border-t border-b border-gray-300 dark:border-slate-600 text-gray-600 dark:text-gray-300">ft</span>
                         <input
                           type="number"
                           value={formData.heightInches}
                           onChange={(e) => updateFormData('heightInches', e.target.value)}
-                          className={`flex-1 p-2 border ${validationErrors.height ? 'border-red-300' : ''}`}
+                          className={`flex-1 p-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${validationErrors.height ? 'border-red-300 dark:border-red-600' : ''}`}
                           placeholder="Inches"
                           min="0"
                           max="11"
                         />
-                        <span className="px-2 py-2 bg-gray-100 border-t border-b text-gray-600">in</span>
+                        <span className="px-2 py-2 bg-gray-100 dark:bg-slate-600 border-t border-b border-gray-300 dark:border-slate-600 text-gray-600 dark:text-gray-300">in</span>
                         <select
                           value={formData.heightUnit}
                           onChange={(e) => updateFormData('heightUnit', e.target.value)}
-                          className={`p-2 border-t border-r border-b rounded-r-lg ${validationErrors.height ? 'border-red-300' : ''}`}
+                          className={`p-2 border-t border-r border-b border-gray-300 dark:border-slate-600 rounded-r-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white ${validationErrors.height ? 'border-red-300 dark:border-red-600' : ''}`}
                         >
                           <option value="cm">cm</option>
                           <option value="ft-in">ft-in</option>
@@ -617,13 +617,13 @@ const MealPrepForm = () => {
                           type="number"
                           value={formData.height}
                           onChange={(e) => updateFormData('height', e.target.value)}
-                          className={`flex-1 p-2 border rounded-l-lg ${validationErrors.height ? 'border-red-300' : ''}`}
+                          className={`flex-1 p-2 border border-gray-300 dark:border-slate-600 rounded-l-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${validationErrors.height ? 'border-red-300 dark:border-red-600' : ''}`}
                           placeholder="Height"
                         />
                         <select
                           value={formData.heightUnit}
                           onChange={(e) => updateFormData('heightUnit', e.target.value)}
-                          className={`p-2 border-t border-r border-b rounded-r-lg ${validationErrors.height ? 'border-red-300' : ''}`}
+                          className={`p-2 border-t border-r border-b border-gray-300 dark:border-slate-600 rounded-r-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white ${validationErrors.height ? 'border-red-300 dark:border-red-600' : ''}`}
                         >
                           <option value="cm">cm</option>
                           <option value="ft-in">ft-in</option>
@@ -636,23 +636,23 @@ const MealPrepForm = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Age *</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Age *</label>
                 <input
                   type="number"
                   value={formData.age}
                   onChange={(e) => updateFormData('age', e.target.value)}
-                  className={`w-full p-2 border rounded-lg ${validationErrors.age ? 'border-red-300' : ''}`}
+                  className={`w-full p-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${validationErrors.age ? 'border-red-300 dark:border-red-600' : ''}`}
                   placeholder="Your age"
                 />
                 {renderError('age')}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Activity level *</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Activity level *</label>
                 <select
                   value={formData.activityLevel}
                   onChange={(e) => updateFormData('activityLevel', e.target.value)}
-                  className={`w-full p-2 border rounded-lg ${validationErrors.activityLevel ? 'border-red-300' : ''}`}
+                  className={`w-full p-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white ${validationErrors.activityLevel ? 'border-red-300 dark:border-red-600' : ''}`}
                 >
                   <option value="">Select activity level</option>
                   <option value="Sedentary">Sedentary</option>
@@ -665,10 +665,10 @@ const MealPrepForm = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Meals per day preference *</label>
-                <div className={`grid grid-cols-4 gap-3 ${validationErrors.mealsPerDay ? 'border border-red-300 rounded-lg p-2' : ''}`}>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Meals per day preference *</label>
+                <div className={`grid grid-cols-4 gap-3 ${validationErrors.mealsPerDay ? 'border border-red-300 dark:border-red-600 rounded-lg p-2' : ''}`}>
                   {['2', '3', '4', '5+'].map(meals => (
-                    <label key={meals} className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <label key={meals} className="flex items-center p-3 border border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 bg-white dark:bg-slate-800">
                       <input
                         type="radio"
                         name="mealsPerDay"
@@ -677,7 +677,7 @@ const MealPrepForm = () => {
                         onChange={(e) => updateFormData('mealsPerDay', e.target.value)}
                         className="mr-3"
                       />
-                      {meals}
+                      <span className="text-gray-900 dark:text-white">{meals}</span>
                     </label>
                   ))}
                 </div>
@@ -690,10 +690,10 @@ const MealPrepForm = () => {
       case 3:
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-6">Dietary Restrictions & Preferences</h2>
+            <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Dietary Restrictions & Preferences</h2>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2">Any food allergies? (optional)</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Any food allergies? (optional)</label>
 
                 {/* Selected allergies tags */}
                 {selectedAllergies.length > 0 && (
@@ -701,12 +701,12 @@ const MealPrepForm = () => {
                     {selectedAllergies.map(allergy => (
                       <span
                         key={allergy}
-                        className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-800"
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200"
                       >
                         {allergy}
                         <button
                           onClick={() => handleAllergyToggle({ name: allergy })}
-                          className="ml-2 text-red-600 hover:text-red-800"
+                          className="ml-2 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
                         >
                           ×
                         </button>
@@ -720,7 +720,7 @@ const MealPrepForm = () => {
                   <input
                     type="text"
                     placeholder="Search for ingredients (e.g., peanuts, milk, eggs)..."
-                    className={`w-full p-2 border rounded-lg ${validationErrors.allergies ? 'border-red-300' : ''}`}
+                    className={`w-full p-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${validationErrors.allergies ? 'border-red-300 dark:border-red-600' : ''}`}
                     value={allergiesSearchTerm}
                     onChange={(e) => {
                       setAllergiesSearchTerm(e.target.value);
@@ -746,22 +746,22 @@ const MealPrepForm = () => {
 
                   {/* Dropdown with suggestions */}
                   {showAllergiesDropdown && allergiesIngredients.length > 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                       {allergiesIngredients.map(ingredient => (
                         <div
                           key={ingredient.id}
-                          className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                          className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer border-b border-gray-100 dark:border-slate-600 last:border-b-0"
                           onClick={() => handleAllergyToggle(ingredient)}
                         >
                           <div className="flex-1">
-                            <div className="font-medium text-gray-900">{ingredient.name}</div>
+                            <div className="font-medium text-gray-900 dark:text-white">{ingredient.name}</div>
                             {ingredient.category && (
-                              <div className="text-sm text-gray-500">{ingredient.category}</div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400">{ingredient.category}</div>
                             )}
                           </div>
                           <div className="flex items-center">
                             {ingredient.popularity_score && (
-                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded mr-2">
+                              <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded mr-2">
                                 {Math.round(ingredient.popularity_score)}%
                               </span>
                             )}
@@ -781,7 +781,7 @@ const MealPrepForm = () => {
                 {/* Popular ingredients suggestions when no search */}
                 {ingredientSearchTerm === '' && popularIngredients.length > 0 && (
                   <div className="mt-3">
-                    <p className="text-sm text-gray-600 mb-2">Popular ingredients:</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Popular ingredients:</p>
                     <div className="flex flex-wrap gap-2">
                       {popularIngredients
                         .filter(ingredient => !ratedIngredients.has(ingredient.id))
@@ -792,8 +792,8 @@ const MealPrepForm = () => {
                           onClick={() => handleAllergyToggle(ingredient)}
                           className={`px-3 py-1 rounded-full text-sm border ${
                             selectedAllergies.includes(ingredient.name)
-                              ? 'bg-red-100 border-red-300 text-red-800'
-                              : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'
+                              ? 'bg-red-100 dark:bg-red-900 border-red-300 dark:border-red-600 text-red-800 dark:text-red-200'
+                              : 'bg-gray-100 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
                           }`}
                         >
                           {ingredient.name}
@@ -807,10 +807,10 @@ const MealPrepForm = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Any intolerances?</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Any intolerances?</label>
                 <div className="grid grid-cols-2 gap-3">
                   {['Lactose', 'FODMAP', 'Gluten', 'Histamine', 'Salicylates', 'Oxalates'].map(intolerance => (
-                    <label key={intolerance} className="flex items-center p-2">
+                    <label key={intolerance} className="flex items-center p-2 text-gray-900 dark:text-white">
                       <input
                         type="checkbox"
                         checked={formData.intolerances.includes(intolerance)}
@@ -824,10 +824,10 @@ const MealPrepForm = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Dietary preference (optional)</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Dietary preference (optional)</label>
                 <div className="grid grid-cols-2 gap-3">
                   {['Omnivore', 'Pescatarian', 'Vegetarian', 'Vegan', 'Keto', 'Flexible'].map(pref => (
-                    <label key={pref} className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <label key={pref} className="flex items-center p-3 border border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 bg-white dark:bg-slate-800">
                       <input
                         type="radio"
                         name="dietaryPreference"
@@ -836,11 +836,11 @@ const MealPrepForm = () => {
                         onChange={(e) => updateFormData('dietaryPreference', e.target.value)}
                         className="mr-3"
                       />
-                      {pref}
+                      <span className="text-gray-900 dark:text-white">{pref}</span>
                     </label>
                   ))}
                 </div>
-                <p className="text-xs text-gray-500 mt-2">Select your preferred diet or choose "Flexible" if you're open to various options</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Select your preferred diet or choose "Flexible" if you're open to various options</p>
               </div>
             </div>
           </div>
@@ -849,23 +849,23 @@ const MealPrepForm = () => {
       case 4:
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-6">Ingredient Likes / Dislikes</h2>
+            <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Ingredient Likes / Dislikes</h2>
             <div className="space-y-6">
               <div>
                 {/* Popular ingredients for quick selection - AT TOP */}
                 {ingredientSearchTerm === '' && popularIngredients.length > 0 && (
                   <div className="mb-6">
-                    <h4 className="font-medium text-gray-900 mb-3">Popular ingredients to rate:</h4>
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-3">Popular ingredients to rate:</h4>
                     <div className="grid grid-cols-2 gap-2 max-h-96 overflow-y-auto">
                       {popularIngredients
                         .filter(ingredient => !ratedIngredients.has(ingredient.id))
                         .slice(0, 20)
                         .map(ingredient => (
-                        <div key={ingredient.id} className="flex items-center justify-between p-3 border rounded hover:bg-gray-50">
+                        <div key={ingredient.id} className="flex items-center justify-between p-3 border border-gray-200 dark:border-slate-600 rounded hover:bg-gray-50 dark:hover:bg-slate-700 bg-white dark:bg-slate-800">
                           <div className="flex-1 min-w-0">
-                            <span className="text-sm font-medium truncate">{ingredient.name}</span>
+                            <span className="text-sm font-medium truncate text-gray-900 dark:text-white">{ingredient.name}</span>
                             {ingredient.category && (
-                              <div className="text-xs text-gray-500 truncate">{ingredient.category}</div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{ingredient.category}</div>
                             )}
                           </div>
                           <div className="flex space-x-1 ml-2">
@@ -916,7 +916,7 @@ const MealPrepForm = () => {
                   <input
                     type="text"
                     placeholder="Search for ingredients to rate..."
-                    className="w-full p-2 border rounded-lg"
+                    className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                     value={ingredientSearchTerm}
                     onChange={(e) => {
                       setIngredientSearchTerm(e.target.value);
@@ -940,24 +940,24 @@ const MealPrepForm = () => {
 
                   {/* Dropdown with ingredient suggestions */}
                   {showIngredientDropdown && popularIngredients.length > 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                       {popularIngredients
                         .filter(ingredient => !ratedIngredients.has(ingredient.id))
                         .map(ingredient => (
                         <div
                           key={ingredient.id}
-                          className="p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                          className="p-3 hover:bg-gray-50 dark:hover:bg-slate-700 border-b border-gray-100 dark:border-slate-600 last:border-b-0"
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex-1">
-                              <div className="font-medium text-gray-900">{ingredient.name}</div>
+                              <div className="font-medium text-gray-900 dark:text-white">{ingredient.name}</div>
                               {ingredient.category && (
-                                <div className="text-sm text-gray-500">{ingredient.category}</div>
+                                <div className="text-sm text-gray-500 dark:text-gray-400">{ingredient.category}</div>
                               )}
                             </div>
                             <div className="flex items-center space-x-2">
                               {ingredient.popularity_score && (
-                                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded mr-2">
+                                <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded mr-2">
                                   {Math.round(ingredient.popularity_score)}%
                                 </span>
                               )}
@@ -967,7 +967,7 @@ const MealPrepForm = () => {
                                   className={`p-1.5 rounded ${
                                     (formData.ingredientPreferences || {})[ingredient.name] === 'like'
                                       ? 'bg-green-600 text-white'
-                                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                      : 'bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-slate-500'
                                   }`}
                                   title="Like"
                                 >
@@ -978,7 +978,7 @@ const MealPrepForm = () => {
                                   className={`p-1.5 rounded ${
                                     (formData.ingredientPreferences || {})[ingredient.name] === 'neutral'
                                       ? 'bg-yellow-600 text-white'
-                                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                      : 'bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-slate-500'
                                   }`}
                                   title="Neutral"
                                 >
@@ -989,7 +989,7 @@ const MealPrepForm = () => {
                                   className={`p-1.5 rounded ${
                                     (formData.ingredientPreferences || {})[ingredient.name] === 'dislike'
                                       ? 'bg-red-600 text-white'
-                                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                      : 'bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-slate-500'
                                   }`}
                                   title="Dislike"
                                 >
@@ -1007,25 +1007,25 @@ const MealPrepForm = () => {
 
                 {/* Display selected ingredient preferences */}
                 {Object.keys(formData.ingredientPreferences || {}).length > 0 ? (
-                  <div className="border rounded-lg p-4 mb-6 bg-blue-50">
-                    <h4 className="font-medium text-gray-900 mb-3">
+                  <div className="border border-gray-200 dark:border-slate-600 rounded-lg p-4 mb-6 bg-blue-50 dark:bg-blue-900/20">
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-3">
                       Your ingredient preferences: ({Object.keys(formData.ingredientPreferences || {}).length} rated)
                     </h4>
                     <div className="max-h-96 overflow-y-auto">
                       {Object.entries(formData.ingredientPreferences || {}).map(([ingredientName, preference]) => (
-                        <div key={ingredientName} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
-                          <span className="font-medium">{ingredientName}</span>
+                        <div key={ingredientName} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-slate-600 last:border-b-0">
+                          <span className="font-medium text-gray-900 dark:text-white">{ingredientName}</span>
                           <div className="flex items-center space-x-2">
                             <span className={`px-2 py-1 text-xs rounded ${
-                              preference === 'like' ? 'bg-green-100 text-green-800'
-                              : preference === 'dislike' ? 'bg-red-100 text-red-800'
-                              : 'bg-yellow-100 text-yellow-800'
+                              preference === 'like' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                              : preference === 'dislike' ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                              : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
                             }`}>
                               {preference.charAt(0).toUpperCase() + preference.slice(1)}
                             </span>
                             <button
                               onClick={() => handleIngredientPreference({ name: ingredientName }, preference)}
-                              className="text-red-500 hover:text-red-700 text-sm"
+                              className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm"
                             >
                               Remove
                             </button>
@@ -1035,9 +1035,9 @@ const MealPrepForm = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="border rounded-lg p-4 mb-6 bg-gray-50">
-                    <h4 className="font-medium text-gray-900 mb-3">Your ingredient preferences:</h4>
-                    <p className="text-gray-600 text-sm">Rate some ingredients above to see them appear here!</p>
+                  <div className="border border-gray-200 dark:border-slate-600 rounded-lg p-4 mb-6 bg-gray-50 dark:bg-slate-700">
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-3">Your ingredient preferences:</h4>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm">Rate some ingredients above to see them appear here!</p>
                   </div>
                 )}
               </div>
@@ -1070,7 +1070,7 @@ const MealPrepForm = () => {
                   <input
                     type="text"
                     placeholder="Search for ingredients to exclude..."
-                    className="w-full p-2 border rounded-lg"
+                    className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                     value={excludeSearchTerm}
                     onChange={(e) => {
                       setExcludeSearchTerm(e.target.value);
@@ -1100,18 +1100,18 @@ const MealPrepForm = () => {
                         .map(ingredient => (
                         <div
                           key={ingredient.id}
-                          className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                          className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer border-b border-gray-100 dark:border-slate-600 last:border-b-0"
                           onClick={() => handleExcludeIngredientToggle(ingredient)}
                         >
                           <div className="flex-1">
-                            <div className="font-medium text-gray-900">{ingredient.name}</div>
+                            <div className="font-medium text-gray-900 dark:text-white">{ingredient.name}</div>
                             {ingredient.category && (
-                              <div className="text-sm text-gray-500">{ingredient.category}</div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400">{ingredient.category}</div>
                             )}
                           </div>
                           <div className="flex items-center">
                             {ingredient.popularity_score && (
-                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded mr-2">
+                              <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded mr-2">
                                 {Math.round(ingredient.popularity_score)}%
                               </span>
                             )}
@@ -1142,8 +1142,8 @@ const MealPrepForm = () => {
                           onClick={() => handleExcludeIngredientToggle(ingredient)}
                           className={`px-3 py-1 rounded-full text-sm border ${
                             selectedExcludedIngredients.includes(ingredient.name)
-                              ? 'bg-orange-100 border-orange-300 text-orange-800'
-                              : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'
+                              ? 'bg-orange-100 dark:bg-orange-900 border-orange-300 dark:border-orange-600 text-orange-800 dark:text-orange-200'
+                              : 'bg-gray-100 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
                           }`}
                         >
                           {ingredient.name}
@@ -1160,10 +1160,10 @@ const MealPrepForm = () => {
       case 5:
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-6">Meals You Love / Hate</h2>
+            <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Meals You Love / Hate</h2>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2">List 1-3 meals you love</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">List 1-3 meals you love</label>
                 {[0, 1, 2].map(index => (
                   <input
                     key={index}
@@ -1174,14 +1174,14 @@ const MealPrepForm = () => {
                       newLovedMeals[index] = e.target.value;
                       updateFormData('lovedMeals', newLovedMeals);
                     }}
-                    className="w-full p-2 border rounded-lg mb-2"
+                    className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-lg mb-2 bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                     placeholder={`Meal ${index + 1} you love`}
                   />
                 ))}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">List 1-3 meals you hate / never want</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">List 1-3 meals you hate / never want</label>
                 {[0, 1, 2].map(index => (
                   <input
                     key={index}
@@ -1192,7 +1192,7 @@ const MealPrepForm = () => {
                       newHatedMeals[index] = e.target.value;
                       updateFormData('hatedMeals', newHatedMeals);
                     }}
-                    className="w-full p-2 border rounded-lg mb-2"
+                    className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-lg mb-2 bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                     placeholder={`Meal ${index + 1} you hate`}
                   />
                 ))}
@@ -1204,13 +1204,13 @@ const MealPrepForm = () => {
       case 6:
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-6">Cooking Constraints & Style</h2>
+            <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Cooking Constraints & Style</h2>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2">How much time to cook per day? *</label>
-                <div className={`grid grid-cols-2 gap-3 ${validationErrors.cookingTime ? 'border border-red-300 rounded-lg p-2' : ''}`}>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">How much time to cook per day? *</label>
+                <div className={`grid grid-cols-2 gap-3 ${validationErrors.cookingTime ? 'border border-red-300 dark:border-red-600 rounded-lg p-2' : ''}`}>
                   {['10-20m', '20-40m', '40-60m', '60m+'].map(time => (
-                    <label key={time} className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <label key={time} className="flex items-center p-3 border border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 bg-white dark:bg-slate-800">
                       <input
                         type="radio"
                         name="cookingTime"
@@ -1219,7 +1219,7 @@ const MealPrepForm = () => {
                         onChange={(e) => updateFormData('cookingTime', e.target.value)}
                         className="mr-3"
                       />
-                      {time}
+                      <span className="text-gray-900 dark:text-white">{time}</span>
                     </label>
                   ))}
                 </div>
@@ -1227,9 +1227,9 @@ const MealPrepForm = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Do you want batch-cooking? *</label>
-                <div className={`flex space-x-6 ${validationErrors.batchCooking ? 'border border-red-300 rounded-lg p-2' : ''}`}>
-                  <label className="flex items-center">
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Do you want batch-cooking? *</label>
+                <div className={`flex space-x-6 ${validationErrors.batchCooking ? 'border border-red-300 dark:border-red-600 rounded-lg p-2' : ''}`}>
+                  <label className="flex items-center text-gray-900 dark:text-white">
                     <input
                       type="radio"
                       name="batchCooking"
@@ -1240,7 +1240,7 @@ const MealPrepForm = () => {
                     />
                     Yes
                   </label>
-                  <label className="flex items-center">
+                  <label className="flex items-center text-gray-900 dark:text-white">
                     <input
                       type="radio"
                       name="batchCooking"
@@ -1256,10 +1256,10 @@ const MealPrepForm = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Kitchen equipment available *</label>
-                <div className={`grid grid-cols-2 gap-3 ${validationErrors.kitchenEquipment ? 'border border-red-300 rounded-lg p-2' : ''}`}>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Kitchen equipment available *</label>
+                <div className={`grid grid-cols-2 gap-3 ${validationErrors.kitchenEquipment ? 'border border-red-300 dark:border-red-600 rounded-lg p-2' : ''}`}>
                   {['Oven', 'Air fryer', 'Stove', 'Instant Pot', 'Blender', 'Grill', 'Microwave', 'Slow cooker'].map(equipment => (
-                    <label key={equipment} className="flex items-center p-2">
+                    <label key={equipment} className="flex items-center p-2 text-gray-900 dark:text-white">
                       <input
                         type="checkbox"
                         checked={formData.kitchenEquipment.includes(equipment)}
@@ -1274,11 +1274,11 @@ const MealPrepForm = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Skill level</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Skill level</label>
                 <select
                   value={formData.skillLevel}
                   onChange={(e) => updateFormData('skillLevel', e.target.value)}
-                  className="w-full p-2 border rounded-lg"
+                  className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                 >
                   <option value="">Select skill level</option>
                   <option value="Beginner">Beginner</option>
@@ -1293,19 +1293,19 @@ const MealPrepForm = () => {
       case 7:
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-6">Meal Timing & Schedule</h2>
+            <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Meal Timing & Schedule</h2>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2">Typical meal times</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Typical meal times</label>
                 <div className="grid grid-cols-3 gap-4">
                   {['breakfast', 'lunch', 'dinner'].map(meal => (
                     <div key={meal}>
-                      <label className="block text-sm font-medium mb-1 capitalize">{meal}</label>
+                      <label className="block text-sm font-medium mb-1 capitalize text-gray-700 dark:text-gray-300">{meal}</label>
                       <input
                         type="time"
                         value={formData.mealTimes[meal]}
                         onChange={(e) => updateNestedFormData('mealTimes', meal, e.target.value)}
-                        className="w-full p-2 border rounded-lg"
+                        className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
                       />
                     </div>
                   ))}
@@ -1343,17 +1343,17 @@ const MealPrepForm = () => {
                     type="number"
                     value={formData.snackCount}
                     onChange={(e) => updateFormData('snackCount', e.target.value)}
-                    className="w-full p-2 border rounded-lg mt-2"
+                    className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-lg mt-2 bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                     placeholder="How many snacks per day?"
                   />
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Any timing rules?</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Any timing rules?</label>
                 <div className="space-y-2">
                   {['No food after 9pm', 'Pre-workout meal only', 'Fasting mornings', 'Late dinner'].map(rule => (
-                    <label key={rule} className="flex items-center p-2">
+                    <label key={rule} className="flex items-center p-2 text-gray-900 dark:text-white">
                       <input
                         type="checkbox"
                         checked={formData.timingRules.includes(rule)}
@@ -1372,12 +1372,12 @@ const MealPrepForm = () => {
       case 8:
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-6">Portions, Calories & Macros</h2>
+            <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Portions, Calories & Macros</h2>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2">Do you want us to calculate calories? *</label>
-                <div className={`flex space-x-6 ${validationErrors.calculateCalories ? 'border border-red-300 rounded-lg p-2' : ''}`}>
-                  <label className="flex items-center">
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Do you want us to calculate calories? *</label>
+                <div className={`flex space-x-6 ${validationErrors.calculateCalories ? 'border border-red-300 dark:border-red-600 rounded-lg p-2' : ''}`}>
+                  <label className="flex items-center text-gray-900 dark:text-white">
                     <input
                       type="radio"
                       name="calculateCalories"
@@ -1388,7 +1388,7 @@ const MealPrepForm = () => {
                     />
                     Auto calculate
                   </label>
-                  <label className="flex items-center">
+                  <label className="flex items-center text-gray-900 dark:text-white">
                     <input
                       type="radio"
                       name="calculateCalories"
@@ -1411,12 +1411,12 @@ const MealPrepForm = () => {
                       type="number"
                       value={formData.targetCalories}
                       onChange={(e) => updateFormData('targetCalories', e.target.value)}
-                      className={`flex-1 p-2 border rounded-lg ${validationErrors.targetCalories ? 'border-red-300' : ''}`}
+                      className={`flex-1 p-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${validationErrors.targetCalories ? 'border-red-300 dark:border-red-600' : ''}`}
                       placeholder="Target calories"
                     />
                     <button
                       onClick={applySuggestedMacros}
-                      className="px-3 py-2 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700"
+                      className="px-3 py-2 bg-emerald-600 dark:bg-emerald-700 text-white text-sm rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600"
                       disabled={!formData.targetCalories}
                     >
                       Apply
@@ -1469,7 +1469,7 @@ const MealPrepForm = () => {
                               max="500"
                               value={grams}
                               onChange={(e) => updateMacroGrams(macro.key, e.target.value)}
-                              className="w-20 px-2 py-1 text-sm border rounded"
+                              className="w-20 px-2 py-1 text-sm border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                               placeholder="g"
                             />
                             <span className="text-sm text-gray-500">g</span>
@@ -1497,7 +1497,7 @@ const MealPrepForm = () => {
                             <button
                               key={preset}
                               onClick={() => updateMacroGrams(macro.key, preset)}
-                              className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded"
+                              className="px-2 py-1 text-xs bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-900 dark:text-white rounded"
                             >
                               {preset}g
                             </button>
@@ -1528,15 +1528,15 @@ const MealPrepForm = () => {
       case 9:
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-6">Budget & Shopping Preferences</h2>
+            <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Budget & Shopping Preferences</h2>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2">Weekly food budget</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Weekly food budget</label>
                 <input
                   type="number"
                   value={formData.weeklyBudget}
                   onChange={(e) => updateFormData('weeklyBudget', e.target.value)}
-                  className="w-full p-2 border rounded-lg"
+                  className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                   placeholder="Budget amount"
                 />
               </div>
@@ -1564,13 +1564,13 @@ const MealPrepForm = () => {
       case 10:
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-6">Supplements & Medications</h2>
+            <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Supplements & Medications</h2>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2">Do you take supplements?</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Do you take supplements?</label>
                 <div className="grid grid-cols-2 gap-3">
                   {['Creatine', 'Omega-3', 'Multivitamin', 'Protein powder', 'Vitamin D', 'Calcium', 'Iron', 'Magnesium'].map(supplement => (
-                    <label key={supplement} className="flex items-center p-2">
+                    <label key={supplement} className="flex items-center p-2 text-gray-900 dark:text-white">
                       <input
                         type="checkbox"
                         checked={formData.supplements.includes(supplement)}
@@ -1584,11 +1584,11 @@ const MealPrepForm = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Any medications?</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Any medications?</label>
                 <textarea
                   value={formData.medications}
                   onChange={(e) => updateFormData('medications', e.target.value)}
-                  className="w-full p-2 border rounded-lg"
+                  className="w-full p-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                   rows="3"
                   placeholder="List any medications you're taking"
                 />
@@ -1600,12 +1600,12 @@ const MealPrepForm = () => {
       case 11:
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-6">Complete Review & Preview</h2>
+            <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Complete Review & Preview</h2>
             <div className="space-y-8">
               {/* Profile Summary */}
-              <div className="bg-blue-50 p-6 rounded-lg">
-                <h3 className="font-semibold text-lg mb-4 text-blue-900">📋 Your Profile Summary</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg">
+                <h3 className="font-semibold text-lg mb-4 text-blue-900 dark:text-blue-200">📋 Your Profile Summary</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-900 dark:text-white">
                   <div>
                     <p><strong>Goal:</strong> {formData.goal || 'Not specified'}</p>
                     <p><strong>Weight:</strong> {formData.weight} {formData.weightUnit}</p>
@@ -1626,9 +1626,9 @@ const MealPrepForm = () => {
               </div>
 
               {/* Nutritional Goals */}
-              <div className="bg-green-50 p-6 rounded-lg">
-                <h3 className="font-semibold text-lg mb-4 text-green-900">🎯 Nutritional Goals</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg">
+                <h3 className="font-semibold text-lg mb-4 text-green-900 dark:text-green-200">🎯 Nutritional Goals</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-900 dark:text-white">
                   <div>
                     <p><strong>Calorie Calculation:</strong> {formData.calculateCalories === 'Auto' ? 'Auto-calculated' : 'Manual'}</p>
                     {formData.calculateCalories === 'Manual' && formData.targetCalories && (
@@ -1644,42 +1644,42 @@ const MealPrepForm = () => {
               </div>
 
               {/* Exclusions Summary */}
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="font-semibold text-lg mb-4 text-gray-900">🚫 Auto-generated Exclusions</h3>
+              <div className="bg-gray-50 dark:bg-slate-700 p-6 rounded-lg">
+                <h3 className="font-semibold text-lg mb-4 text-gray-900 dark:text-white">🚫 Auto-generated Exclusions</h3>
                 <div className="space-y-3">
                   {selectedAllergies.length > 0 && (
                     <div className="flex items-start">
-                      <span className="text-red-500 mr-2">⚠️</span>
+                      <span className="text-red-500 dark:text-red-400 mr-2">⚠️</span>
                       <div>
-                        <p className="font-medium text-red-800">Allergies to avoid:</p>
-                        <p className="text-sm text-red-700">{selectedAllergies.join(', ')}</p>
+                        <p className="font-medium text-red-800 dark:text-red-300">Allergies to avoid:</p>
+                        <p className="text-sm text-red-700 dark:text-red-400">{selectedAllergies.join(', ')}</p>
                       </div>
                     </div>
                   )}
                   {formData.intolerances.length > 0 && (
                     <div className="flex items-start">
-                      <span className="text-orange-500 mr-2">⚠️</span>
+                      <span className="text-orange-500 dark:text-orange-400 mr-2">⚠️</span>
                       <div>
-                        <p className="font-medium text-orange-800">Intolerances to avoid:</p>
-                        <p className="text-sm text-orange-700">{formData.intolerances.join(', ')}</p>
+                        <p className="font-medium text-orange-800 dark:text-orange-300">Intolerances to avoid:</p>
+                        <p className="text-sm text-orange-700 dark:text-orange-400">{formData.intolerances.join(', ')}</p>
                       </div>
                     </div>
                   )}
                   {selectedExcludedIngredients.length > 0 && (
                     <div className="flex items-start">
-                      <span className="text-gray-500 mr-2">🚫</span>
+                      <span className="text-gray-500 dark:text-gray-400 mr-2">🚫</span>
                       <div>
-                        <p className="font-medium text-gray-800">Manually excluded ingredients:</p>
-                        <p className="text-sm text-gray-700">{selectedExcludedIngredients.join(', ')}</p>
+                        <p className="font-medium text-gray-800 dark:text-gray-300">Manually excluded ingredients:</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-400">{selectedExcludedIngredients.join(', ')}</p>
                       </div>
                     </div>
                   )}
                   {Object.entries(formData.ingredientPreferences || {}).filter(([_, preference]) => preference === 'dislike').length > 0 && (
                     <div className="flex items-start">
-                      <span className="text-gray-500 mr-2">👎</span>
+                      <span className="text-gray-500 dark:text-gray-400 mr-2">👎</span>
                       <div>
-                        <p className="font-medium text-gray-800">Disliked ingredients:</p>
-                        <p className="text-sm text-gray-700">
+                        <p className="font-medium text-gray-800 dark:text-gray-300">Disliked ingredients:</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-400">
                           {Object.entries(formData.ingredientPreferences || {})
                             .filter(([_, preference]) => preference === 'dislike')
                             .map(([name, _]) => name)
@@ -1690,10 +1690,10 @@ const MealPrepForm = () => {
                   )}
                   {formData.hatedMeals.filter(meal => meal).length > 0 && (
                     <div className="flex items-start">
-                      <span className="text-gray-500 mr-2">😖</span>
+                      <span className="text-gray-500 dark:text-gray-400 mr-2">😖</span>
                       <div>
-                        <p className="font-medium text-gray-800">Meals to avoid:</p>
-                        <p className="text-sm text-gray-700">{formData.hatedMeals.filter(meal => meal).join(', ')}</p>
+                        <p className="font-medium text-gray-800 dark:text-gray-300">Meals to avoid:</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-400">{formData.hatedMeals.filter(meal => meal).join(', ')}</p>
                       </div>
                     </div>
                   )}
@@ -1702,40 +1702,40 @@ const MealPrepForm = () => {
                    Object.entries(formData.ingredientPreferences || {}).filter(([_, preference]) => preference === 'dislike').length === 0 &&
                    formData.hatedMeals.filter(meal => meal).length === 0 && (
                     <div className="flex items-center">
-                      <span className="text-green-500 mr-2">✅</span>
-                      <p className="text-green-700 italic">No exclusions specified - you can enjoy a wide variety of foods!</p>
+                      <span className="text-green-500 dark:text-green-400 mr-2">✅</span>
+                      <p className="text-green-700 dark:text-green-400 italic">No exclusions specified - you can enjoy a wide variety of foods!</p>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Sample Day Preview */}
-              <div className="bg-amber-50 p-6 rounded-lg">
-                <h3 className="font-semibold text-lg mb-4 text-amber-900">👀 Sample Day Preview</h3>
-                <div className="bg-white p-4 rounded-lg border border-amber-200">
-                  <h4 className="font-medium mb-3 text-gray-800">Your typical day might look like:</h4>
+              <div className="bg-amber-50 dark:bg-amber-900/20 p-6 rounded-lg">
+                <h3 className="font-semibold text-lg mb-4 text-amber-900 dark:text-amber-200">👀 Sample Day Preview</h3>
+                <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-amber-200 dark:border-amber-700">
+                  <h4 className="font-medium mb-3 text-gray-800 dark:text-white">Your typical day might look like:</h4>
                   <div className="space-y-3">
                     <div className="flex items-center">
-                      <span className="w-20 text-sm font-medium text-amber-700">Breakfast:</span>
-                      <span className="text-sm">Oatmeal with berries and nuts ({Math.round((formData.macroPreference.carbs * 0.3) + (formData.macroPreference.protein * 0.2))}g carbs, {Math.round(formData.macroPreference.protein * 0.2)}g protein)</span>
+                      <span className="w-20 text-sm font-medium text-amber-700 dark:text-amber-300">Breakfast:</span>
+                      <span className="text-sm text-gray-900 dark:text-white">Oatmeal with berries and nuts ({Math.round((formData.macroPreference.carbs * 0.3) + (formData.macroPreference.protein * 0.2))}g carbs, {Math.round(formData.macroPreference.protein * 0.2)}g protein)</span>
                     </div>
                     <div className="flex items-center">
-                      <span className="w-20 text-sm font-medium text-amber-700">Lunch:</span>
-                      <span className="text-sm">Grilled chicken salad with mixed vegetables ({Math.round((formData.macroPreference.carbs * 0.3) + (formData.macroPreference.protein * 0.4))}g carbs, {Math.round(formData.macroPreference.protein * 0.4)}g protein)</span>
+                      <span className="w-20 text-sm font-medium text-amber-700 dark:text-amber-300">Lunch:</span>
+                      <span className="text-sm text-gray-900 dark:text-white">Grilled chicken salad with mixed vegetables ({Math.round((formData.macroPreference.carbs * 0.3) + (formData.macroPreference.protein * 0.4))}g carbs, {Math.round(formData.macroPreference.protein * 0.4)}g protein)</span>
                     </div>
                     <div className="flex items-center">
-                      <span className="w-20 text-sm font-medium text-amber-700">Dinner:</span>
-                      <span className="text-sm">Baked salmon with vegetables ({Math.round((formData.macroPreference.carbs * 0.4) + (formData.macroPreference.protein * 0.4))}g carbs, {Math.round(formData.macroPreference.protein * 0.4)}g protein)</span>
+                      <span className="w-20 text-sm font-medium text-amber-700 dark:text-amber-300">Dinner:</span>
+                      <span className="text-sm text-gray-900 dark:text-white">Baked salmon with vegetables ({Math.round((formData.macroPreference.carbs * 0.4) + (formData.macroPreference.protein * 0.4))}g carbs, {Math.round(formData.macroPreference.protein * 0.4)}g protein)</span>
                     </div>
                     {formData.wantSnacks === 'Yes' && (
                       <div className="flex items-center">
-                        <span className="w-20 text-sm font-medium text-amber-700">Snacks:</span>
-                        <span className="text-sm">Greek yogurt and apple ({Math.round(formData.macroPreference.carbs * 0.1)}g carbs, {Math.round(formData.macroPreference.protein * 0.1)}g protein)</span>
+                        <span className="w-20 text-sm font-medium text-amber-700 dark:text-amber-300">Snacks:</span>
+                        <span className="text-sm text-gray-900 dark:text-white">Greek yogurt and apple ({Math.round(formData.macroPreference.carbs * 0.1)}g carbs, {Math.round(formData.macroPreference.protein * 0.1)}g protein)</span>
                       </div>
                     )}
                   </div>
-                  <div className="mt-4 pt-3 border-t border-amber-200">
-                    <p className="text-xs text-amber-600">
+                  <div className="mt-4 pt-3 border-t border-amber-200 dark:border-amber-700">
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
                       <strong>Estimated daily totals:</strong> {getEstimatedTotalCalories()} calories, {formData.macroPreference.protein}g protein, {formData.macroPreference.fat}g fat, {formData.macroPreference.carbs}g carbs
                     </p>
                   </div>
@@ -1743,9 +1743,9 @@ const MealPrepForm = () => {
               </div>
 
               {/* Preferences Summary */}
-              <div className="bg-purple-50 p-6 rounded-lg">
-                <h3 className="font-semibold text-lg mb-4 text-purple-900">⚙️ Cooking & Shopping Preferences</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div className="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-lg">
+                <h3 className="font-semibold text-lg mb-4 text-purple-900 dark:text-purple-200">⚙️ Cooking & Shopping Preferences</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-900 dark:text-white">
                   <div>
                     <p><strong>Batch Cooking:</strong> {formData.batchCooking || 'Not specified'}</p>
                     <p><strong>Cooking Time:</strong> {formData.cookingTime || 'Not specified'}</p>
@@ -1760,21 +1760,21 @@ const MealPrepForm = () => {
               </div>
 
               {/* Final Confirmation */}
-              <div className="bg-white border-2 border-gray-200 p-6 rounded-lg">
-                <h3 className="font-semibold text-lg mb-4 text-gray-900">🎉 Ready to Create Your Meal Plan?</h3>
-                <p className="text-gray-600 mb-4">
+              <div className="bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-600 p-6 rounded-lg">
+                <h3 className="font-semibold text-lg mb-4 text-gray-900 dark:text-white">🎉 Ready to Create Your Meal Plan?</h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
                   This comprehensive review shows everything we've collected about your preferences.
                   Your personalized meal plan will be generated based on this information.
                 </p>
                 <div className="space-y-3">
-                  <label className={`flex items-start ${validationErrors.exclusionsConfirmed ? 'border border-red-300 rounded-lg p-3' : ''}`}>
+                  <label className={`flex items-start ${validationErrors.exclusionsConfirmed ? 'border border-red-300 dark:border-red-600 rounded-lg p-3' : ''}`}>
                     <input
                       type="checkbox"
                       checked={formData.exclusionsConfirmed}
                       onChange={(e) => updateFormData('exclusionsConfirmed', e.target.checked)}
                       className="mr-3 mt-1"
                     />
-                    <span className="text-sm">
+                    <span className="text-sm text-gray-900 dark:text-white">
                       I confirm that all the information above is accurate and I understand that my meal plan will be generated based on these preferences and restrictions.
                     </span>
                   </label>
@@ -1788,15 +1788,15 @@ const MealPrepForm = () => {
       case 12:
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-6">Save Profile</h2>
+            <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Save Profile</h2>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2">Profile name *</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Profile name *</label>
                 <input
                   type="text"
                   value={formData.profileName}
                   onChange={(e) => updateFormData('profileName', e.target.value)}
-                  className={`w-full p-2 border rounded-lg ${validationErrors.profileName ? 'border-red-300' : ''}`}
+                  className={`w-full p-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${validationErrors.profileName ? 'border-red-300 dark:border-red-600' : ''}`}
                   placeholder="Name your meal prep profile"
                 />
                 {renderError('profileName')}
@@ -1834,18 +1834,18 @@ const MealPrepForm = () => {
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold">Meal Prep Setup</h1>
-          <span className="text-sm text-gray-500">Step {currentStep} of 13</span>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Meal Prep Setup</h1>
+          <span className="text-sm text-gray-500 dark:text-gray-400">Step {currentStep} of 13</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
           <div
-            className="bg-emerald-600 h-2 rounded-full transition-all duration-300"
+            className="bg-emerald-600 dark:bg-emerald-500 h-2 rounded-full transition-all duration-300"
             style={{ width: `${(currentStep / 13) * 100}%` }}
           ></div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
         {renderStep()}
       </div>
 
@@ -1853,7 +1853,7 @@ const MealPrepForm = () => {
         {currentStep > 1 && (
           <button
             onClick={handlePrev}
-            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+            className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
           >
             Previous
           </button>
@@ -1861,14 +1861,14 @@ const MealPrepForm = () => {
         {currentStep < 13 ? (
           <button
             onClick={handleNext}
-            className="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 ml-auto"
+            className="px-6 py-2 bg-emerald-600 dark:bg-emerald-700 text-white rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 ml-auto"
           >
             Next
           </button>
         ) : (
           <button
             onClick={handleSubmit}
-            className="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 ml-auto"
+            className="px-6 py-2 bg-emerald-600 dark:bg-emerald-700 text-white rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 ml-auto"
           >
             Complete Setup
           </button>

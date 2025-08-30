@@ -13,14 +13,31 @@ class UserMixin:
     
     def create_user(self, user: Type.User) -> Optional[Any]:
         """Create a new user in the users collection.
-        
+
         Args:
             user: User model instance
-            
+
         Returns:
             The inserted_id if successful, None otherwise
         """
         return self.create_document("users", user)
+
+    def update_user(self, user_id: UUID, update_data: Dict[str, Any]) -> bool:
+        """Update a user in the users collection.
+
+        Args:
+            user_id: UUID of the user to update
+            update_data: Dictionary containing fields to update
+
+        Returns:
+            True if update was successful, False otherwise
+        """
+        try:
+            query = {"user_id": str(user_id)}
+            return self.update_document("users", query, update_data)
+        except Exception as e:
+            print(f"Error updating user {user_id}: {e}")
+            return False
     
     def get_user_by_id(self, user_id: UUID) -> Optional[Type.User]:
         """Retrieve a user by their ID.

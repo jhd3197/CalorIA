@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, g
+from flask import Blueprint, jsonify, g, request
 from uuid import UUID
 import sys
 import os
@@ -8,6 +8,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 
 # Import the get_client function from the main app
 from CalorIA.backend.app import get_client
+from CalorIA.mixins.jwt_utils import jwt_required
 
 # Create the user routes blueprint
 user_bp = Blueprint('user', __name__)
@@ -18,21 +19,58 @@ def get_user(user_id):
     try:
         # Get client instance from Flask's g context
         client = get_client()
-        
+
         # Fetch user from database
         user = client.get_user_by_id(user_id)
-        
+
         if user is None:
             return jsonify({"error": "User not found"}), 404
-            
+
         # Convert user to dictionary for JSON response, excluding password
         user_data = user.to_dict()
         if 'password_hash' in user_data:
             del user_data['password_hash']
         return jsonify(user_data)
-        
+
     except Exception as e:
         return jsonify({"error": f"Failed to fetch user: {str(e)}"}), 500
+
+@user_bp.route('/api/user/<uuid:user_id>', methods=['PUT'])
+@jwt_required
+def update_user(user_id):
+    """Update user data by user_id"""
+    try:
+        # Get client instance from Flask's g context
+        client = get_client()
+
+        # Get update data from request
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        # Update user in database
+        success = client.update_user(user_id, data)
+
+        if not success:
+            return jsonify({"error": "Failed to update user"}), 500
+
+        # Fetch updated user to return
+        updated_user = client.get_user_by_id(user_id)
+        if updated_user is None:
+            return jsonify({"error": "User not found after update"}), 404
+
+        # Convert user to dictionary for JSON response, excluding password
+        user_data = updated_user.to_dict()
+        if 'password_hash' in user_data:
+            del user_data['password_hash']
+
+        return jsonify({
+            "message": "User updated successfully",
+            "user": user_data
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to update user: {str(e)}"}), 500
 
 @user_bp.route('/api/user/<uuid:user_id>/favorites', methods=['GET'])
 def get_user_favorites(user_id):

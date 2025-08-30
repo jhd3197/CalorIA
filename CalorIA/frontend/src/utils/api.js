@@ -330,6 +330,30 @@ export const fetchUserProfile = async (userId) => {
   });
 };
 
+export const updateUserProfile = async (userId, updateData) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required to update user profile');
+  }
+
+  const response = await apiRequest(`/user/${userId}`, {
+    method: 'PUT',
+    body: JSON.stringify(updateData),
+  });
+
+  // Update stored user data if the update was successful
+  if (response.user) {
+    setUserData(response.user);
+  }
+
+  return response;
+};
+
 export const fetchDashboardData = async (userId = null, dateStr = null) => {
   if (!userId) {
     // Try to get user ID from stored user data

@@ -203,7 +203,6 @@ class UserPreferences(CalorIAModel):
     age: Optional[int] = Field(None, ge=0, le=120)
     height: Optional[float] = Field(None, gt=0, description="Height in centimeters")
     measurement_system: MeasurementSystem = MeasurementSystem.METRIC
-    default_weight_unit: WeightUnit = WeightUnit.KG
     activity_level: ActivityLevel = ActivityLevel.SEDENTARY
     goal_type: GoalType = GoalType.MAINTAIN
     target_weight: Optional[float] = Field(None, gt=0, description="Goal weight in default unit")

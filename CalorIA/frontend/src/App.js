@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { Plus } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
-import MealTimeline from './components/MealTimeline';
 import QuickAdd from './components/QuickAdd';
-import TopFoods from './components/TopFoods';
 import TrendCharts from './components/TrendCharts';
 import MealPlanner from './components/MealPlanner';
 import MealPrepForm from './components/MealPrepForm';
@@ -22,7 +19,8 @@ import TrendsDashboard from './components/TrendsDashboard';
 import Login from './components/Login';
 import Register from './components/Register';
 import ProtectedRoute from './components/ProtectedRoute';
-import { isAuthenticated, getCurrentUser, fetchUserProfile, getUserData, clearAuthData } from './utils/api';
+import { isAuthenticated, getCurrentUser, getUserData, clearAuthData } from './utils/api';
+import { initializeTheme, watchSystemTheme, getCurrentTheme, applyTheme } from './utils/theme';
 
 function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -30,6 +28,19 @@ function App() {
   const [mealsData, setMealsData] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [authState, setAuthState] = useState('checking'); // 'checking', 'authenticated', 'unauthenticated'
+
+  // Apply default theme on app start
+  useEffect(() => {
+    // Check if user has a stored theme preference
+    const storedUser = getUserData();
+    if (storedUser?.preferences?.theme) {
+      const theme = getCurrentTheme(storedUser.preferences.theme);
+      applyTheme(theme);
+    } else {
+      // Default to light theme if no preference is stored
+      applyTheme('light');
+    }
+  }, []);
 
   // Initialize app and fetch user data if authenticated
   useEffect(() => {
@@ -43,12 +54,12 @@ function App() {
             const currentUserResponse = await getCurrentUser();
             setUserData(currentUserResponse.user);
             setAuthState('authenticated');
-            
+
             // Fetch other data only if authenticated
             await fetchAppData();
           } catch (error) {
             console.error('Failed to fetch current user from API:', error);
-            
+
             // If it's an authentication error, clear everything
             if (error.message === 'AUTHENTICATION_FAILED') {
               clearAuthData();
@@ -81,27 +92,27 @@ function App() {
     };
 
     const fetchAppData = async () => {
-      // Get user data to extract user ID
-      const storedUserData = getUserData();
-      const userId = storedUserData?.user_id || storedUserData?.id;
-      
-      if (!userId) {
-        console.error('No user ID found, skipping data fetch');
-        return;
-      }
-
-      // Fetch user profile data
-      try {
-        await fetchUserProfile(userId);
-        // User profile data is handled by the API utility
-      } catch (error) {
-        console.error('Failed to fetch user profile:', error);
-      }
-
+      // User data is already fetched by getCurrentUser() in initializeApp
+      // No additional data fetching needed here
     };
 
     initializeApp();
   }, []);
+
+  // Apply theme when fresh user data is available from API
+  useEffect(() => {
+    if (userData?.preferences?.theme) {
+      const userTheme = userData.preferences.theme;
+      const currentTheme = initializeTheme(userTheme);
+
+      // Set up system theme watching if user prefers auto
+      const cleanup = watchSystemTheme(userTheme, (newTheme) => {
+        console.log('System theme changed to:', newTheme);
+      });
+
+      return cleanup;
+    }
+  }, [userData?.preferences?.theme]);
 
   const handleSidebarToggle = () => {
     setSidebarCollapsed(!sidebarCollapsed);
@@ -184,10 +195,10 @@ function App() {
   // Show loading screen while initializing
   if (!isInitialized) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading CalorIA...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 dark:border-emerald-400 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">Loading CalorIA...</p>
         </div>
       </div>
     );

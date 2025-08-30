@@ -232,32 +232,32 @@ const Recipes = () => {
 
   // Skeleton loading component for grid view
   const RecipeGridSkeleton = () => (
-    <div className="border border-gray-200 rounded-lg overflow-hidden">
-      <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
-        <div className="w-12 h-12 bg-gray-300 rounded animate-pulse"></div>
+    <div className="border border-gray-200 dark:border-slate-600 rounded-lg overflow-hidden">
+      <div className="w-full h-48 bg-gray-100 dark:bg-slate-700 flex items-center justify-center">
+        <div className="w-12 h-12 bg-gray-300 dark:bg-slate-600 rounded animate-pulse"></div>
       </div>
       <div className="p-4">
-        <div className="h-6 bg-gray-300 rounded mb-2 animate-pulse"></div>
+        <div className="h-6 bg-gray-300 dark:bg-slate-600 rounded mb-2 animate-pulse"></div>
         <div className="flex items-center justify-between text-sm mb-3">
           <div className="flex items-center">
-            <div className="w-4 h-4 bg-gray-300 rounded mr-1 animate-pulse"></div>
-            <div className="w-12 h-4 bg-gray-300 rounded animate-pulse"></div>
+            <div className="w-4 h-4 bg-gray-300 dark:bg-slate-600 rounded mr-1 animate-pulse"></div>
+            <div className="w-12 h-4 bg-gray-300 dark:bg-slate-600 rounded animate-pulse"></div>
           </div>
           <div className="flex items-center">
-            <div className="w-4 h-4 bg-gray-300 rounded mr-1 animate-pulse"></div>
-            <div className="w-16 h-4 bg-gray-300 rounded animate-pulse"></div>
+            <div className="w-4 h-4 bg-gray-300 dark:bg-slate-600 rounded mr-1 animate-pulse"></div>
+            <div className="w-16 h-4 bg-gray-300 dark:bg-slate-600 rounded animate-pulse"></div>
           </div>
           <div className="flex items-center">
-            <div className="w-4 h-4 bg-gray-300 rounded mr-1 animate-pulse"></div>
-            <div className="w-8 h-4 bg-gray-300 rounded animate-pulse"></div>
+            <div className="w-4 h-4 bg-gray-300 dark:bg-slate-600 rounded mr-1 animate-pulse"></div>
+            <div className="w-8 h-4 bg-gray-300 dark:bg-slate-600 rounded animate-pulse"></div>
           </div>
         </div>
         <div className="flex items-center justify-between">
-          <div className="w-24 h-6 bg-gray-300 rounded animate-pulse"></div>
+          <div className="w-24 h-6 bg-gray-300 dark:bg-slate-600 rounded animate-pulse"></div>
         </div>
         <div className="flex gap-1 mt-3">
-          <div className="w-12 h-5 bg-gray-300 rounded animate-pulse"></div>
-          <div className="w-16 h-5 bg-gray-300 rounded animate-pulse"></div>
+          <div className="w-12 h-5 bg-gray-300 dark:bg-slate-600 rounded animate-pulse"></div>
+          <div className="w-16 h-5 bg-gray-300 dark:bg-slate-600 rounded animate-pulse"></div>
         </div>
       </div>
     </div>
@@ -265,41 +265,41 @@ const Recipes = () => {
 
   // Skeleton loading component for list view
   const RecipeListSkeleton = () => (
-    <div className="border border-gray-200 rounded-lg p-4">
+    <div className="border border-gray-200 dark:border-slate-600 rounded-lg p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center flex-1">
-          <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
-            <div className="w-8 h-8 bg-gray-300 rounded animate-pulse"></div>
+          <div className="w-16 h-16 bg-gray-100 dark:bg-slate-700 rounded-lg flex items-center justify-center mr-4">
+            <div className="w-8 h-8 bg-gray-300 dark:bg-slate-600 rounded animate-pulse"></div>
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-48 h-6 bg-gray-300 rounded animate-pulse"></div>
-              <div className="w-16 h-5 bg-gray-300 rounded-full animate-pulse"></div>
+              <div className="w-48 h-6 bg-gray-300 dark:bg-slate-600 rounded animate-pulse"></div>
+              <div className="w-16 h-5 bg-gray-300 dark:bg-slate-600 rounded-full animate-pulse"></div>
             </div>
             <div className="flex items-center gap-6 text-sm mb-2">
               <div className="flex items-center">
-                <div className="w-4 h-4 bg-gray-300 rounded mr-1 animate-pulse"></div>
-                <div className="w-12 h-4 bg-gray-300 rounded animate-pulse"></div>
+                <div className="w-4 h-4 bg-gray-300 dark:bg-slate-600 rounded mr-1 animate-pulse"></div>
+                <div className="w-12 h-4 bg-gray-300 dark:bg-slate-600 rounded animate-pulse"></div>
               </div>
               <div className="flex items-center">
-                <div className="w-4 h-4 bg-gray-300 rounded mr-1 animate-pulse"></div>
-                <div className="w-16 h-4 bg-gray-300 rounded animate-pulse"></div>
+                <div className="w-4 h-4 bg-gray-300 dark:bg-slate-600 rounded mr-1 animate-pulse"></div>
+                <div className="w-16 h-4 bg-gray-300 dark:bg-slate-600 rounded animate-pulse"></div>
               </div>
               <div className="flex items-center">
-                <div className="w-4 h-4 bg-gray-300 rounded mr-1 animate-pulse"></div>
-                <div className="w-8 h-4 bg-gray-300 rounded animate-pulse"></div>
+                <div className="w-4 h-4 bg-gray-300 dark:bg-slate-600 rounded mr-1 animate-pulse"></div>
+                <div className="w-8 h-4 bg-gray-300 dark:bg-slate-600 rounded animate-pulse"></div>
               </div>
-              <div className="w-24 h-5 bg-gray-300 rounded animate-pulse"></div>
+              <div className="w-24 h-5 bg-gray-300 dark:bg-slate-600 rounded animate-pulse"></div>
             </div>
             <div className="flex gap-1">
-              <div className="w-12 h-5 bg-gray-300 rounded animate-pulse"></div>
-              <div className="w-16 h-5 bg-gray-300 rounded animate-pulse"></div>
-              <div className="w-14 h-5 bg-gray-300 rounded animate-pulse"></div>
+              <div className="w-12 h-5 bg-gray-300 dark:bg-slate-600 rounded animate-pulse"></div>
+              <div className="w-16 h-5 bg-gray-300 dark:bg-slate-600 rounded animate-pulse"></div>
+              <div className="w-14 h-5 bg-gray-300 dark:bg-slate-600 rounded animate-pulse"></div>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gray-300 rounded-full animate-pulse"></div>
+          <div className="w-10 h-10 bg-gray-300 dark:bg-slate-600 rounded-full animate-pulse"></div>
         </div>
       </div>
     </div>
@@ -309,61 +309,61 @@ const Recipes = () => {
     <>
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4">
           <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center mr-3">
-              <ChefHat className="w-5 h-5 text-emerald-600" />
+            <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center mr-3">
+              <ChefHat className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Total Recipes</p>
-              <p className="font-semibold">{recipes.length} recipes</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Recipes</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{recipes.length} recipes</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4">
           <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-3">
-              <Heart className="w-5 h-5 text-red-600" />
+            <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center mr-3">
+              <Heart className="w-5 h-5 text-red-600 dark:text-red-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Favorites</p>
-              <p className="font-semibold">{favorites.size} saved</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Favorites</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{favorites.size} saved</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4">
           <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-              <Clock className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mr-3">
+              <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Avg Prep Time</p>
-              <p className="font-semibold">{recipes.length > 0 ? Math.round(recipes.reduce((acc, r) => acc + r.prep_time_minutes + (r.cook_time_minutes || 0), 0) / recipes.length) : 0} min</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Avg Prep Time</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{recipes.length > 0 ? Math.round(recipes.reduce((acc, r) => acc + r.prep_time_minutes + (r.cook_time_minutes || 0), 0) / recipes.length) : 0} min</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4">
           <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
-              <BookOpen className="w-5 h-5 text-purple-600" />
+            <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center mr-3">
+              <BookOpen className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Categories</p>
-              <p className="font-semibold">{categories.length - 1} types</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Categories</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{categories.length - 1} types</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Search and Filter Section */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 mb-6">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
             <input
               type="text"
               placeholder="Search recipes, ingredients, or tags..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
             />
@@ -371,7 +371,7 @@ const Recipes = () => {
           <div className="flex items-center space-x-2">
             <button
               onClick={handleAddRecipe}
-              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center"
+              className="px-4 py-2 bg-emerald-600 dark:bg-emerald-700 text-white rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 flex items-center"
             >
               <Plus className="w-4 h-4 mr-1" />
               Add Recipe
@@ -384,19 +384,19 @@ const Recipes = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recipe Grid */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="heading text-lg font-semibold">
+              <h2 className="heading text-lg font-semibold text-gray-900 dark:text-white">
                 {selectedCategory === 'All' ? 'All Recipes' : `${selectedCategory} Recipes`}
-                <span className="text-gray-500 font-normal ml-2">({filteredRecipes.length})</span>
+                <span className="text-gray-500 dark:text-gray-400 font-normal ml-2">({filteredRecipes.length})</span>
               </h2>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => toggleViewMode('grid')}
                   className={`px-3 py-1 text-sm rounded-lg flex items-center ${
                     viewMode === 'grid'
-                      ? 'bg-emerald-50 text-emerald-600'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-emerald-50 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-400'
+                      : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
                   }`}
                 >
                   <Grid className="w-4 h-4 mr-1" />
@@ -406,8 +406,8 @@ const Recipes = () => {
                   onClick={() => toggleViewMode('list')}
                   className={`px-3 py-1 text-sm rounded-lg flex items-center ${
                     viewMode === 'list'
-                      ? 'bg-emerald-50 text-emerald-600'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-emerald-50 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-400'
+                      : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
                   }`}
                 >
                   <List className="w-4 h-4 mr-1" />
@@ -437,17 +437,17 @@ const Recipes = () => {
                     // Grid View
                     <div
                       key={recipe.id}
-                      className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                      className="border border-gray-200 dark:border-slate-600 rounded-lg overflow-hidden hover:shadow-md dark:hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-slate-800"
                       onClick={() => handleViewRecipe(recipe.id)}
                     >
                       <div className="relative">
-                        <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
-                          <ChefHat className="w-12 h-12 text-gray-400" />
+                        <div className="w-full h-48 bg-gray-100 dark:bg-slate-700 flex items-center justify-center">
+                          <ChefHat className="w-12 h-12 text-gray-400 dark:text-slate-500" />
                         </div>
                         <button
                           onClick={(e) => toggleFavorite(recipe.id, e)}
-                          className={`absolute top-2 right-2 p-2 rounded-full bg-white hover:scale-110 transition-transform ${
-                            favorites.has(recipe.id) ? 'text-red-500' : 'text-gray-400'
+                          className={`absolute top-2 right-2 p-2 rounded-full bg-white dark:bg-slate-700 hover:scale-110 transition-transform ${
+                            favorites.has(recipe.id) ? 'text-red-500 dark:text-red-400' : 'text-gray-400 dark:text-slate-400'
                           }`}
                         >
                           <Heart className={`w-4 h-4 ${favorites.has(recipe.id) ? 'fill-current' : ''}`} />
@@ -457,8 +457,8 @@ const Recipes = () => {
                         </span>
                       </div>
                       <div className="p-4">
-                        <h3 className="font-semibold mb-2">{recipe.name}</h3>
-                        <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
+                        <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">{recipe.name}</h3>
+                        <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-3">
                           <div className="flex items-center">
                             <Clock className="w-4 h-4 mr-1" />
                             <span>{recipe.prep_time_minutes + (recipe.cook_time_minutes || 0)} min</span>
@@ -473,7 +473,7 @@ const Recipes = () => {
                           </div>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-lg font-bold text-emerald-600">
+                          <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                             {recipe.calories_per_serving_stored && recipe.calories_per_serving_stored > 0
                               ? `${Math.round(recipe.calories_per_serving_stored || 0)} kcal/serving`
                               : 'Nutrition pending'
@@ -482,12 +482,12 @@ const Recipes = () => {
                         </div>
                         <div className="flex flex-wrap gap-1 mt-3">
                           {recipe.tags.slice(0, 2).map((tag, index) => (
-                            <span key={index} className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                            <span key={index} className="px-2 py-1 text-xs bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded">
                               {tag}
                             </span>
                           ))}
                           {recipe.tags.length > 2 && (
-                            <span className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                            <span className="px-2 py-1 text-xs bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded">
                               +{recipe.tags.length - 2}
                             </span>
                           )}
@@ -498,22 +498,22 @@ const Recipes = () => {
                     // List View
                     <div
                       key={recipe.id}
-                      className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                      className="border border-gray-200 dark:border-slate-600 rounded-lg p-4 hover:shadow-md dark:hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-slate-800"
                       onClick={() => handleViewRecipe(recipe.id)}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center flex-1">
-                          <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
-                            <ChefHat className="w-8 h-8 text-gray-400" />
+                          <div className="w-16 h-16 bg-gray-100 dark:bg-slate-700 rounded-lg flex items-center justify-center mr-4">
+                            <ChefHat className="w-8 h-8 text-gray-400 dark:text-slate-500" />
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
-                              <h3 className="font-semibold text-lg">{recipe.name}</h3>
+                              <h3 className="font-semibold text-lg text-gray-900 dark:text-white">{recipe.name}</h3>
                               <span className={`px-2 py-1 text-xs rounded-full ${getDifficultyColor(recipe.difficulty)}`}>
                                 {recipe.difficulty}
                               </span>
                             </div>
-                            <div className="flex items-center gap-6 text-sm text-gray-600 mb-2">
+                            <div className="flex items-center gap-6 text-sm text-gray-600 dark:text-gray-400 mb-2">
                               <div className="flex items-center">
                                 <Clock className="w-4 h-4 mr-1" />
                                 <span>{recipe.prep_time_minutes + (recipe.cook_time_minutes || 0)} min</span>
@@ -526,7 +526,7 @@ const Recipes = () => {
                                 <Star className="w-4 h-4 mr-1 text-yellow-500" />
                                 <span>4.5</span>
                               </div>
-                              <span className="text-emerald-600 font-medium">
+                              <span className="text-emerald-600 dark:text-emerald-400 font-medium">
                                 {recipe.calories_per_serving_stored && recipe.calories_per_serving_stored > 0
                                   ? `${Math.round(recipe.calories_per_serving_stored || 0)} kcal/serving`
                                   : 'Nutrition pending'
@@ -535,12 +535,12 @@ const Recipes = () => {
                             </div>
                             <div className="flex flex-wrap gap-1">
                               {recipe.tags.slice(0, 3).map((tag, index) => (
-                                <span key={index} className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                                <span key={index} className="px-2 py-1 text-xs bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded">
                                   {tag}
                                 </span>
                               ))}
                               {recipe.tags.length > 3 && (
-                                <span className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                                <span className="px-2 py-1 text-xs bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded">
                                   +{recipe.tags.length - 3}
                                 </span>
                               )}
@@ -550,8 +550,8 @@ const Recipes = () => {
                         <div className="flex items-center gap-3">
                           <button
                             onClick={(e) => toggleFavorite(recipe.id, e)}
-                            className={`p-2 rounded-full bg-gray-100 hover:scale-110 transition-transform ${
-                              favorites.has(recipe.id) ? 'text-red-500' : 'text-gray-400'
+                            className={`p-2 rounded-full bg-gray-100 dark:bg-slate-700 hover:scale-110 transition-transform ${
+                              favorites.has(recipe.id) ? 'text-red-500 dark:text-red-400' : 'text-gray-400 dark:text-slate-400'
                             }`}
                           >
                             <Heart className={`w-5 h-5 ${favorites.has(recipe.id) ? 'fill-current' : ''}`} />
@@ -568,11 +568,11 @@ const Recipes = () => {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          
+
           {/* Quick Categories */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="heading text-lg font-semibold">Recipe Categories</h2>
+              <h2 className="heading text-lg font-semibold text-gray-900 dark:text-white">Recipe Categories</h2>
               {selectedCategory !== 'All' && (
                 <button
                   onClick={() => handleCategoryChange('All')}
@@ -584,7 +584,7 @@ const Recipes = () => {
             </div>
             <div className="space-y-2">
               {categories.slice(1).length === 0 ? (
-                <div className="text-center py-4 text-gray-500">
+                <div className="text-center py-4 text-gray-500 dark:text-gray-400">
                   <p className="text-sm">No categories loaded</p>
                   <p className="text-xs">Categories will appear here once recipes are available</p>
                 </div>
@@ -608,20 +608,20 @@ const Recipes = () => {
                       onClick={() => handleCategoryChange(category.name)}
                       className={`w-full text-left p-3 rounded-lg transition-all duration-200 ${
                         selectedCategory === category.name
-                          ? 'bg-emerald-100 text-emerald-700 border-2 border-emerald-300 shadow-sm'
-                          : 'hover:bg-gray-50 border-2 border-transparent'
+                          ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 border-2 border-emerald-300 dark:border-emerald-600 shadow-sm'
+                          : 'hover:bg-gray-50 dark:hover:bg-slate-700 border-2 border-transparent text-gray-900 dark:text-white'
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-medium">{category.name}</span>
                         <div className="flex items-center gap-2">
                           <span className={`text-sm ${
-                            selectedCategory === category.name ? 'text-emerald-600' : 'text-gray-500'
+                            selectedCategory === category.name ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-500 dark:text-gray-400'
                           }`}>
                             {category.count}
                           </span>
                           {selectedCategory === category.name && (
-                            <span className="text-xs text-emerald-600 font-medium">✓</span>
+                            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">✓</span>
                           )}
                         </div>
                       </div>
@@ -632,25 +632,25 @@ const Recipes = () => {
           </div>
           
           {/* Favorite Recipes */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="heading text-lg font-semibold">Favorite Recipes</h2>
-              <Heart className="w-5 h-5 text-red-500" />
+              <h2 className="heading text-lg font-semibold text-gray-900 dark:text-white">Favorite Recipes</h2>
+              <Heart className="w-5 h-5 text-red-500 dark:text-red-400" />
             </div>
             <div className="space-y-3">
               {favoriteRecipes.length > 0 ? (
                 favoriteRecipes.slice(0, 3).map((recipe) => (
                   <div
                     key={recipe.id}
-                    className="flex items-center p-2 bg-red-50 rounded-lg cursor-pointer hover:bg-red-100 transition-colors"
+                    className="flex items-center p-2 bg-red-50 dark:bg-red-900/20 rounded-lg cursor-pointer hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
                     onClick={() => handleViewRecipe(recipe.id)}
                   >
-                    <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-3">
-                      <ChefHat className="w-6 h-6 text-red-600" />
+                    <div className="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center mr-3">
+                      <ChefHat className="w-6 h-6 text-red-600 dark:text-red-400" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium text-sm">{recipe.name}</p>
-                      <div className="flex items-center text-xs text-gray-500">
+                      <p className="font-medium text-sm text-gray-900 dark:text-white">{recipe.name}</p>
+                      <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
                         <Clock className="w-3 h-3 mr-1" />
                         <span>{recipe.prep_time_minutes + (recipe.cook_time_minutes || 0)} min</span>
                         <span className="mx-2">•</span>
@@ -665,14 +665,14 @@ const Recipes = () => {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-4 text-gray-500">
-                  <Heart className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+                  <Heart className="w-8 h-8 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
                   <p className="text-sm">No favorite recipes yet</p>
                   <p className="text-xs">Click the heart icon on recipes to add them here</p>
                 </div>
               )}
               {favoriteRecipes.length > 3 && (
-                <button className="w-full text-sm text-red-600 hover:text-red-700 font-medium">
+                <button className="w-full text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-medium">
                   View All Favorites →
                 </button>
               )}

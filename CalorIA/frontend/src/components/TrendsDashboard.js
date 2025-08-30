@@ -11,10 +11,19 @@ const TrendsDashboard = ({ onBack }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState('month');
+  const [userMeasurementSystem, setUserMeasurementSystem] = useState('metric');
 
   useEffect(() => {
     fetchTrendsData();
   }, [selectedPeriod]);
+
+  // Get user preferences
+  useEffect(() => {
+    const userData = getUserData();
+    if (userData?.preferences?.measurement_system) {
+      setUserMeasurementSystem(userData.preferences.measurement_system);
+    }
+  }, []);
 
   const fetchTrendsData = async () => {
     try {
@@ -45,14 +54,24 @@ const TrendsDashboard = ({ onBack }) => {
     const calorieLabels = trendsData.calories?.labels || [];
     const allLabels = [...new Set([...weightLabels, ...calorieLabels])].sort();
 
+    // Convert weight data based on measurement system
+    const convertWeight = (weightKg) => {
+      if (userMeasurementSystem === 'imperial') {
+        return weightKg * 2.20462; // Convert kg to lbs
+      }
+      return weightKg;
+    };
+
+    const weightUnit = userMeasurementSystem === 'imperial' ? 'lbs' : 'kg';
+
     return {
       labels: allLabels,
       datasets: [
         {
-          label: 'Weight (kg)',
+          label: `Weight (${weightUnit})`,
           data: allLabels.map(label => {
             const index = weightLabels.indexOf(label);
-            return index !== -1 ? trendsData.weight.data[index] : null;
+            return index !== -1 ? convertWeight(trendsData.weight.data[index]) : null;
           }),
           borderColor: '#22C55E',
           backgroundColor: 'rgba(34, 197, 94, 0.1)',
@@ -107,11 +126,11 @@ const TrendsDashboard = ({ onBack }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-            <p className="ml-3 text-gray-600">Loading trends dashboard...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 dark:border-emerald-400"></div>
+            <p className="ml-3 text-gray-600 dark:text-gray-300">Loading trends dashboard...</p>
           </div>
         </div>
       </div>
@@ -120,13 +139,13 @@ const TrendsDashboard = ({ onBack }) => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-red-50 border border-red-200 text-red-800 rounded-lg p-6">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 rounded-lg p-6">
             <p className="text-center">{error}</p>
             <button
               onClick={fetchTrendsData}
-              className="mt-4 mx-auto block bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+              className="mt-4 mx-auto block bg-red-600 dark:bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-700 dark:hover:bg-red-600"
             >
               Try Again
             </button>
@@ -181,9 +200,19 @@ const TrendsDashboard = ({ onBack }) => {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Current Weight</p>
-                <p className="text-2xl font-bold">{stats?.weightCurrent?.toFixed(1) || '—'} kg</p>
+                <p className="text-2xl font-bold">
+                  {stats?.weightCurrent ?
+                    (userMeasurementSystem === 'imperial' ?
+                      (stats.weightCurrent * 2.20462).toFixed(1) :
+                      stats.weightCurrent.toFixed(1)
+                    ) : '—'} {userMeasurementSystem === 'imperial' ? 'lbs' : 'kg'}
+                </p>
                 {stats?.weightGoal && (
-                  <p className="text-sm text-gray-500">Goal: {stats.weightGoal} kg</p>
+                  <p className="text-sm text-gray-500">
+                    Goal: {userMeasurementSystem === 'imperial' ?
+                      (stats.weightGoal * 2.20462).toFixed(1) :
+                      stats.weightGoal.toFixed(1)} {userMeasurementSystem === 'imperial' ? 'lbs' : 'kg'}
+                  </p>
                 )}
               </div>
             </div>
@@ -206,7 +235,7 @@ const TrendsDashboard = ({ onBack }) => {
                   stats?.weightChange < 0 ? 'text-green-600' :
                   stats?.weightChange > 0 ? 'text-red-600' : 'text-gray-600'
                 }`}>
-                  {stats?.weightChange ? `${stats.weightChange > 0 ? '+' : ''}${stats.weightChange.toFixed(1)} kg` : '—'}
+                  {stats?.weightChange ? `${stats.weightChange > 0 ? '+' : ''}${(userMeasurementSystem === 'imperial' ? stats.weightChange * 2.20462 : stats.weightChange).toFixed(1)} ${userMeasurementSystem === 'imperial' ? 'lbs' : 'kg'}` : '—'}
                 </p>
               </div>
             </div>
@@ -272,7 +301,8 @@ const TrendsDashboard = ({ onBack }) => {
                       callbacks: {
                         label: function(context) {
                           if (context.datasetIndex === 0) {
-                            return `Weight: ${context.parsed.y} kg`;
+                            const unit = userMeasurementSystem === 'imperial' ? 'lbs' : 'kg';
+                            return `Weight: ${context.parsed.y.toFixed(1)} ${unit}`;
                           } else {
                             return `Calories: ${Math.round(context.parsed.y)}`;
                           }
@@ -287,7 +317,7 @@ const TrendsDashboard = ({ onBack }) => {
                       position: 'left',
                       title: {
                         display: true,
-                        text: 'Weight (kg)'
+                        text: `Weight (${userMeasurementSystem === 'imperial' ? 'lbs' : 'kg'})`
                       },
                       grid: { drawBorder: false }
                     },
@@ -333,7 +363,7 @@ const TrendsDashboard = ({ onBack }) => {
                     labels: trendsData.weight.labels,
                     datasets: [{
                       label: 'Weight',
-                      data: trendsData.weight.data,
+                      data: trendsData.weight.data.map(weight => userMeasurementSystem === 'imperial' ? weight * 2.20462 : weight),
                       borderColor: '#22C55E',
                       backgroundColor: 'rgba(34, 197, 94, 0.1)',
                       borderWidth: 2,
@@ -349,7 +379,8 @@ const TrendsDashboard = ({ onBack }) => {
                       tooltip: {
                         callbacks: {
                           label: function(context) {
-                            return `${context.parsed.y} kg`;
+                            const unit = userMeasurementSystem === 'imperial' ? 'lbs' : 'kg';
+                            return `${context.parsed.y.toFixed(1)} ${unit}`;
                           }
                         }
                       }

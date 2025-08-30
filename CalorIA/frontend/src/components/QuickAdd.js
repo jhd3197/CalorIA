@@ -63,6 +63,7 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
   const [weightValue, setWeightValue] = useState('');
   const [weightUnit, setWeightUnit] = useState('kg');
   const [isAddingWeight, setIsAddingWeight] = useState(false);
+  const [userMeasurementSystem, setUserMeasurementSystem] = useState('metric');
 
   // Function to get the effective user ID
   const getEffectiveUserId = () => {
@@ -139,6 +140,16 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
+  }, []);
+
+  // Get user preferences and set default weight unit
+  useEffect(() => {
+    const userData = getUserData();
+    if (userData?.preferences?.measurement_system) {
+      const system = userData.preferences.measurement_system;
+      setUserMeasurementSystem(system);
+      setWeightUnit(system === 'imperial' ? 'lbs' : 'kg');
+    }
   }, []);
 
   // Clean up timeout on unmount
@@ -337,7 +348,7 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
     setIsAddingWeight(true);
 
     try {
-      // Convert weight to kg based on unit
+      // Convert weight to kg based on unit (backend expects kg)
       let weightInKg = Number(weightValue);
       switch (weightUnit) {
         case 'lbs':
@@ -388,7 +399,7 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
       <h2 className="heading text-lg font-semibold mb-4">Quick Add</h2>
       
       {/* Tab Navigation */}
@@ -434,7 +445,7 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
               placeholder="Search food..."
               value={foodName}
               onChange={handleFoodNameChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="w-full px-4 py-2 border border-gray-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
             />
             <span className="absolute right-3 top-2 text-gray-400">
               {isSearching ? (
@@ -446,11 +457,11 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
             
             {/* Search Results Dropdown */}
             {showResults && searchResults.length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                 {searchResults.map((food) => (
                   <div
                     key={food.id}
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex justify-between"
+                    className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer flex justify-between"
                     onClick={() => handleSelectFood(food)}
                   >
                     <div>
@@ -469,7 +480,7 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
             <select
               value={mealType}
               onChange={(e) => setMealType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="w-full px-3 py-2 border border-gray-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
             >
               <option value="breakfast">Breakfast</option>
               <option value="lunch">Lunch</option>
@@ -488,7 +499,7 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
                 onChange={(e) => setQuantity(e.target.value)}
                 min="0.1"
                 step="0.1"
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
               />
             </div>
             <div>
@@ -496,7 +507,7 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
               <select
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
               >
                 <option value="serving">serving</option>
                 <option value="100g">100g</option>
@@ -538,7 +549,7 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
                 onChange={(e) => setWaterAmount(e.target.value)}
                 min="1"
                 step="1"
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
               />
             </div>
             <div>
@@ -546,7 +557,7 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
               <select
                 value={waterUnit}
                 onChange={(e) => setWaterUnit(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
               >
                 <option value="ml">ml</option>
                 <option value="l">l</option>
@@ -585,7 +596,7 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
                 onChange={(e) => setWeightValue(e.target.value)}
                 min="0.1"
                 step="0.1"
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
               />
             </div>
             <div>
@@ -593,11 +604,21 @@ const QuickAdd = ({ onAddFood, onAddWater, userId, onDashboardUpdate }) => {
               <select
                 value={weightUnit}
                 onChange={(e) => setWeightUnit(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
               >
-                <option value="kg">kg</option>
-                <option value="lbs">lbs</option>
-                <option value="oz">oz</option>
+                {userMeasurementSystem === 'imperial' ? (
+                  <>
+                    <option value="lbs">lbs</option>
+                    <option value="kg">kg</option>
+                    <option value="oz">oz</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="kg">kg</option>
+                    <option value="lbs">lbs</option>
+                    <option value="oz">oz</option>
+                  </>
+                )}
               </select>
             </div>
           </div>

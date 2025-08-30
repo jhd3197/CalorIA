@@ -228,22 +228,22 @@ const Dashboard = ({ userData: propUserData, mealsData }) => {
       {/* Loading indicator */}
       {isLoading && (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
-          <p className="ml-3 text-gray-600">Loading dashboard data...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500 dark:border-emerald-400"></div>
+          <p className="ml-3 text-gray-600 dark:text-gray-300">Loading dashboard data...</p>
         </div>
       )}
 
       {/* Error message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 mb-6">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 rounded-lg p-4">
           <div className="flex">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+              <svg className="h-5 w-5 text-red-500 dark:text-red-400" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Error loading dashboard data</h3>
+              <h3 className="text-sm font-medium text-red-800 dark:text-red-200">Error loading dashboard data</h3>
               <p className="text-sm mt-1">{error}</p>
               <p className="text-sm mt-2">Showing default values instead.</p>
             </div>
@@ -255,60 +255,64 @@ const Dashboard = ({ userData: propUserData, mealsData }) => {
       {!isLoading && (
         <>
           {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center mr-3">
-              <Target className="w-5 h-5 text-emerald-600" />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4">
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center mr-3">
+                  <Target className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Daily Goal</p>
+                  <p className="font-semibold text-gray-900 dark:text-white">{dailyGoal.toLocaleString()} kcal</p>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-gray-500">Daily Goal</p>
-              <p className="font-semibold">{dailyGoal.toLocaleString()} kcal</p>
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4">
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mr-3">
+                  <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">BMI</p>
+                  <p className="font-semibold text-gray-900 dark:text-white">
+                    {dashboardData?.bmi ? `${dashboardData.bmi}` : 'N/A'}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4">
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900 flex items-center justify-center mr-3">
+                  <Scale className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Weight</p>
+                  <p className="font-semibold text-gray-900 dark:text-white">
+                    {data.weight || 0} {dashboardData?.measurementSystem === 'imperial' ? 'lbs' : 'kg'}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4">
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center mr-3">
+                  <Droplet className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Water</p>
+                  <p className="font-semibold text-gray-900 dark:text-white">{data.water || 0} L</p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-              <Activity className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Activity</p>
-              <p className="font-semibold">{burned} kcal</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mr-3">
-              <Scale className="w-5 h-5 text-amber-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Weight</p>
-              <p className="font-semibold">{data.weight || 0} kg</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
-              <Droplet className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Water</p>
-              <p className="font-semibold">{data.water || 0} L</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Main Dashboard Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Column */}
         <div className="lg:col-span-2 space-y-6">
           {/* Today at a Glance */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="heading text-lg font-semibold mb-4">Today at a Glance</h2>
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+            <h2 className="heading text-lg font-semibold mb-4 text-gray-900 dark:text-white">Today at a Glance</h2>
             <div className="flex flex-col md:flex-row items-center">
               <div className="relative w-48 h-48 mb-6 md:mb-0 md:mr-6">
                 <svg className="w-full h-full" viewBox="0 0 100 100">
@@ -334,61 +338,61 @@ const Dashboard = ({ userData: propUserData, mealsData }) => {
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-bold">{consumed.toLocaleString()}</span>
-                  <span className="text-sm text-gray-500">kcal consumed</span>
-                  <span className="text-emerald-600 font-medium mt-1">{remaining} remaining</span>
+                  <span className="text-3xl font-bold text-gray-900 dark:text-white">{consumed.toLocaleString()}</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">kcal consumed</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-medium mt-1">{remaining} remaining</span>
                 </div>
               </div>
               <div className="flex-1">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-gray-500">Goal</p>
-                    <p className="font-semibold">{dailyGoal.toLocaleString()} kcal</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Goal</p>
+                    <p className="font-semibold text-gray-900 dark:text-white">{dailyGoal.toLocaleString()} kcal</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Burned</p>
-                    <p className="font-semibold">{burned} kcal</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Burned</p>
+                    <p className="font-semibold text-gray-900 dark:text-white">{burned} kcal</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Net</p>
-                    <p className="font-semibold">{net.toLocaleString()} kcal</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Net</p>
+                    <p className="font-semibold text-gray-900 dark:text-white">{net.toLocaleString()} kcal</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Status</p>
-                    <p className="font-semibold text-emerald-600">On track</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
+                    <p className="font-semibold text-emerald-600 dark:text-emerald-400">On track</p>
                   </div>
                 </div>
                 <div className="mt-6">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-gray-500">Protein</span>
-                    <span className="text-sm font-medium">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Protein</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
                       {data.macros?.protein?.grams || 0}g ({data.macros?.protein?.percent || 0}%)
                     </span>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2">
-                    <div className="bg-blue-500 h-2 rounded-full" style={{width: `${data.macros?.protein?.percent || 0}%`}}></div>
+                  <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                    <div className="bg-blue-500 dark:bg-blue-400 h-2 rounded-full" style={{width: `${data.macros?.protein?.percent || 0}%`}}></div>
                   </div>
                 </div>
                 <div className="mt-3">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-gray-500">Carbs</span>
-                    <span className="text-sm font-medium">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Carbs</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
                       {data.macros?.carbs?.grams || 0}g ({data.macros?.carbs?.percent || 0}%)
                     </span>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2">
-                    <div className="bg-amber-500 h-2 rounded-full" style={{width: `${data.macros?.carbs?.percent || 0}%`}}></div>
+                  <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                    <div className="bg-amber-500 dark:bg-amber-400 h-2 rounded-full" style={{width: `${data.macros?.carbs?.percent || 0}%`}}></div>
                   </div>
                 </div>
                 <div className="mt-3">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-gray-500">Fat</span>
-                    <span className="text-sm font-medium">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Fat</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
                       {data.macros?.fat?.grams || 0}g ({data.macros?.fat?.percent || 0}%)
                     </span>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2">
-                    <div className="bg-purple-500 h-2 rounded-full" style={{width: `${data.macros?.fat?.percent || 0}%`}}></div>
+                  <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                    <div className="bg-purple-500 dark:bg-purple-400 h-2 rounded-full" style={{width: `${data.macros?.fat?.percent || 0}%`}}></div>
                   </div>
                 </div>
               </div>

@@ -12,6 +12,8 @@ const WeightTracker = ({ onBack }) => {
   const [error, setError] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
+  const [userMeasurementSystem, setUserMeasurementSystem] = useState('metric');
+  const [userTargetWeight, setUserTargetWeight] = useState(null);
   const [formData, setFormData] = useState({
     weight: '',
     on_date: new Date().toISOString().split('T')[0],
@@ -20,6 +22,22 @@ const WeightTracker = ({ onBack }) => {
 
   useEffect(() => {
     fetchWeightHistory();
+  }, []);
+
+  // Get user preferences and set default unit
+  useEffect(() => {
+    const userData = getUserData();
+    if (userData?.preferences?.measurement_system) {
+      const system = userData.preferences.measurement_system;
+      setUserMeasurementSystem(system);
+      setFormData(prev => ({
+        ...prev,
+        unit: system === 'imperial' ? 'lbs' : 'kg'
+      }));
+    }
+    if (userData?.preferences?.target_weight) {
+      setUserTargetWeight(userData.preferences.target_weight);
+    }
   }, []);
 
   const fetchWeightHistory = async () => {
@@ -140,21 +158,44 @@ const WeightTracker = ({ onBack }) => {
   };
 
   // Prepare chart data
+  const labels = weightEntries.slice(0, 30).reverse().map(entry =>
+    new Date(entry.on_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  );
+
+  const datasets = [
+    {
+      label: 'Weight',
+      data: weightEntries.slice(0, 30).reverse().map(entry =>
+        userMeasurementSystem === 'imperial' ? entry.weight_kg * 2.20462 : entry.weight_kg
+      ),
+      borderColor: '#22C55E',
+      backgroundColor: 'rgba(34, 197, 94, 0.05)',
+      borderWidth: 2,
+      tension: 0.3,
+      fill: true
+    }
+  ];
+
+  // Add goal line using target_weight if available
+  if (userTargetWeight !== null) {
+    // target_weight is already in the user's preferred unit, no conversion needed
+    const goalData = new Array(labels.length).fill(userTargetWeight);
+
+    datasets.push({
+      label: 'Goal',
+      data: goalData,
+      borderColor: '#9CA3AF', // Gray color for goal
+      backgroundColor: 'rgba(156, 163, 175, 0.1)',
+      borderWidth: 1,
+      borderDash: [5, 5],
+      pointRadius: 0,
+      fill: false
+    });
+  }
+
   const chartData = {
-    labels: weightEntries.slice(0, 30).reverse().map(entry =>
-      new Date(entry.on_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    ),
-    datasets: [
-      {
-        label: 'Weight',
-        data: weightEntries.slice(0, 30).reverse().map(entry => entry.weight_kg),
-        borderColor: '#22C55E',
-        backgroundColor: 'rgba(34, 197, 94, 0.05)',
-        borderWidth: 2,
-        tension: 0.3,
-        fill: true
-      }
-    ]
+    labels,
+    datasets
   };
 
   // Calculate weight change
@@ -226,7 +267,11 @@ const WeightTracker = ({ onBack }) => {
               <div>
                 <p className="text-sm text-gray-500">Current Weight</p>
                 <p className="text-2xl font-bold">
-                  {weightEntries.length > 0 ? `${weightEntries[0].weight_kg} kg` : 'No data'}
+                  {weightEntries.length > 0 ?
+                    `${userMeasurementSystem === 'imperial' ?
+                      (weightEntries[0].weight_kg * 2.20462).toFixed(1) :
+                      weightEntries[0].weight_kg.toFixed(1)} ${userMeasurementSystem === 'imperial' ? 'lbs' : 'kg'}` :
+                    'No data'}
                 </p>
               </div>
             </div>
@@ -249,7 +294,9 @@ const WeightTracker = ({ onBack }) => {
                   weightChange?.isPositive ? 'text-green-600' :
                   weightChange?.direction === 'up' ? 'text-red-600' : 'text-gray-600'
                 }`}>
-                  {weightChange ? `${weightChange.value.toFixed(1)} kg` : 'No data'}
+                  {weightChange ?
+                    `${(userMeasurementSystem === 'imperial' ? weightChange.value * 2.20462 : weightChange.value).toFixed(1)} ${userMeasurementSystem === 'imperial' ? 'lbs' : 'kg'}` :
+                    'No data'}
                 </p>
               </div>
             </div>
@@ -285,7 +332,8 @@ const WeightTracker = ({ onBack }) => {
                       intersect: false,
                       callbacks: {
                         label: function(context) {
-                          return `${context.dataset.label}: ${context.parsed.y} kg`;
+                          const unit = userMeasurementSystem === 'imperial' ? 'lbs' : 'kg';
+                          return `${context.dataset.label}: ${context.parsed.y.toFixed(1)} ${unit}`;
                         }
                       }
                     }
@@ -307,6 +355,34 @@ const WeightTracker = ({ onBack }) => {
               </div>
             )}
           </div>
+
+          {/* Weight Summary */}
+          {weightEntries.length > 0 && (
+            <div className="mt-4 flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Current</p>
+                <p className="font-semibold">
+                  {userMeasurementSystem === 'imperial' ?
+                    (weightEntries[0].weight_kg * 2.20462).toFixed(1) :
+                    weightEntries[0].weight_kg.toFixed(1)} {userMeasurementSystem === 'imperial' ? 'lbs' : 'kg'}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Change</p>
+                <p className={`font-semibold ${weightChange?.isPositive ? 'text-green-600' : weightChange?.direction === 'up' ? 'text-red-600' : 'text-gray-600'}`}>
+                  {weightChange ?
+                    `${(userMeasurementSystem === 'imperial' ? weightChange.value * 2.20462 : weightChange.value).toFixed(1)} ${userMeasurementSystem === 'imperial' ? 'lbs' : 'kg'}` :
+                    'No data'}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Goal</p>
+                <p className="font-semibold">
+                  {userTargetWeight ? userTargetWeight.toFixed(1) : '—'} {userMeasurementSystem === 'imperial' ? 'lbs' : 'kg'}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Add/Edit Form */}
@@ -355,8 +431,17 @@ const WeightTracker = ({ onBack }) => {
                     onChange={(e) => setFormData({...formData, unit: e.target.value})}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   >
-                    <option value="kg">Kilograms (kg)</option>
-                    <option value="lbs">Pounds (lbs)</option>
+                    {userMeasurementSystem === 'imperial' ? (
+                      <>
+                        <option value="lbs">Pounds (lbs)</option>
+                        <option value="kg">Kilograms (kg)</option>
+                      </>
+                    ) : (
+                      <>
+                        <option value="kg">Kilograms (kg)</option>
+                        <option value="lbs">Pounds (lbs)</option>
+                      </>
+                    )}
                   </select>
                 </div>
               </div>
@@ -426,7 +511,9 @@ const WeightTracker = ({ onBack }) => {
                           {new Date(entry.on_date).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {entry.weight_kg} kg
+                          {userMeasurementSystem === 'imperial' ?
+                            (entry.weight_kg * 2.20462).toFixed(1) :
+                            entry.weight_kg.toFixed(1)} {userMeasurementSystem === 'imperial' ? 'lbs' : 'kg'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                           {previousEntry ? (
@@ -438,7 +525,7 @@ const WeightTracker = ({ onBack }) => {
                                   <TrendingUp className="w-4 h-4 mr-1" /> :
                                   <TrendingDown className="w-4 h-4 mr-1" />
                               )}
-                              {change === 0 ? '—' : `${change > 0 ? '+' : ''}${change.toFixed(1)} kg`}
+                              {change === 0 ? '—' : `${change > 0 ? '+' : ''}${(userMeasurementSystem === 'imperial' ? change * 2.20462 : change).toFixed(1)} ${userMeasurementSystem === 'imperial' ? 'lbs' : 'kg'}`}
                             </span>
                           ) : (
                             <span className="text-gray-400">—</span>

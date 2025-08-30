@@ -79,47 +79,47 @@ const GroceryList = () => {
     <>
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4">
           <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-              <ShoppingCart className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mr-3">
+              <ShoppingCart className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Total Items</p>
-              <p className="font-semibold">{totalItems} items</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Items</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{totalItems} items</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4">
           <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
-              <Check className="w-5 h-5 text-green-600" />
+            <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mr-3">
+              <Check className="w-5 h-5 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Completed</p>
-              <p className="font-semibold">{completedItems}/{totalItems}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Completed</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{completedItems}/{totalItems}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4">
           <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mr-3">
-              <DollarSign className="w-5 h-5 text-amber-600" />
+            <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900 flex items-center justify-center mr-3">
+              <DollarSign className="w-5 h-5 text-amber-600 dark:text-amber-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Total Cost</p>
-              <p className="font-semibold">${totalCost.toFixed(2)}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Cost</p>
+              <p className="font-semibold text-gray-900 dark:text-white">${totalCost.toFixed(2)}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-4">
           <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
-              <Package className="w-5 h-5 text-purple-600" />
+            <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center mr-3">
+              <Package className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Remaining</p>
-              <p className="font-semibold">${remainingCost.toFixed(2)}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Remaining</p>
+              <p className="font-semibold text-gray-900 dark:text-white">${remainingCost.toFixed(2)}</p>
             </div>
           </div>
         </div>
@@ -129,29 +129,29 @@ const GroceryList = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Shopping List */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="heading text-lg font-semibold">Shopping List</h2>
-              <div className="text-sm text-gray-500">
+              <h2 className="heading text-lg font-semibold text-gray-900 dark:text-white">Shopping List</h2>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 {completedItems} of {totalItems} items completed
               </div>
             </div>
 
             {/* Add New Item */}
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <div className="mb-6 p-4 bg-gray-50 dark:bg-slate-700 rounded-lg">
               <div className="flex flex-col md:flex-row gap-3">
                 <div className="flex-1">
                   <input
                     type="text"
                     placeholder="Add new item..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent bg-white dark:bg-slate-600 text-gray-900 dark:text-white"
                     value={newItem}
                     onChange={(e) => setNewItem(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && addItem()}
                   />
                 </div>
                 <select
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent bg-white dark:bg-slate-600 text-gray-900 dark:text-white"
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                 >
@@ -161,7 +161,7 @@ const GroceryList = () => {
                 </select>
                 <button
                   onClick={addItem}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+                  className="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 flex items-center"
                 >
                   <Plus className="w-4 h-4 mr-1" />
                   Add
@@ -177,7 +177,7 @@ const GroceryList = () => {
                 
                 return (
                   <div key={category} className="space-y-2">
-                    <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wide border-b border-gray-200 pb-2">
+                    <h3 className="font-semibold text-gray-700 dark:text-gray-300 text-sm uppercase tracking-wide border-b border-gray-200 dark:border-slate-600 pb-2">
                       {category} ({categoryItems.length})
                     </h3>
                     <div className="space-y-2">
@@ -185,7 +185,7 @@ const GroceryList = () => {
                         <div
                           key={item.id}
                           className={`flex items-center p-3 rounded-lg border-l-4 ${getPriorityColor(item.priority)} ${
-                            item.completed ? 'bg-green-50 opacity-60' : 'bg-gray-50'
+                            item.completed ? 'bg-green-50 dark:bg-green-900/20 opacity-60' : 'bg-gray-50 dark:bg-slate-700'
                           }`}
                         >
                           <button
@@ -193,25 +193,25 @@ const GroceryList = () => {
                             className={`w-5 h-5 rounded border-2 flex items-center justify-center mr-3 transition-colors ${
                               item.completed
                                 ? 'bg-green-500 border-green-500 text-white'
-                                : 'border-gray-300 hover:border-green-500'
+                                : 'border-gray-300 dark:border-slate-600 hover:border-green-500'
                             }`}
                           >
                             {item.completed && <Check className="w-3 h-3" />}
                           </button>
                           <div className="flex-1">
-                            <p className={`font-medium ${item.completed ? 'line-through text-gray-500' : ''}`}>
+                            <p className={`font-medium text-gray-900 dark:text-white ${item.completed ? 'line-through text-gray-500 dark:text-gray-400' : ''}`}>
                               {item.name}
                             </p>
-                            <p className="text-sm text-gray-500">{item.quantity}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{item.quantity}</p>
                           </div>
                           <div className="text-right mr-3">
-                            <p className={`font-semibold ${item.completed ? 'text-gray-500' : ''}`}>
+                            <p className={`font-semibold text-gray-900 dark:text-white ${item.completed ? 'text-gray-500 dark:text-gray-400' : ''}`}>
                               ${item.price.toFixed(2)}
                             </p>
                           </div>
                           <button
                             onClick={() => deleteItem(item.id)}
-                            className="text-red-500 hover:text-red-700 p-1"
+                            className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 p-1"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -224,14 +224,14 @@ const GroceryList = () => {
             </div>
 
             {/* Progress Bar */}
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+            <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-blue-800">Shopping Progress</span>
-                <span className="text-sm text-blue-600">{Math.round((completedItems / totalItems) * 100)}%</span>
+                <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Shopping Progress</span>
+                <span className="text-sm text-blue-600 dark:text-blue-400">{Math.round((completedItems / totalItems) * 100)}%</span>
               </div>
-              <div className="w-full bg-blue-100 rounded-full h-2">
-                <div 
-                  className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+              <div className="w-full bg-blue-100 dark:bg-blue-900/50 rounded-full h-2">
+                <div
+                  className="bg-blue-500 dark:bg-blue-400 h-2 rounded-full transition-all duration-300"
                   style={{width: `${(completedItems / totalItems) * 100}%`}}
                 ></div>
               </div>
@@ -242,82 +242,82 @@ const GroceryList = () => {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Shopping Summary */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="heading text-lg font-semibold mb-4">Shopping Summary</h2>
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+            <h2 className="heading text-lg font-semibold mb-4 text-gray-900 dark:text-white">Shopping Summary</h2>
             <div className="space-y-4">
               <div className="flex justify-between">
-                <span className="text-gray-600">Total Items:</span>
-                <span className="font-semibold">{totalItems}</span>
+                <span className="text-gray-600 dark:text-gray-400">Total Items:</span>
+                <span className="font-semibold text-gray-900 dark:text-white">{totalItems}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Completed:</span>
-                <span className="font-semibold text-green-600">{completedItems}</span>
+                <span className="text-gray-600 dark:text-gray-400">Completed:</span>
+                <span className="font-semibold text-green-600 dark:text-green-400">{completedItems}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Remaining:</span>
-                <span className="font-semibold text-orange-600">{totalItems - completedItems}</span>
+                <span className="text-gray-600 dark:text-gray-400">Remaining:</span>
+                <span className="font-semibold text-orange-600 dark:text-orange-400">{totalItems - completedItems}</span>
               </div>
-              <hr className="my-3" />
+              <hr className="my-3 border-gray-200 dark:border-slate-600" />
               <div className="flex justify-between">
-                <span className="text-gray-600">Total Cost:</span>
-                <span className="font-semibold">${totalCost.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Completed Cost:</span>
-                <span className="font-semibold text-green-600">${(totalCost - remainingCost).toFixed(2)}</span>
+                <span className="text-gray-600 dark:text-gray-400">Total Cost:</span>
+                <span className="font-semibold text-gray-900 dark:text-white">${totalCost.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Remaining Cost:</span>
-                <span className="font-semibold text-orange-600">${remainingCost.toFixed(2)}</span>
+                <span className="text-gray-600 dark:text-gray-400">Completed Cost:</span>
+                <span className="font-semibold text-green-600 dark:text-green-400">${(totalCost - remainingCost).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Remaining Cost:</span>
+                <span className="font-semibold text-orange-600 dark:text-orange-400">${remainingCost.toFixed(2)}</span>
               </div>
             </div>
           </div>
 
           {/* Recently Purchased */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="heading text-lg font-semibold">Recently Purchased</h2>
-              <Clock className="w-5 h-5 text-gray-400" />
+              <h2 className="heading text-lg font-semibold text-gray-900 dark:text-white">Recently Purchased</h2>
+              <Clock className="w-5 h-5 text-gray-400 dark:text-gray-500" />
             </div>
             <div className="space-y-3">
               {recentlyPurchased.map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-2 bg-green-50 rounded-lg">
+                <div key={index} className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
                   <div>
-                    <p className="font-medium text-sm">{item.name}</p>
-                    <p className="text-xs text-gray-500">{item.date}</p>
+                    <p className="font-medium text-sm text-gray-900 dark:text-white">{item.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{item.date}</p>
                   </div>
-                  <span className="text-sm font-semibold text-green-600">${item.price}</span>
+                  <span className="text-sm font-semibold text-green-600 dark:text-green-400">${item.price}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="heading text-lg font-semibold mb-4">Quick Actions</h2>
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+            <h2 className="heading text-lg font-semibold mb-4 text-gray-900 dark:text-white">Quick Actions</h2>
             <div className="space-y-3">
-              <button className="w-full p-3 text-left bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+              <button className="w-full p-3 text-left bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors">
                 <div className="flex items-center">
-                  <Plus className="w-5 h-5 text-blue-600 mr-3" />
-                  <span className="text-blue-600 font-medium">Add from meal plan</span>
+                  <Plus className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-3" />
+                  <span className="text-blue-600 dark:text-blue-400 font-medium">Add from meal plan</span>
                 </div>
               </button>
-              <button className="w-full p-3 text-left bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
+              <button className="w-full p-3 text-left bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors">
                 <div className="flex items-center">
-                  <Package className="w-5 h-5 text-purple-600 mr-3" />
-                  <span className="text-purple-600 font-medium">Add from recipes</span>
+                  <Package className="w-5 h-5 text-purple-600 dark:text-purple-400 mr-3" />
+                  <span className="text-purple-600 dark:text-purple-400 font-medium">Add from recipes</span>
                 </div>
               </button>
-              <button className="w-full p-3 text-left bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
+              <button className="w-full p-3 text-left bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors">
                 <div className="flex items-center">
-                  <Check className="w-5 h-5 text-green-600 mr-3" />
-                  <span className="text-green-600 font-medium">Mark all completed</span>
+                  <Check className="w-5 h-5 text-green-600 dark:text-green-400 mr-3" />
+                  <span className="text-green-600 dark:text-green-400 font-medium">Mark all completed</span>
                 </div>
               </button>
-              <button className="w-full p-3 text-left bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
+              <button className="w-full p-3 text-left bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors">
                 <div className="flex items-center">
-                  <X className="w-5 h-5 text-red-600 mr-3" />
-                  <span className="text-red-600 font-medium">Clear completed</span>
+                  <X className="w-5 h-5 text-red-600 dark:text-red-400 mr-3" />
+                  <span className="text-red-600 dark:text-red-400 font-medium">Clear completed</span>
                 </div>
               </button>
             </div>
