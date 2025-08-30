@@ -1,6 +1,7 @@
 # CalorIA 🍎
 
 A comprehensive full-stack calorie tracking application built with Flask backend, React frontend, MongoDB database, and a custom CLI for easy management. The application is fully containerized with Docker for seamless deployment.
+<img width="902" height="476" alt="image" src="https://github.com/user-attachments/assets/cb519f18-3b48-4117-8ea6-9e4c7fadd9f6" />
 
 ## ✨ Features
 
@@ -412,6 +413,11 @@ The CalorIA REST API provides the following endpoint categories:
 4. Commit your changes: `git commit -m 'Add feature'`
 5. Push to the branch: `git push origin feature-name`
 6. Submit a pull request
+
+### Screenshots
+<img width="1791" height="945" alt="Screenshot 2025-08-30 033434" src="https://github.com/user-attachments/assets/37013304-2d84-44fb-b7a7-054099ce9f9d" />
+<img width="1791" height="951" alt="Screenshot 2025-08-30 033509" src="https://github.com/user-attachments/assets/644c7e46-c6da-4920-8a3f-77c01a796428" />
+<img width="1791" height="476" alt="image" src="https://github.com/user-attachments/assets/bdf4a36e-5f36-4004-bdea-52643aba9eb7" />
 
 ## License
 
