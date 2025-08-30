@@ -1,9 +1,10 @@
 from flask import Blueprint, jsonify, request
 from uuid import UUID
-from datetime import date
+from datetime import date, datetime, timezone
 from werkzeug.local import LocalProxy
 import sys
 import os
+from zoneinfo import ZoneInfo
 
 # Add the parent directory to the Python path to import CalorIA modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -103,7 +104,11 @@ def add_weight_entry():
         except ValueError:
             return jsonify({"error": "Invalid user ID format"}), 400
             
-        # Get date from request or use today
+        # Get current timestamp in New York timezone for consistent handling
+        ny_timezone = ZoneInfo("America/New_York")
+        current_time = datetime.now(ny_timezone)
+
+        # Get date from request or derive from current time
         entry_date = data.get('on_date')
         if entry_date:
             try:
@@ -111,14 +116,16 @@ def add_weight_entry():
             except ValueError:
                 return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
         else:
-            entry_date = date.today()
-        
-        # Create weight entry
+            # Use the date from current_time to ensure consistency
+            entry_date = current_time.date()
+
+        # Create weight entry with explicit created_at
         weight_entry = Type.WeightEntry(
             user_id=user_id,
             weight=float(data['weight']),
             unit=data.get('unit', 'kg'),
-            on_date=entry_date
+            on_date=entry_date,
+            created_at=current_time
         )
         
         # Add to database

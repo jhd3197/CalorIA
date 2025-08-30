@@ -371,6 +371,86 @@ export const fetchDashboardData = async (userId = null, dateStr = null) => {
   });
 };
 
+// Meal Prep API functions
+export const createMealPrepProfile = async (profileData) => {
+  return await apiRequest('/meal-prep-profiles', {
+    method: 'POST',
+    body: JSON.stringify(profileData),
+  });
+};
+
+export const getUserMealPrepProfiles = async (userId = null, includeInactive = false) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required to fetch meal prep profiles');
+  }
+
+  const params = new URLSearchParams({ user_id: userId });
+  if (includeInactive) {
+    params.append('include_inactive', 'true');
+  }
+
+  return await apiRequest(`/meal-prep-profiles?${params.toString()}`);
+};
+
+export const getMealPrepProfileById = async (profileId) => {
+  return await apiRequest(`/meal-prep-profiles/${profileId}`);
+};
+
+export const updateMealPrepProfile = async (profileId, profileData) => {
+  return await apiRequest(`/meal-prep-profiles/${profileId}`, {
+    method: 'PUT',
+    body: JSON.stringify(profileData),
+  });
+};
+
+export const deleteMealPrepProfile = async (profileId) => {
+  return await apiRequest(`/meal-prep-profiles/${profileId}`, {
+    method: 'DELETE',
+  });
+};
+
+export const activateMealPrepProfile = async (profileId) => {
+  return await apiRequest(`/meal-prep-profiles/${profileId}/activate`, {
+    method: 'POST',
+  });
+};
+
+export const getActiveMealPrepProfile = async (userId = null) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required to fetch active meal prep profile');
+  }
+
+  const params = new URLSearchParams({ user_id: userId });
+  return await apiRequest(`/meal-prep-profiles/active?${params.toString()}`);
+};
+
+export const getMealPrepProfileCount = async (userId = null) => {
+  if (!userId) {
+    // Try to get user ID from stored user data
+    const userData = getUserData();
+    userId = userData?.user_id || userData?.id;
+  }
+
+  if (!userId) {
+    throw new Error('User ID is required to get meal prep profile count');
+  }
+
+  const params = new URLSearchParams({ user_id: userId });
+  return await apiRequest(`/meal-prep-profiles/count?${params.toString()}`);
+};
+
 // Utility function to check if user is authenticated
 export const isAuthenticated = () => {
   const token = getAuthToken();
@@ -414,6 +494,14 @@ const apiUtils = {
   getWeightTrends,
   getCalorieTrends,
   getCombinedTrends,
+  createMealPrepProfile,
+  getUserMealPrepProfiles,
+  getMealPrepProfileById,
+  updateMealPrepProfile,
+  deleteMealPrepProfile,
+  activateMealPrepProfile,
+  getActiveMealPrepProfile,
+  getMealPrepProfileCount,
   isAuthenticated,
   logout,
 };

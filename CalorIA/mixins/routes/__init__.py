@@ -1,5 +1,6 @@
 from .user_routes import user_bp
 from .meal_routes import meal_bp
+from .meal_prep_routes import meal_prep_bp
 from .recipe_routes import recipe_bp
 from .recipe_category_routes import recipe_category_bp
 from .recipe_tag_routes import recipe_tag_bp
@@ -15,6 +16,7 @@ def register_blueprints(app):
     """Register all blueprints with the Flask app"""
     app.register_blueprint(user_bp)
     app.register_blueprint(meal_bp)
+    app.register_blueprint(meal_prep_bp)
     app.register_blueprint(recipe_bp)
     app.register_blueprint(recipe_category_bp)
     app.register_blueprint(recipe_tag_bp)

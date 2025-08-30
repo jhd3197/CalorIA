@@ -7,6 +7,7 @@ from CalorIA.mixins.mongo import MongoMixin
 # Modules
 from CalorIA.mixins.modules.ingredients import IngredientMixin
 from CalorIA.mixins.modules.meals import MealMixin
+from CalorIA.mixins.modules.meal_prep import MealPrepMixin
 from CalorIA.mixins.modules.recipes import RecipeMixin
 from CalorIA.mixins.modules.recipe_categories import RecipeCategoryMixin
 from CalorIA.mixins.modules.recipe_tags import RecipeTagMixin
@@ -23,6 +24,7 @@ class Client(
     MongoMixin,
     IngredientMixin,
     MealMixin,
+    MealPrepMixin,
     RecipeMixin,
     RecipeCategoryMixin,
     RecipeTagMixin,

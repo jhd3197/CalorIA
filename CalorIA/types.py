@@ -344,6 +344,7 @@ class WeightEntry(CalorIAModel):
     id: UUID = Field(default_factory=uuid4)
     user_id: UUID
     on_date: date = Field(default_factory=lambda: datetime.now(timezone.utc).date())
+    created_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
     weight: float = Field(..., gt=0, description="Weight value in the provided unit")
     unit: WeightUnit = WeightUnit.KG
     body_fat_pct: Optional[float] = Field(None, ge=0, le=100)
@@ -538,3 +539,86 @@ class RecipeIngredient(CalorIAModel):
         if self.ingredient is None:
             return None
         return self.ingredient.calories_for(self.amount, self.unit)
+
+
+# -------------------------
+
+
+# Meal Prep Profile Models
+# -------------------------
+class MacroPreference(CalorIAModel):
+    """Macro nutrient preferences for meal planning."""
+    protein: int = Field(..., ge=0, description="Protein grams per day")
+    fat: int = Field(..., ge=0, description="Fat grams per day")
+    carbs: int = Field(..., ge=0, description="Carbs grams per day")
+
+
+class MealTimes(CalorIAModel):
+    """Meal timing preferences."""
+    breakfast: Optional[str] = None
+    lunch: Optional[str] = None
+    dinner: Optional[str] = None
+
+
+class MealPrepProfile(CalorIAModel):
+    """Complete meal preparation profile capturing user preferences and constraints."""
+    id: UUID = Field(default_factory=uuid4)
+    user_id: UUID
+    profile_name: str = Field(..., description="User-defined name for this profile")
+
+    # Basic info
+    goal: Optional[str] = None
+    weight: Optional[float] = None
+    weight_unit: Optional[str] = None
+    height: Optional[float] = None
+    height_feet: Optional[int] = None
+    height_inches: Optional[int] = None
+    height_unit: Optional[str] = None
+    age: Optional[int] = None
+    activity_level: Optional[str] = None
+    meals_per_day: Optional[str] = None
+
+    # Dietary restrictions & preferences
+    allergies: List[str] = Field(default_factory=list)
+    other_allergy: Optional[str] = None
+    intolerances: List[str] = Field(default_factory=list)
+    dietary_preference: Optional[str] = None
+
+    # Ingredient preferences
+    ingredient_preferences: Dict[str, str] = Field(default_factory=dict, description="Ingredient name -> preference (like/neutral/dislike)")
+    excluded_ingredients: List[str] = Field(default_factory=list)
+
+    # Meal preferences
+    loved_meals: List[str] = Field(default_factory=list)
+    hated_meals: List[str] = Field(default_factory=list)
+
+    # Cooking constraints & style
+    cooking_time: Optional[str] = None
+    batch_cooking: Optional[str] = None
+    kitchen_equipment: List[str] = Field(default_factory=list)
+    skill_level: Optional[str] = None
+
+    # Meal timing & schedule
+    meal_times: MealTimes = Field(default_factory=MealTimes)
+    want_snacks: Optional[str] = None
+    snack_count: Optional[int] = None
+    timing_rules: List[str] = Field(default_factory=list)
+
+    # Portions, calories & macros
+    calculate_calories: Optional[str] = None
+    target_calories: Optional[int] = None
+    macro_preference: MacroPreference = Field(default_factory=lambda: MacroPreference(protein=125, fat=55, carbs=200))
+
+    # Budget & shopping preferences
+    weekly_budget: Optional[float] = None
+    budget_preference: int = Field(50, ge=0, le=100, description="Budget vs premium preference slider")
+    shopping_format: Optional[str] = None
+
+    # Supplements & medications
+    supplements: List[str] = Field(default_factory=list)
+    medications: Optional[str] = None
+
+    # Metadata
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = None
+    is_active: bool = Field(True, description="Whether this profile is currently active")

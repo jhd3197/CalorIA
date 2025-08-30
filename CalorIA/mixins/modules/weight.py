@@ -98,9 +98,10 @@ class WeightMixin:
             
             # Find all matching entries
             cursor = collection.find(query)
-            
-            # Sort by date (descending)
-            cursor = cursor.sort("on_date", -1)
+
+            # Sort by date (descending), then by created_at (descending) for chronological order within same date
+            # For entries without created_at, use _id timestamp as fallback
+            cursor = cursor.sort([("on_date", -1), ("created_at", -1), ("_id", -1)])
             
             # Apply pagination
             cursor = cursor.skip(skip)
@@ -148,9 +149,10 @@ class WeightMixin:
             pipeline = [
                 # Match entries for the specific user
                 {"$match": {"user_id": str(user_id)}},
-                
-                # Sort by date (descending)
-                {"$sort": {"on_date": -1}},
+
+                # Sort by date (descending), then by created_at (descending) for chronological order within same date
+                # For entries without created_at, _id timestamp serves as fallback
+                {"$sort": {"on_date": -1, "created_at": -1, "_id": -1}},
                 
                 # Limit to specified number of days
                 {"$limit": days},
@@ -210,9 +212,10 @@ class WeightMixin:
             
             # Query for weight entries matching user_id
             query = {"user_id": str(user_id)}  # Convert UUID to string for MongoDB query
-            
-            # Find the most recent entry (sort by date descending and limit to 1)
-            cursor = collection.find(query).sort("on_date", -1).limit(1)
+
+            # Find the most recent entry (sort by date descending, then by created_at descending for chronological order within same date, and limit to 1)
+            # For entries without created_at, _id timestamp serves as fallback
+            cursor = collection.find(query).sort([("on_date", -1), ("created_at", -1), ("_id", -1)]).limit(1)
             
             # Get the first (and only) result, if any
             doc = next(cursor, None)
@@ -265,8 +268,9 @@ class WeightMixin:
                 # Match entries for the specific user
                 {"$match": {"user_id": str(user_id)}},
 
-                # Sort by date (descending) - assuming on_date is stored as string
-                {"$sort": {"on_date": -1}},
+                # Sort by date (descending), then by created_at (descending) for chronological order within same date
+                # For entries without created_at, _id timestamp serves as fallback
+                {"$sort": {"on_date": -1, "created_at": -1, "_id": -1}},
 
                 # Limit to specified number of days
                 {"$limit": limit},

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Heart, Minus, X } from 'lucide-react';
-import { apiRequest, getCurrentUser, getUserData } from '../utils/api';
+import { apiRequest, getCurrentUser, getUserData, createMealPrepProfile } from '../utils/api';
 
 const MealPrepForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -164,10 +164,69 @@ const MealPrepForm = () => {
     setCurrentStep(currentStep - 1);
   };
 
-  const handleSubmit = () => {
-    console.log('Form submitted:', formData);
-    // Here you would typically send the data to your backend
-    alert('Meal prep profile saved successfully!');
+  const handleSubmit = async () => {
+    try {
+      // Get current user data for user_id
+      const userData = getUserData();
+      if (!userData || !userData.user_id) {
+        alert('User not authenticated. Please log in again.');
+        return;
+      }
+
+      // Prepare the data to send to backend
+      const profileData = {
+        user_id: userData.user_id,
+        profile_name: formData.profileName,
+        goal: formData.goal,
+        weight: formData.weight ? parseFloat(formData.weight) : null,
+        weight_unit: formData.weightUnit,
+        height: formData.height ? parseFloat(formData.height) : null,
+        height_feet: formData.heightFeet ? parseInt(formData.heightFeet) : null,
+        height_inches: formData.heightInches ? parseInt(formData.heightInches) : null,
+        height_unit: formData.heightUnit,
+        age: formData.age ? parseInt(formData.age) : null,
+        activity_level: formData.activityLevel,
+        meals_per_day: formData.mealsPerDay,
+        allergies: formData.allergies,
+        other_allergy: formData.otherAllergy,
+        intolerances: formData.intolerances,
+        dietary_preference: formData.dietaryPreference,
+        ingredient_preferences: formData.ingredientPreferences,
+        excluded_ingredients: formData.excludedIngredients,
+        loved_meals: formData.lovedMeals,
+        hated_meals: formData.hatedMeals,
+        cooking_time: formData.cookingTime,
+        batch_cooking: formData.batchCooking,
+        kitchen_equipment: formData.kitchenEquipment,
+        skill_level: formData.skillLevel,
+        meal_times: formData.mealTimes,
+        want_snacks: formData.wantSnacks,
+        snack_count: formData.snackCount ? parseInt(formData.snackCount) : null,
+        timing_rules: formData.timingRules,
+        calculate_calories: formData.calculateCalories,
+        target_calories: formData.targetCalories ? parseInt(formData.targetCalories) : null,
+        macro_preference: formData.macroPreference,
+        weekly_budget: formData.weeklyBudget ? parseFloat(formData.weeklyBudget) : null,
+        budget_preference: formData.budgetPreference,
+        shopping_format: formData.shoppingFormat,
+        supplements: formData.supplements,
+        medications: formData.medications
+      };
+
+      // Save to backend
+      const response = await createMealPrepProfile(profileData);
+
+      if (response && response.message) {
+        alert('Meal prep profile saved successfully!');
+        console.log('Profile saved:', response.profile);
+
+        // Optionally redirect to profiles page or reset form
+        // You could add navigation logic here
+      }
+    } catch (error) {
+      console.error('Error saving meal prep profile:', error);
+      alert('Failed to save meal prep profile. Please try again.');
+    }
   };
 
   const updateFormData = (field, value) => {
@@ -473,30 +532,76 @@ const MealPrepForm = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userData = getUserData();
-        if (userData) {
+        // Fetch fresh user data from server to ensure latest_weight is available
+        const response = await getCurrentUser();
+        const userData = response.user || getUserData(); // Fallback to localStorage if API fails
+
+        if (userData && userData.preferences) {
           // Pre-fill form with user data
           const updates = {};
 
-          if (userData.weight) {
-            updates.weight = userData.weight.toString();
-            updates.weightUnit = userData.weight_unit || 'kg';
+          // Calculate age from date_of_birth
+          if (userData.date_of_birth) {
+            const birthDate = new Date(userData.date_of_birth);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+              age--;
+            }
+            updates.age = age.toString();
           }
 
-          if (userData.height) {
-            updates.height = userData.height.toString();
-            updates.heightUnit = userData.height_unit || 'cm';
+          // Set measurement units based on measurement_system
+          const isImperial = userData.preferences.measurement_system === 'imperial';
+          updates.weightUnit = isImperial ? 'lbs' : 'kg';
+          updates.heightUnit = isImperial ? 'ft-in' : 'cm';
 
-            // If height is in ft-in format, split it
-            if (userData.height_unit === 'ft-in' && userData.height.includes("'")) {
-              const [feet, inches] = userData.height.split("'");
-              updates.heightFeet = feet.replace(/[^0-9]/g, '');
-              updates.heightInches = inches ? inches.replace(/[^0-9]/g, '') : '';
+          // Handle height
+          if (userData.preferences.height) {
+            if (isImperial) {
+              // Convert cm to feet and inches
+              const cm = userData.preferences.height;
+              const feet = Math.floor(cm / 30.48);
+              const inches = Math.round((cm % 30.48) / 2.54);
+              updates.heightFeet = feet.toString();
+              updates.heightInches = inches.toString();
+            } else {
+              updates.height = userData.preferences.height.toString();
             }
           }
 
-          if (userData.age) {
-            updates.age = userData.age.toString();
+          // Handle latest weight
+          if (userData.latest_weight) {
+            const weightValue = userData.latest_weight.weight;
+            const weightUnit = userData.latest_weight.unit;
+
+            if (isImperial && weightUnit === 'kg') {
+              // Convert kg to lbs for imperial users
+              updates.weight = (weightValue * 2.20462).toFixed(1);
+            } else if (!isImperial && weightUnit === 'lbs') {
+              // Convert lbs to kg for metric users
+              updates.weight = (weightValue / 2.20462).toFixed(1);
+            } else {
+              // Same unit, no conversion needed
+              updates.weight = weightValue.toString();
+            }
+          }
+
+          // Set goal from preferences
+          if (userData.preferences.goal_type) {
+            updates.goal = userData.preferences.goal_type.charAt(0).toUpperCase() + userData.preferences.goal_type.slice(1);
+          }
+
+          // Set activity level from preferences
+          if (userData.preferences.activity_level) {
+            updates.activityLevel = userData.preferences.activity_level.charAt(0).toUpperCase() + userData.preferences.activity_level.slice(1);
+          }
+
+          // Set target calories if available (for manual mode)
+          if (userData.preferences.daily_calorie_goal) {
+            updates.targetCalories = userData.preferences.daily_calorie_goal.toString();
+            updates.calculateCalories = 'Manual';
           }
 
           if (Object.keys(updates).length > 0) {
@@ -505,6 +610,80 @@ const MealPrepForm = () => {
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
+        // Fallback to localStorage data if API fails
+        const userData = getUserData();
+        if (userData && userData.preferences) {
+          // Same logic as above for fallback
+          const updates = {};
+
+          // Calculate age from date_of_birth
+          if (userData.date_of_birth) {
+            const birthDate = new Date(userData.date_of_birth);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+              age--;
+            }
+            updates.age = age.toString();
+          }
+
+          // Set measurement units based on measurement_system
+          const isImperial = userData.preferences.measurement_system === 'imperial';
+          updates.weightUnit = isImperial ? 'lbs' : 'kg';
+          updates.heightUnit = isImperial ? 'ft-in' : 'cm';
+
+          // Handle height
+          if (userData.preferences.height) {
+            if (isImperial) {
+              // Convert cm to feet and inches
+              const cm = userData.preferences.height;
+              const feet = Math.floor(cm / 30.48);
+              const inches = Math.round((cm % 30.48) / 2.54);
+              updates.heightFeet = feet.toString();
+              updates.heightInches = inches.toString();
+            } else {
+              updates.height = userData.preferences.height.toString();
+            }
+          }
+
+          // Handle latest weight
+          if (userData.latest_weight) {
+            const weightValue = userData.latest_weight.weight;
+            const weightUnit = userData.latest_weight.unit;
+
+            if (isImperial && weightUnit === 'kg') {
+              // Convert kg to lbs for imperial users
+              updates.weight = (weightValue * 2.20462).toFixed(1);
+            } else if (!isImperial && weightUnit === 'lbs') {
+              // Convert lbs to kg for metric users
+              updates.weight = (weightValue / 2.20462).toFixed(1);
+            } else {
+              // Same unit, no conversion needed
+              updates.weight = weightValue.toString();
+            }
+          }
+
+          // Set goal from preferences
+          if (userData.preferences.goal_type) {
+            updates.goal = userData.preferences.goal_type.charAt(0).toUpperCase() + userData.preferences.goal_type.slice(1);
+          }
+
+          // Set activity level from preferences
+          if (userData.preferences.activity_level) {
+            updates.activityLevel = userData.preferences.activity_level.charAt(0).toUpperCase() + userData.preferences.activity_level.slice(1);
+          }
+
+          // Set target calories if available (for manual mode)
+          if (userData.preferences.daily_calorie_goal) {
+            updates.targetCalories = userData.preferences.daily_calorie_goal.toString();
+            updates.calculateCalories = 'Manual';
+          }
+
+          if (Object.keys(updates).length > 0) {
+            setFormData(prev => ({ ...prev, ...updates }));
+          }
+        }
       }
     };
 

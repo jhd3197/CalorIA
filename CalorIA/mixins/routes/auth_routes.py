@@ -4,7 +4,7 @@ from CalorIA.backend.app import get_client
 from CalorIA.types import User, UserPreferences, Sex
 from CalorIA.mixins.jwt_utils import generate_jwt_token, jwt_required, extract_token_from_request, get_current_user_from_token
 from werkzeug.local import LocalProxy
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 auth_bp = Blueprint('auth_bp', __name__)
 
@@ -119,11 +119,23 @@ def get_current_user():
         user_dict = request.current_user.to_dict()
         user_dict['user_id'] = str(user_dict['user_id'])
         user_dict.pop('password_hash', None)
-        
+
+        # Get the latest weight entry for the user
+        user_id = UUID(user_dict['user_id'])
+        latest_weight_entry = client.get_latest_weight_entry(user_id)
+
+        if latest_weight_entry:
+            # Add latest weight to the user data
+            user_dict['latest_weight'] = {
+                'weight': latest_weight_entry.weight,
+                'unit': latest_weight_entry.unit,
+                'on_date': latest_weight_entry.on_date.isoformat() if latest_weight_entry.on_date else None
+            }
+
         return jsonify({
             'user': user_dict
         }), 200
-        
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

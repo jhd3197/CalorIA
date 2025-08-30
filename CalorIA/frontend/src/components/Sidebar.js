@@ -15,14 +15,15 @@ import {
   Settings,
   HelpCircle,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ChefHat
 } from 'lucide-react';
 
 const Sidebar = ({ collapsed, onToggle, currentPath }) => {
   const menuItems = [
     { id: 'dashboard', icon: Home, label: 'Dashboard', path: '/dashboard' },
     { id: 'meal-planner', icon: Calendar, label: 'Meal Planner', path: '/meal-planner' },
-    { id: 'meal-prep', icon: Calendar, label: 'Meal Prep', path: '/meal-prep' },
+    { id: 'meal-prep', icon: ChefHat, label: 'Meal Prep', path: '/meal-prep' },
     { id: 'recipes', icon: BookOpen, label: 'Recipes', path: '/recipes' },
     { id: 'ingredients', icon: Package, label: 'Ingredients', path: '/ingredients' },
     { id: 'grocery-list', icon: ShoppingCart, label: 'Grocery List', path: '/grocery-list' },
