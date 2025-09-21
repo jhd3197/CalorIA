@@ -17,6 +17,7 @@ from CalorIA.mixins.modules.weight import WeightMixin
 from CalorIA.mixins.modules.activities import ActivityMixin
 from CalorIA.mixins.modules.meal_prep_assistants import MealPrepAssistantMixin
 from CalorIA.mixins.modules.ai_assistant import AIAssistantMixin
+from CalorIA.mixins.modules.inventory import InventoryMixin
 
 # Load environment variables from .env file
 load_dotenv()
@@ -35,7 +36,8 @@ class Client(
     WeightMixin,
     ActivityMixin,
     MealPrepAssistantMixin,
-    AIAssistantMixin
+    AIAssistantMixin,
+    InventoryMixin
 ):
   
     def __init__(self, **kwargs):

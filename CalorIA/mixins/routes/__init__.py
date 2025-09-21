@@ -12,6 +12,7 @@ from .ingredient_routes import ingredient_bp
 from .dashboard_routes import dashboard_bp
 from .trends_routes import trends_bp
 from .ai_assistant_routes import ai_assistant_bp
+from .inventory_routes import inventory_bp
 
 def register_blueprints(app):
     """Register all blueprints with the Flask app"""
@@ -29,3 +30,4 @@ def register_blueprints(app):
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(trends_bp)
     app.register_blueprint(ai_assistant_bp)
+    app.register_blueprint(inventory_bp)

@@ -12,6 +12,9 @@ from typing import List, Dict, Optional, Any
 from uuid import UUID, uuid4
 from datetime import datetime, timezone
 
+from prompture import extract_and_jsonify
+from prompture.drivers import get_driver
+
 try:
     import openai
     OPENAI_AVAILABLE = True
@@ -25,7 +28,6 @@ except ImportError:
     REQUESTS_AVAILABLE = False
 
 from ... import types as Type
-from ..mongo import MongoMixin
 
 
 class AIAssistantMixin:

@@ -137,18 +137,55 @@ const Ingredients = () => {
       params.append('limit', itemsPerPage.toString());
       const queryString = `?${params.toString()}`;
       
-      const response = await fetch(`/api/ingredients${queryString}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` })
-        }
+      // Log request headers
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+        'Cache-Control': 'no-cache',
+        'If-None-Match': localStorage.getItem('ingredients-etag') || ''
+      };
+
+      console.log('Ingredients API Request:', {
+        url: `/api/ingredients${queryString}`,
+        headers
       });
 
+      const response = await fetch(`/api/ingredients${queryString}`, {
+        method: 'GET',
+        headers
+      });
+
+      // Store ETag for future requests if present
+      const etag = response.headers.get('ETag');
+      if (etag) {
+        localStorage.setItem('ingredients-etag', etag);
+      }
+
+      console.log('Ingredients API Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+        ok: response.ok
+      });
+
+      // Handle 304 Not Modified separately
+      if (response.status === 304) {
+        console.log('Using cached ingredients data');
+        return; // Keep using existing state
+      }
+
+      // Special handling for 304 Not Modified
+      if (response.status === 304) {
+        console.log('Using cached ingredients data - no changes needed');
+        return; // Keep existing state
+      }
+
+      // For all other responses, check if they're ok
       if (!response.ok) {
         throw new Error(`Failed to fetch ingredients: ${response.status}`);
       }
 
+      // Only try to parse JSON for non-304 responses
       const data = await response.json();
       
       // Handle new paginated response format
@@ -168,11 +205,17 @@ const Ingredients = () => {
         // If we got less than the limit, there's no more data
         setHasMore(ingredientsList.length >= itemsPerPage);
       }
+
+      // Clear any existing error state on successful response
+      setError(null);
       
       setError(null);
     } catch (error) {
       console.error('Error fetching ingredients:', error);
-      setError('Failed to load ingredients. Please try again.');
+      // Don't set error for 304 responses
+      if (!error.message.includes('304')) {
+        setError('Failed to load ingredients. Please try again.');
+      }
       // Use sample data if API fails
       setIngredients([
         {

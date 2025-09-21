@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
+import Inventory from './components/Inventory';
 import QuickAdd from './components/QuickAdd';
 import TrendCharts from './components/TrendCharts';
 import MealPlanner from './components/MealPlanner';
@@ -294,6 +295,11 @@ function App() {
           <Route path="/trends-dashboard" element={
             <AppLayout>
               <TrendsDashboard onBack={() => window.history.back()} />
+            </AppLayout>
+          } />
+          <Route path="/inventory" element={
+            <AppLayout>
+              <Inventory userData={userData} />
             </AppLayout>
           } />
         </Route>

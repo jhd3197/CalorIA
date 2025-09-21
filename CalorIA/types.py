@@ -647,3 +647,44 @@ class AIResponse(CalorIAModel):
     ai_provider: str = Field(..., description="AI provider used (openai, ollama)")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     is_active: bool = Field(True, description="Whether this response is still valid/active")
+
+
+# -------------------------
+# Inventory Models
+# -------------------------
+class InventoryItem(CalorIAModel):
+    """
+    Inventory item that tracks quantities of ingredients.
+    Links to an Ingredient and stores the current quantity.
+    """
+    id: UUID = Field(default_factory=uuid4)
+    ingredient_id: UUID = Field(..., description="Reference to the ingredient")
+    ingredient: Optional[Ingredient] = Field(None, description="Populated ingredient object")
+    quantity: int = Field(..., gt=0, description="Current quantity of the ingredient")
+    unit: IngredientUnit = Field(..., description="Unit for the quantity")
+    min_quantity: Optional[int] = Field(None, ge=0, description="Minimum quantity before restock alert")
+    max_quantity: Optional[int] = Field(None, gt=0, description="Maximum storage capacity")
+    location: Optional[str] = Field(None, description="Storage location (e.g., 'Pantry', 'Fridge')")
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = None
+
+    @validator("max_quantity")
+    def max_quantity_greater_than_min(cls, v, values):
+        """Validate that max_quantity is greater than min_quantity if both are set."""
+        if v is not None and "min_quantity" in values and values["min_quantity"] is not None:
+            if v <= values["min_quantity"]:
+                raise ValueError("max_quantity must be greater than min_quantity")
+        return v
+
+    def needs_restock(self) -> bool:
+        """Check if the item needs restocking based on min_quantity."""
+        if self.min_quantity is None:
+            return False
+        return self.quantity <= self.min_quantity
+
+    def can_add_quantity(self, additional_quantity: int) -> bool:
+        """Check if adding the given quantity would exceed max_quantity."""
+        if self.max_quantity is None:
+            return True
+        return (self.quantity + additional_quantity) <= self.max_quantity

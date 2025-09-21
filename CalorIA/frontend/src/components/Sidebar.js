@@ -26,6 +26,7 @@ const Sidebar = ({ collapsed, onToggle, currentPath }) => {
     { id: 'meal-prep', icon: ChefHat, label: 'Meal Prep', path: '/meal-prep' },
     { id: 'recipes', icon: BookOpen, label: 'Recipes', path: '/recipes' },
     { id: 'ingredients', icon: Package, label: 'Ingredients', path: '/ingredients' },
+    { id: 'inventory', icon: Package, label: 'Inventory', path: '/inventory' },
     { id: 'grocery-list', icon: ShoppingCart, label: 'Grocery List', path: '/grocery-list' },
     { id: 'settings', icon: Settings, label: 'Settings', path: '/settings' },
   ];

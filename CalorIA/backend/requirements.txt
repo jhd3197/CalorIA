@@ -9,3 +9,4 @@ PyJWT==2.8.0
 openai==0.28.0
 requests==2.31.0
 python-slugify
+prompture
